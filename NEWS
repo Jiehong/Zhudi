@@ -1,0 +1,8 @@
+** Version 1.1
+
+   - Bug fix while exiting (in result_changed function)
+   - Better cli arguments checking
+   - Bug importing cfdict.u8 due to cfdict bad UTF-8 encoding
+   - Improving of Pinyin parser
+   - Improving of Zhuyin parser (forgot me/ㄇㄜ)
+   - Succefully tested with CC-CEDICT and CFDICT
