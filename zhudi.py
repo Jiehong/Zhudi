@@ -25,19 +25,36 @@ import argparse
 from gi.repository import Gtk, Pango
 
 # Parse arguments/definitions
-parser = argparse.ArgumentParser(description='Provide a graphical interface for *.u8 dictionaries (CEDICT, CFDICT…)')
-parser.add_argument("-s", "--split", dest="filename", help ="The *.u8 dictionary file to be split. This operation will be done in the current directory.")
-parser.add_argument("-p", "--pinyin-file", dest="pinyin_file_name", help ="The file that contains the pinyin. This file comes from the split of the *.u8 dictionary file.")
-parser.add_argument("-z", "--zhuyin-file", dest="zhuyin_file_name", help="The file that contains the zhuyin. This file comes from the split of the *.u8 dictionary file.")
+parser = argparse.ArgumentParser(description='Provide a graphical interface'+
+                                 ' for *.u8 dictionaries (CEDICT, CFDICT…)')
+parser.add_argument("-s", "--split", dest="filename", help="The *.u8"+
+                    " dictionary file to be split. This operation will be done"+
+                    " in the current directory.")
+parser.add_argument("-p", "--pinyin-file", dest="pinyin_file_name", help=
+                    "The file that contains the pinyin. This file comes from"+
+                    " the split of the *.u8 dictionary file.")
+parser.add_argument("-z", "--zhuyin-file", dest="zhuyin_file_name", help=
+                    "The file that contains the zhuyin. This file comes from"+
+                    " the split of the *.u8 dictionary file.")
 parser.add_argument("-tr", "--translation-file", dest="translation_file_name",
-                    help="The file that contains the translation. This file comes from the split of the *.u8 dictionary file.")
+                    help="The file that contains the translation. This file"+
+                    " comes from the split of the *.u8 dictionary file.")
 parser.add_argument("-td", "--traditional-file", dest="traditional_file_name",
-                    help="The file that contains the traditional form of the Chinese. This file comes from the split of the *.u8 dictionary file.")
+                    help="The file that contains the traditional form of the"+
+                    " Chinese. This file comes from the split of the *.u8"+
+                    " dictionary file.")
 parser.add_argument("-sd", "--simplified-file", dest="simplified_file_name",
-                    help="The file that contains the simplified form of the Chinese. This file comes from the split of the *.u8 dictionary file.")
+                    help="The file that contains the simplified form of the"+
+                    " Chinese. This file comes from the split of the *.u8"+
+                    " dictionary file.")
+
 
 # Preprocessing of the *.u8
 def Preprocessing(dictname):
+    """
+    This function aims to load proper files and to translate pinyin into
+    zhuyin.
+    """
     dictionary = dictname
     # Open the dictionary in text mode, read only
     with open(dictionary,mode="r") as dic:
@@ -318,7 +335,7 @@ def set_romanisation(rom):
     romanisation = rom
 
 def results_changed(selection,searchfield):
-    if selection not None:
+    if selection is not None:
         model, treeiter = selection.get_selected()
         till = 0
         what = []
