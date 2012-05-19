@@ -6,3 +6,4 @@
    - Improving of Pinyin parser
    - Improving of Zhuyin parser (forgot me/ㄇㄜ)
    - Succefully tested with CC-CEDICT and CFDICT
+   - The pinyin/zhuyin table has been put in a different file for clarity
