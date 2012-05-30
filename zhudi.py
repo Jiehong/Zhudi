@@ -79,7 +79,7 @@ def Preprocessing(dictname):
         del pinyin_delimiters[:]
         del translation_delimiters[:]
         del translation[:]
-	
+
         if i[0] !="#":
             for k in range(len(i)):
                 if i[k] == " ": # look  for spaces
@@ -120,8 +120,8 @@ def Preprocessing(dictname):
     pinyin_zhuyin_dict = pz.pinyin_to_zhuyin
     # pinyin_zhuyin_dict is a list of tuple: ('pinyin', 'zhuyin')
     zhuyin = '#'.join(zhuyin)
-    zhuyin = re.sub("u:","ü",zhuyin)	# change u: into ü
-    zhuyin = re.sub(" r "," er ",zhuyin)	# change r into er
+    zhuyin = re.sub("u:","ü",zhuyin)    # change u: into ü
+    zhuyin = re.sub(" r "," er ",zhuyin)        # change r into er
     for i in range(len(pinyin_zhuyin_dict)):
         if i < len(pinyin_zhuyin_dict)-5:
             zhuyin = re.sub(" "+pinyin_zhuyin_dict[i][0],
@@ -183,7 +183,7 @@ def read_files(pinyin_file_name,
     romanisation = "Zhuyin"
     hanzi = "Traditional"
 # End of read_files()
-	
+        
 # Functions
 def set_language(lang):
     global language # Use the value of that variable somewhere else
@@ -196,12 +196,12 @@ def display_translation(index,language):
     global pinyin
     global romanisation
     global simplified
-	
+        
     if hanzi == "Traditional":
         hanzi_dic = traditional
     else:
         hanzi_dic = simplified
-	
+        
     if romanisation == "Zhuyin":
         romanisation_dic = zhuyin
     else:
@@ -237,32 +237,32 @@ def display_translation(index,language):
     big = tr.create_tag(size=30*Pango.SCALE)
     medium = tr.create_tag(size=15*Pango.SCALE)
     blue = tr.create_tag(foreground="blue")
-	
+        
     # "Chinese" in bold
     start_1 = tr.get_iter_at_line(0)
     end_1 = tr.get_iter_at_line(0)
     end_1.forward_to_line_end()
     tr.apply_tag(bold, start_1, end_1)
-	
+        
     # Bigger Chinese
     start_c = tr.get_iter_at_line(1)
     end_c = tr.get_iter_at_line(1)
     end_c.forward_to_line_end()
     tr.apply_tag(big, start_c, end_c)
-	
+        
     # "Pronunciation" in bold
     start_2 = tr.get_iter_at_line(4)
     end_2 = tr.get_iter_at_line(4)
     end_2.forward_to_line_end()
     tr.apply_tag(bold, start_2, end_2)
-	
+        
     # "Pronunciation" in blue
     start_3 = tr.get_iter_at_line(5)
     end_3 = tr.get_iter_at_line(5)
     end_3.forward_to_line_end()
     tr.apply_tag(blue, start_3, end_3)
     tr.apply_tag(medium,start_3, end_3)
-	
+        
     # "Meaning" in bold
     start_3 = tr.get_iter_at_line(7)
     end_3 = tr.get_iter_at_line(7)
@@ -292,15 +292,15 @@ def find_Text(liste,text):
         index.append(dl[i][0])
     return index
 # end of find_Text
-			
+                        
 def search(searchfield, which):
     global translation
     global traditional
     global language
     global hanzi
     global search_index
-	
-    w = 40	
+        
+    w = 40      
     if hanzi == "Traditional":
         hanzi_dic = traditional
     else:
@@ -310,7 +310,7 @@ def search(searchfield, which):
         dic2 = hanzi_dic
     else:
         dic = hanzi_dic
-       	dic2 = translation
+        dic2 = translation
     text = searchfield.get_text()
     tr = mw.translation_box.get_buffer()
 
@@ -334,7 +334,7 @@ def search(searchfield, which):
                 if len(dic[search_index[0]]) > w:
                     mw.results_list.append(["1. " + dic[search_index[0]][0:w-1]+"…"])
                 else:
-                    mw.results_list.append(["1. " + dic[search_index[0]][0:len(dic[search_index[0]])-1]])			
+                    mw.results_list.append(["1. " + dic[search_index[0]][0:len(dic[search_index[0]])-1]])                       
             if len(search_index) > 1:
                 for k in range(len(search_index)-1):
                     if len(dic[search_index[k+1]]) > w:
@@ -361,7 +361,7 @@ def results_changed(selection,searchfield):
             till = till + 1
         which = int(model[treeiter][0][0:till-1])-1
         search(searchfield,which)
-	
+        
 class option_window:
     def kill_ok(self):
         self.window.hide()
@@ -373,13 +373,13 @@ class option_window:
         self.window.set_title("Options")
         self.window.set_position(Gtk.WindowPosition.CENTER)
         self.window.connect("destroy", lambda x:self.window.destroy)
-		
+                
         # Hanzi label
         hanzi_label = Gtk.Label()
         hanzi_label.set_text("<big>Chinese characters form:</big>")
         hanzi_label.set_justify(Gtk.Justification.LEFT)
         hanzi_label.set_use_markup(True)
-		
+                
         # hanzi box
         hanzi_box = Gtk.Grid()
         Traditional = Gtk.RadioButton.new_with_label_from_widget(None,
@@ -398,13 +398,13 @@ class option_window:
             Traditional.set_active(True)
         else:
             Simplified.set_active(True)
-		
+                
         # Romanisation label
         romanisation_label = Gtk.Label()
         romanisation_label.set_text("<big>Pronunciation system:</big>")
         romanisation_label.set_justify(Gtk.Justification.LEFT)
         romanisation_label.set_use_markup(True)
-		
+                
         # romanisation box
         romanisation_box = Gtk.Grid()
         Zhu = Gtk.RadioButton.new_with_label_from_widget(None,"Zhuyin Fuhao")
@@ -418,10 +418,10 @@ class option_window:
         else:
             Pin.set_active(True)
         romanisation_box.set_column_homogeneous(True)
-		
+                
         # Horizontal separator
         option_horizontal_separator = Gtk.Separator()
-		
+                
         # Ok button
         ok_button = Gtk.Button("Ok")
         ok_button.connect("clicked", lambda x:self.kill_ok())
@@ -446,7 +446,7 @@ class option_window:
                                             Gtk.PositionType.BOTTOM,1,2)
         loption_vertical_box.set_column_homogeneous(True)
         loption_vertical_box.set_row_homogeneous(True)
-		
+                
         # Adding them in the main window
         self.window.add(loption_vertical_box)
         
@@ -458,33 +458,33 @@ class main_window:
     def open_option(widget,self):
         opt = option_window()
 
-    def __init__(self):		
+    def __init__(self):                 
         # Definition of the main window
         self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
         self.window.set_default_size(800,494) # Gold number ratio
         self.window.set_title("Zhudi")
         self.window.set_position(Gtk.WindowPosition.CENTER)
-		
+                
         # Search label
         search_label = Gtk.Label()
         search_label.set_text("<big>Searching area</big>")
         search_label.set_use_markup(True)
-		
+                
         # Search field
         search_field = Gtk.Entry()
         search_field.set_visible(True)
         search_field.connect("activate", search,0)
         search_field.set_placeholder_text("Type your search here…")
 
-		
+                
         # Go, search! button
         go_button = Gtk.Button("Search")
         go_button.connect("clicked", lambda x: search(search_field,0))
-		
+                
         # Options button
         option_button = Gtk.Button("Options")
         option_button.connect("clicked", self.open_option)
-		
+                
         # Search + button box
         SB_box = Gtk.Grid()
         SB_box.attach(search_field,0,0,4,1)
@@ -495,12 +495,12 @@ class main_window:
                               go_button,
                               Gtk.PositionType.RIGHT,1,1)
         SB_box.set_column_homogeneous(True)
-		
+                
         # Search label zone
         frame_search = Gtk.Frame()
         frame_search.set_label_widget(search_label)
         frame_search.add(SB_box)
-		
+                
         # Language box
         language_box = Gtk.Grid()
         Chinese = Gtk.RadioButton.new_with_label_from_widget(None,
@@ -540,7 +540,7 @@ class main_window:
         translation_label = Gtk.Label()
         translation_label.set_text("<big>Translation</big>")
         translation_label.set_use_markup(True)
-		
+                
         # Translation view
         self.translation_box = Gtk.TextView(buffer=None)
         self.translation_box.set_editable(False)
@@ -552,7 +552,7 @@ class main_window:
         big = tr.create_tag(size=30*Pango.SCALE)
         medium = tr.create_tag(size=15*Pango.SCALE)
         blue = tr.create_tag(foreground="blue")
-		
+                
         translation_scroll = Gtk.ScrolledWindow()
         translation_scroll.add_with_viewport(self.translation_box)
         
@@ -560,7 +560,7 @@ class main_window:
         frame_translation.set_label_widget(translation_label)
         frame_translation.add(translation_scroll)
         
-		
+                
         # Mapping of the main window
         left_vertical_box = Gtk.Grid()
         left_vertical_box.add(frame_search)
@@ -585,7 +585,7 @@ class main_window:
                                       Gtk.PositionType.RIGHT,1,1)
         horizontal_box.set_column_homogeneous(True)
         horizontal_box.set_row_homogeneous(True)
-		
+                
         # Adding them in the main window
         self.window.add(horizontal_box)
         
