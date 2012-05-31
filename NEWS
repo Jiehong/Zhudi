@@ -4,14 +4,14 @@
   - Bug importing cfdict.u8 due to cfdict bad UTF-8 encoding (CFDICT related)
   - Improvement of Pinyin parser
   - Improvement of Zhuyin parser (forgot ㄇㄜ/me)
-  - Succefully tested with CC-CEDICT and CFDICT
+  - Successfully tested with CC-CEDICT and CFDICT
   - The pinyin/zhuyin table has been put in a different file for clarity
 
 ** Version 1.0
   - Ported to Python3
 	- Ported to GTK+3
-	- Brackets added arround pronounciation in order to help distinguishing them
-	- Default GUI language: English (longterm: localization)
+	- Brackets added around pronunciation in order to help distinguishing them
+	- Default GUI language: English (long-term: localisation)
 	- The search engine has been improved (it becomes case insensitive too)
 	- The results selection speed has been greatly improved
 	- The option windows button has been renamed along with the search button
