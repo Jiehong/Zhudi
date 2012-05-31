@@ -60,7 +60,6 @@ def Preprocessing(dictname):
   # Open the dictionary in text mode, read only
   with open(dictionary,mode="r") as dic:
     liste = dic.readlines() # Use the text file as lines
-  dic.closed
   space_ind = []
   pinyin_delimiters = []
   translation_delimiters = []
