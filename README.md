@@ -22,7 +22,7 @@ Version 0.9 is made to work with python2 and is now obsolete. You should use ver
 Zhudi can be launched from the command line by providing it proper files.
 
 ## First launch
-When you first launch Zhudi, you need to provide a dictionnary file. You are free to use the one you like amonsg:
+When you first launch Zhudi, you need to provide a dictionary file. You are free to use the one you like among:
 * [CEDICT](http://www.mdbg.net/chindict/chindict.php?page=cedict) for English-Chinsese ;
 * [CFDICT](http://www.chine-informations.com/chinois/open/CFDICT/) for French-Chinese ;
 * [HanDeDict](http://www.handedict.de/chinesisch_deutsch.php) For German-Chinese ;
