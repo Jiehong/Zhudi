@@ -29,12 +29,11 @@ When you first launch Zhudi, you need to provide a dictionnary file. You are fre
 * [ChE-DICC](http://cc-chedicc.wikispaces.com/) for Spanish-Chinese.
 
 You have to download the *.u8 version of the dictionary for using with Zhudi. Once you have downloaded it, simply run Zhudi to prepare the dictionary for future uses. Here is an example with the CEDICT dictionary (cedict.u8):
- python zhudi.py -s cedict.u8
+    python zhudi.py -s cedict.u8
 
 When Zhudi is finished, it would have created 5 files: pinyin, zhuyin, simplified, traditional and translation.
 
 ## Normal usage
 When the previous 5 files are created, you can simply launch Zhudi:
- python zhudi.py -p pinyin -z zhuyin -tr translation -td traditional -sd simplified
-
+    python zhudi.py -p pinyin -z zhuyin -tr translation -td traditional -sd simplified
 However, in order not to type that command each time, you can simply launch the launch.sh shell script.
