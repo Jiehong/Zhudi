@@ -8,9 +8,9 @@ Since this project is written in Python 3, it should be able to run on any platf
 
 Currently, Zhudi can easily be installed in Archlinux from AUR.
 
-# What are the dependancies of Zhudi?
-In order to run Zhudi, you need the folowing packages:
+# What are the dependencies of Zhudi?
+In order to run Zhudi, you need the following packages:
 * python 3+
 * python-gobject
 * pygobject-devel
-* gobject-instropection
+* gobject-introspection
