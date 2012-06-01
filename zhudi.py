@@ -200,35 +200,6 @@ def Preprocessing(dictname):
   zhuyin_file.closed
 # End of Preprocessing()
 
-  global pinyin
-  global zhuyin
-  global traditional
-  global simplified
-  global translation
-  global language
-  global romanisation
-  global hanzi
-  # Defaults values
-
-## Settings functions
-@canCall(All functions)
-def set_language(lang):
-  global all functions
-  redeclaration of functions
-  function1 = funcDefaultArg(_function1, defaultArg=lang)
-
-@canCall(All functions)
-def set_romanisation(rom):
-  global all functions
-  redeclaration of functions
-  function1 = funcDefaultArg(_function1, defaultArg=lang)
-
-@canCall(All functions)
-def set_hanzi(han):
-  global all functions
-  redeclaration of functions
-  function1 = funcDefaultArg(_function1, defaultArg=lang)
-
 # Read files and defaults values
 def read_files(pinyin_file_name,
                zhuyin_file_name,
@@ -251,6 +222,7 @@ def read_files(pinyin_file_name,
     translation_file = open(translation_file_name,"r")
     translation = translation_file.readlines()
     translation_file.closed
+    return pinyin, zhuyin, traditional, simplified, translation
   except(IOError) as errno:
     print("### The dictionary files couldn't be read. Make sure you have"+
           " split the dictonary file first. ###")
@@ -258,14 +230,23 @@ def read_files(pinyin_file_name,
 # End of read_files()
         
 # Functions
-def display_translation(index,language):
-  global translation
-  global traditional
-  global zhuyin
-  global pinyin
-  global romanisation
-  global simplified
-        
+def _display_translation(search_index,
+                         which,
+                         language,
+                         hanzi,
+                         traditional,
+                         simplified,
+                         translation,
+                         pinyin,
+                         zhuyin,
+                         romanisation):
+  if len(search_index) == 0:
+    tr.set_text("No results found.")
+    mw.results_list.append(["No results found."])
+    return
+  else:
+    index = search_index[which]
+
   if hanzi == "Traditional":
     hanzi_dic = traditional
   else:
@@ -362,13 +343,12 @@ def find_Text(liste,text):
   return index
 # end of find_Text
                         
-def search(searchfield, which):
-  global translation
-  global traditional
-  global language
-  global hanzi
-  global search_index
-        
+def _new_search(searchfield,
+                traditional,
+                simplified,
+                translation,
+                language,
+                hanzi):
   w = 40      
   if hanzi == "Traditional":
     hanzi_dic = traditional
@@ -382,70 +362,176 @@ def search(searchfield, which):
     dic2 = translation
   text = searchfield.get_text()
   tr = mw.translation_box.get_buffer()
-
-  # First case: the text has already been searched (just before) (i.e. the
-  # result is not the first one)
-  if which != 0:
-    display_translation(search_index[which],language)
-  else: # Second case: the result is the first one (i.e. it has been
-    # selected or it's a new search (by default))
-    mw.results_list.clear()
-    if len(text) == 0: # If no text to look for (breaking an infinite loop)
+  mw.results_list.clear()
+  if len(text) == 0: # If no text to look for (breaking an infinite loop)
+    tr.set_text("Nothing found.")
+    mw.results_list.append(["Nothing to look for…"])
+  else:
+    search_index = find_Text(dic, text)
+    ## Display result list
+    # No Results
+    if search_index == []:
       tr.set_text("Nothing found.")
-      mw.results_list.append(["Nothing to look for…"])
-    else: # If the search area isn't empty, just search for it!
-      search_index = find_Text(dic,text)
-      if len(search_index) == 0:
-        tr.set_text("No results found.")
-        mw.results_list.append(["No results found."])
-      else: # Display of the first result and its translation
-        display_translation(search_index[which],language)
-        if len(dic[search_index[0]]) > w:
-          mw.results_list.append(["1. " + dic[search_index[0]][0:w-1]+"…"])
-        else:
-          mw.results_list.append(["1. " + dic[search_index[0]][0:len(dic[search_index[0]])-1]])                       
+      mw.results_list.append(["Nothing found."])
+    else:
+      if len(dic[search_index[0]]) > w:
+        mw.results_list.append(["1. " + dic[search_index[0]][0:w-1]+"…"])
+      else:
+        mw.results_list.append(["1. " + dic[search_index[0]][0:len(dic[search_index[0]])-1]])                       
       if len(search_index) > 1:
         for k in range(len(search_index)-1):
           if len(dic[search_index[k+1]]) > w:
             mw.results_list.append([str(k+2) + ". " + dic[search_index[k+1]][0:w-1]+"…"])
           else:
             mw.results_list.append([str(k+2) + ". " + dic[search_index[k+1]][0:len(dic[search_index[k+1]])-1]])
-# end of search
+      display_translation(search_index, 0, language, hanzi)
+      global update_search
+      # update_search(which)
+      update_search = funcDefaultArg(_update_search,
+                                     search_index=search_index,
+                                     language=language,
+                                     hanzi=hanzi)
+# end of _new_search
 
-def set_hanzi(han):
-  global hanzi
-  hanzi = han
-# end of set_hanzi
+def _update_search(which,
+                   search_index,
+                   language,
+                   hanzi):
+  display_translation(search_index, which, language, hanzi)
+# end of update_search
 
-def set_romanisation(rom):
-  global romanisation
-  romanisation = rom
-# end of set_romanisation
-  
-def results_changed(selection,searchfield):
+def results_changed(selection, searchfield):
   if selection is not None:
     model, treeiter = selection.get_selected()
     till = 0
     what = []
-    while what != ".":
-      what = model[treeiter][0][till]
+    text = model[treeiter][0]
+    letter = ""
+    while letter != ".":
+      letter = text[till]
       till = till + 1
     which = int(model[treeiter][0][0:till-1])-1
-    search(searchfield,which)
+    update_search(which)
 # end of results_changed
-    
-class option_window:
+
+def _init(romanisation, language, hanzi,traditional, simplified,
+          translation, pinyin, zhuyin):
+  global display_translation
+  # display_translation(search_index, index, language, hanzi)
+  display_translation = funcDefaultArg(_display_translation,
+                                       traditional=traditional,
+                                       simplified=simplified,
+                                       translation=translation,
+                                       pinyin=pinyin,
+                                       zhuyin=zhuyin,
+                                       romanisation=romanisation)
+  global search
+  # search(searchfield)
+  search = funcDefaultArg(_new_search,
+                          traditional=traditional,
+                          simplified=simplified,
+                          translation=translation,
+                          language=language,
+                          hanzi=hanzi)
+  global set_language
+  # set_language(lang)
+  set_language = funcDefaultArg(_set_language,
+                                traditional=traditional,
+                                simplified=simplified,
+                                translation=translation,
+                                pinyin=pinyin,
+                                zhuyin=zhuyin,
+                                romanisation=romanisation,
+                                hanzi=hanzi)
+  global set_romanisation
+  # set_romanisation(rom)
+  set_romanisation = funcDefaultArg(_set_romanisation,
+                                    language=language,
+                                    traditional=traditional,
+                                    simplified=simplified,
+                                    translation=translation,
+                                    pinyin=pinyin,
+                                    zhuyin=zhuyin,
+                                    hanzi=hanzi)
+  global set_hanzi
+  # set_hanzi(han)
+  set_hanzi = funcDefaultArg(_set_hanzi,
+                             language=language,
+                             traditional=traditional,
+                             simplified=simplified,
+                             translation=translation,
+                             pinyin=pinyin,
+                             zhuyin=zhuyin,
+                             romanisation=romanisation)
+# end of init
+
+## Settings functions
+def _set_language(lang,
+                  traditional,
+                  simplified,
+                  translation,
+                  pinyin,
+                  zhuyin,
+                  romanisation,
+                  hanzi):
+  global search
+  search = funcDefaultArg(_new_search,
+                          traditional=traditional,
+                          simplified=simplified,
+                          translation=translation,
+                          language=lang,
+                          hanzi=hanzi)
+
+def _set_romanisation(rom,
+                      language,
+                      traditional,
+                      simplified,
+                      translation,
+                      pinyin,
+                      zhuyin,
+                      hanzi):
+  global display_translation
+  display_translation = funcDefaultArg(_display_translation,
+                                       traditional=traditional,
+                                       simplified=simplified,
+                                       translation=translation,
+                                       pinyin=pinyin,
+                                       zhuyin=zhuyin,
+                                       romanisation=rom)
+  mw.romanisation = rom
+
+def _set_hanzi(han,
+               language,
+               traditional,
+               simplified,
+               translation,
+               pinyin,
+               zhuyin,
+               romanisation):
+  global search
+  search = funcDefaultArg(_new_search,
+                          traditional=traditional,
+                          simplified=simplified,
+                          translation=translation,
+                          language=language,
+                          hanzi=han)
+  mw.hanzi = han
+
+class option_window():
   def kill_ok(self):
     self.window.hide()
 
   def __init__(self):
+    self.hanzi = ''
+    self.romanisation = ''
     # Definition of the options window
     self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
     self.window.set_size_request(300,180)
     self.window.set_title("Options")
     self.window.set_position(Gtk.WindowPosition.CENTER)
     self.window.connect("destroy", lambda x:self.window.destroy)
-                
+
+  def build(self):
     # Hanzi label
     hanzi_label = Gtk.Label()
     hanzi_label.set_text("<big>Chinese characters form:</big>")
@@ -466,11 +552,6 @@ class option_window:
                              Gtk.PositionType.RIGHT,1,1)
     hanzi_box.set_column_homogeneous(True)
 
-    if hanzi == "Traditional":
-      Traditional.set_active(True)
-    else:
-      Simplified.set_active(True)
-
     # Romanisation label
     romanisation_label = Gtk.Label()
     romanisation_label.set_text("<big>Pronunciation system:</big>")
@@ -485,10 +566,6 @@ class option_window:
     Pin = Gtk.RadioButton.new_with_label_from_widget(Zhu,"Hanyu Pinyin")
     Pin.connect("clicked", lambda x: set_romanisation("Pinyin"))
     romanisation_box.attach_next_to(Pin,Zhu,Gtk.PositionType.RIGHT,1,1)
-    if romanisation == "Zhuyin":
-      Zhu.set_active(True)
-    else:
-      Pin.set_active(True)
     romanisation_box.set_column_homogeneous(True)
                 
     # Horizontal separator
@@ -524,19 +601,34 @@ class option_window:
 
     # Eventually, show the option window and the widgetss
     self.window.show_all()
+
+    if self.hanzi == "Traditional":
+      Traditional.set_active(True)
+    else:
+      Simplified.set_active(True)
+    if self.romanisation == "Zhuyin":
+      Zhu.set_active(True)
+    else:
+      Pin.set_active(True)
 # End of Option_window
 
-class main_window:
-  def open_option(widget,self):
-    opt = option_window()
+def open_option(self):
+  opt = option_window()
+  opt.hanzi = self.hanzi
+  opt.romanisation = self.romanisation
+  opt.build()
 
-  def __init__(self):                 
+class main_window ():
+  def __init__(self):
+    self.hanzi = ''
+    self.romanisation = ''
     # Definition of the main window
     self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
     self.window.set_default_size(800,494) # Gold number ratio
     self.window.set_title("Zhudi")
     self.window.set_position(Gtk.WindowPosition.CENTER)
 
+  def build(self):
     # Search label
     search_label = Gtk.Label()
     search_label.set_text("<big>Searching area</big>")
@@ -545,16 +637,16 @@ class main_window:
     # Search field
     search_field = Gtk.Entry()
     search_field.set_visible(True)
-    search_field.connect("activate", search,0)
+    search_field.connect("activate", lambda x: search(search_field))
     search_field.set_placeholder_text("Type your search here…")
 
     # Go, search! button
     go_button = Gtk.Button("Search")
-    go_button.connect("clicked", lambda x: search(search_field,0))
+    go_button.connect("clicked", lambda x: search(search_field))
 
     # Options button
     option_button = Gtk.Button("Options")
-    option_button.connect("clicked", self.open_option)
+    option_button.connect("clicked", lambda x: open_option(self))
 
     # Search + button box
     SB_box = Gtk.Grid()
@@ -596,7 +688,7 @@ class main_window:
     results_tree.set_enable_search(False)
     results_tree.tvcolumn.set_sort_column_id(False)
     results_tree.set_reorderable(False)
-    results_tree.connect("cursor-changed", lambda x: results_changed(results_tree.get_selection(),search_field))
+    results_tree.connect("cursor-changed", lambda x: results_changed(results_tree.get_selection(), search_field))
 
     results_scroll = Gtk.ScrolledWindow()
     # No horizontal bar, automatic vertical bar
@@ -675,19 +767,35 @@ def main():
   translation_file_name=options.translation_file_name
   traditional_file_name=options.traditional_file_name
   if (filename == None) and (pinyin_file_name is not None and zhuyin_file_name is not None and simplified_file_name is not None and traditional_file_name is not None and translation_file_name is not None):
-    read_files(pinyin_file_name,
-               zhuyin_file_name,
-               simplified_file_name,
-               traditional_file_name,
-               translation_file_name)
+    pinyin, zhuyin, traditional, simplified, translation = read_files(
+      pinyin_file_name,
+      zhuyin_file_name,
+      simplified_file_name,
+      traditional_file_name,
+      translation_file_name)
     # Default values
     language = "Chinese"
     romanisation = "Zhuyin"
     hanzi = "Traditional"
+
+    # initialisation
+    global init
+    # init(romanisation, language, hanzi)
+    init = funcDefaultArg(_init,
+                          traditional=traditional,
+                          simplified=simplified,
+                          translation=translation,
+                          pinyin=pinyin,
+                          zhuyin=zhuyin)
+    init(romanisation, language, hanzi)
     global mw
     mw = main_window()
+    mw.hanzi = hanzi
+    mw.romanisation = romanisation
+    
     global search_index
     search_index = []
+    mw.build()
     mw.loop()
   if (filename is not None) and (pinyin_file_name is None and zhuyin_file_name is None and simplified_file_name is None and traditional_file_name is None and translation_file_name is None):
     print("Splitting dictionary in progress…")
@@ -696,4 +804,7 @@ def main():
   if (filename is None) and (pinyin_file_name is None and zhuyin_file_name is None and simplified_file_name is None and traditional_file_name is None and translation_file_name is None):
     parser.print_help()
 # end of main
-main()
+
+# Launching!
+if __name__ == "__main__":
+  main()

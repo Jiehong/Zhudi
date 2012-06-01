@@ -6,6 +6,11 @@
   - Improvement of Zhuyin parser (forgot ㄇㄜ/me)
   - Successfully tested with CC-CEDICT and CFDICT
   - The pinyin/zhuyin table has been put in a different file for clarity
+  - Big code refactoring which lead to:
+            - No global variables anymore
+            - No bug related to the first result (and faster)
+            - The searching process has been divided into 2 parts
+  - The code is now fully coherent in term of indentation
 
 ** Version 1.0
   - Ported to Python3
