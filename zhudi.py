@@ -50,6 +50,64 @@ parser.add_argument("-sd", "--simplified-file", dest="simplified_file_name",
                     " Chinese. This file comes from the split of the *.u8"+
                     " dictionary file.")
 
+# Ability to wrap a function with a default argument…
+def funcDefaultArg(function, **defaultArgs):
+  """ wrap a function to automatically add defaultArgs to the call"""
+  def newFunction(*args, **kwords):
+    for k, item in defaultArgs.items():
+      kwords.setdefault(k, item)
+    return function(*args, **kwords)
+  return newFunction
+# end of funcDefaultArg
+
+# … and a wrapper alongside with it.
+def canCall(functionToWrap):
+  """ Automatically replace functionToWrap by a wrap of functionToWrap when
+  calling the function"""
+  def decorator(function):
+    def newFunction(*args, **kwords):
+      newfunctionToWrap = funcDefaultArg(functionToWrap,
+                                         defaultArg=kwords.get("defaultArg",
+                                                               args[-1]))
+      function.__globals__[functionToWrap.__name__] = newfunctionToWrap
+      function(*args, **kwords)
+      function.__globals__[functionToWrap.__name__] = functionToWrap
+    return newFunction
+  return decorator
+# end of canCall
+  
+## How-to use them ##
+# def _function1(name, defaultArg):
+#   """ this function just print there args.
+#   We want to make it callable with only one arg"""
+#   print(name, defaultArg)
+
+# glo = 42
+# function1 = funcDefaultArg(_function1, defaultArg=glo)
+# function1("Hello") -> 42
+
+# def function2(arg_recurrent):
+#   """ create the fonction in the local namespace"""
+#   function1 = funcDefaultArg(_function1, defaultArg=arg_recurrent)
+#   function1("function2")
+# function2(50) -> 'function2' 50
+
+# def function3():
+#   """ use the global function"""
+#   function1("function3")
+# function3() -> 'function3' 42
+
+# @canCall(_function1)
+# def set_arg(in_val):
+#   # here we call the wrapped version of _function1
+#   global function1
+#   function1 = funcDefaultArg(_function1, defaultArg=in_val)
+# set_arg(10)
+
+# function1("Hello") -> 'Hello' 10
+# function2(50) -> 'function2' 50
+# function3() -> 'function3' 10
+### end of How to use them
 
 # Preprocessing of the *.u8
 def Preprocessing(dictname):
@@ -142,12 +200,6 @@ def Preprocessing(dictname):
   zhuyin_file.closed
 # End of Preprocessing()
 
-# Read files and defaults values
-def read_files(pinyin_file_name,
-               zhuyin_file_name,
-               simplified_file_name,
-               traditional_file_name,
-               translation_file_name):
   global pinyin
   global zhuyin
   global traditional
@@ -156,6 +208,33 @@ def read_files(pinyin_file_name,
   global language
   global romanisation
   global hanzi
+  # Defaults values
+
+## Settings functions
+@canCall(All functions)
+def set_language(lang):
+  global all functions
+  redeclaration of functions
+  function1 = funcDefaultArg(_function1, defaultArg=lang)
+
+@canCall(All functions)
+def set_romanisation(rom):
+  global all functions
+  redeclaration of functions
+  function1 = funcDefaultArg(_function1, defaultArg=lang)
+
+@canCall(All functions)
+def set_hanzi(han):
+  global all functions
+  redeclaration of functions
+  function1 = funcDefaultArg(_function1, defaultArg=lang)
+
+# Read files and defaults values
+def read_files(pinyin_file_name,
+               zhuyin_file_name,
+               simplified_file_name,
+               traditional_file_name,
+               translation_file_name):
   try:
     pinyin_file = open(pinyin_file_name,"r")
     pinyin = pinyin_file.readlines()
@@ -176,17 +255,9 @@ def read_files(pinyin_file_name,
     print("### The dictionary files couldn't be read. Make sure you have"+
           " split the dictonary file first. ###")
     quit()
-  # Defaults values
-  language = "Chinese"
-  romanisation = "Zhuyin"
-  hanzi = "Traditional"
 # End of read_files()
         
 # Functions
-def set_language(lang):
-  global language # Use the value of that variable somewhere else
-  language = lang
-
 def display_translation(index,language):
   global translation
   global traditional
@@ -609,6 +680,10 @@ def main():
                simplified_file_name,
                traditional_file_name,
                translation_file_name)
+    # Default values
+    language = "Chinese"
+    romanisation = "Zhuyin"
+    hanzi = "Traditional"
     global mw
     mw = main_window()
     global search_index
@@ -621,5 +696,4 @@ def main():
   if (filename is None) and (pinyin_file_name is None and zhuyin_file_name is None and simplified_file_name is None and traditional_file_name is None and translation_file_name is None):
     parser.print_help()
 # end of main
-
 main()
