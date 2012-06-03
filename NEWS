@@ -1,15 +1,15 @@
 ** Version 1.1
-  - Bug fix while exiting (in result_changed function)
   - Better cli arguments checking
   - Bug importing cfdict.u8 due to cfdict bad UTF-8 encoding (CFDICT related)
   - Improvement of Pinyin parser
   - Improvement of Zhuyin parser (forgot ㄇㄜ/me)
   - Successfully tested with CC-CEDICT and CFDICT
   - The pinyin/zhuyin table has been put in a different file for clarity
-  - Big code refactoring which lead to:
-            - No global variables anymore
-            - No bug related to the first result (and faster)
-            - The searching process has been divided into 2 parts
+  - Complete re-write of the code and split of the zhudi.py file:
+            - No global variables anymore;
+            - No bug related to the first result (and faster);
+            - The searching process has been divided into 2 parts;
+            - Oriented object code for better maintenance.
   - The code is now fully coherent in term of indentation
 
 ** Version 1.0
