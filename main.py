@@ -195,6 +195,5 @@ def main():
     parser.print_help()
 # end of main
 
-# Launching!
 if __name__ == "__main__":
   main()
