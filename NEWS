@@ -11,6 +11,7 @@
             - The searching process has been divided into 2 parts;
             - Oriented object code for better maintenance.
   - The code is now fully coherent in term of indentation
+  - Zhudi now automatically load files in ~/.zhudi/ if present
 
 ** Version 1.0
   - Ported to Python3

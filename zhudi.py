@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # coding=utf8
 ''' Zhudi provides a Chinese - language dictionnary based on the
     C[E|F]DICT project Copyright - 2011 - Ma Jiehong
@@ -121,8 +122,8 @@ def split(dictname):
 # Read files and defaults values
 def read_files(pinyin_file_name,
                zhuyin_file_name,
-               simplified_file_name,
                traditional_file_name,
+               simplified_file_name,
                translation_file_name):
   try:
     pinyin_file = open(pinyin_file_name,"r")
@@ -155,28 +156,19 @@ def main():
   simplified_file_name=options.simplified_file_name
   translation_file_name=options.translation_file_name
   traditional_file_name=options.traditional_file_name
-  if (filename == None) and (pinyin_file_name is not None and zhuyin_file_name is not None and simplified_file_name is not None and traditional_file_name is not None and translation_file_name is not None):
-    pinyin, zhuyin, traditional, simplified, translation = read_files(
-      pinyin_file_name,
-      zhuyin_file_name,
-      simplified_file_name,
-      traditional_file_name,
-      translation_file_name)
-    # Default values
-    language = "Chinese"
-    romanisation = "Zhuyin"
-    hanzi = "Traditional"
-    myData = data.Dictionary(simplified, traditional, translation, pinyin, zhuyin)
-    
-    global mw
-    mw = gui.main_window(myData)
-    mw.hanzi = hanzi
-    mw.romanisation = romanisation
-    mw.language = language
-    mw.build()
-    mw.loop()
-    
-  if (filename is not None) and (pinyin_file_name is None and zhuyin_file_name is None and simplified_file_name is None and traditional_file_name is None and translation_file_name is None):
+  files = [pinyin_file_name,
+           zhuyin_file_name,
+           traditional_file_name,
+           simplified_file_name,
+           translation_file_name]
+  default_files = [os.environ["HOME"]+"/.zhudi/pinyin",
+                   os.environ["HOME"]+"/.zhudi/zhuyin",
+                   os.environ["HOME"]+"/.zhudi/traditional",
+                   os.environ["HOME"]+"/.zhudi/simplified",
+                   os.environ["HOME"]+"/.zhudi/translation"]
+  # Splitting the given input
+  passed = False
+  if (filename is not None) and all(x is None for x in files):
     print("Splitting dictionary in progress…")
     files = split(filename)
     simplified_list = files[0]
@@ -191,8 +183,50 @@ def main():
     print(" Pinyin to Zhuyin conversion in progress…")
     myData.pinyin_to_zhuyin()
     print("done.")
-  if (filename is None) and (pinyin_file_name is None and zhuyin_file_name is None and simplified_file_name is None and traditional_file_name is None and translation_file_name is None):
+    quit()
+  # First case scenario: no arguments given but defaults files are found
+  elif all(x is None for x in files):
+    d = 0
+    for r in default_files:
+      if os.path.isfile(r) is True:
+        d += 1
+    if d == len(default_files):
+      print("hello")
+      pinyin, zhuyin, traditional, simplified, translation = read_files(
+        default_files[0],
+        default_files[1],
+        default_files[2],
+        default_files[3],
+        default_files[4])
+      passed = True
+    else:
+      print("### No input files have been given to me. Please, consider"+
+            " giving me some. ###")
+      quit()
+  elif all(x is not None for x in files):
+    pinyin, zhuyin, traditional, simplified, translation = read_files(
+      files[0],
+      files[1],
+      files[2],
+      files[3],
+      files[4])
+    passed = True
+  # No input -> help
+  elif (filename is None) and all(x is None for x in files) and not passed:
     parser.print_help()
+  # Default values
+  language = "Chinese"
+  romanisation = "Zhuyin"
+  hanzi = "Traditional"
+  myData = data.Dictionary(simplified, traditional, translation, pinyin, zhuyin)
+  
+  global mw
+  mw = gui.main_window(myData)
+  mw.hanzi = hanzi
+  mw.romanisation = romanisation
+  mw.language = language
+  mw.build()
+  mw.loop()
 # end of main
 
 if __name__ == "__main__":
