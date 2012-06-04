@@ -9,4 +9,5 @@ setup(name="zhudi",
       author_email="ma.jiehong at gmail",
       url="https://github.com/Jiehong/Zhudi",
       license="GPLv3",
-      py_modules=["zhudi", "data", "gui", "pinyin_to_zhuyin_table"])
+      py_modules=["data", "gui", "pinyin_to_zhuyin_table"],
+      scripts=["zhudi"])
