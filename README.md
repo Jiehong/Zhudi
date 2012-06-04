@@ -40,4 +40,5 @@ When the previous 5 files are created, you can simply launch Zhudi:
     python zhudi.py -p pinyin -z zhuyin -tr translation -td traditional -sd simplified
     
 However, you can just copy these files in your ~/.zhudi/ directory and launch Zhudi without arguments:
+
     python zhudi.py
