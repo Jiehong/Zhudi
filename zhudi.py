@@ -191,7 +191,6 @@ def main():
       if os.path.isfile(r) is True:
         d += 1
     if d == len(default_files):
-      print("hello")
       pinyin, zhuyin, traditional, simplified, translation = read_files(
         default_files[0],
         default_files[1],
