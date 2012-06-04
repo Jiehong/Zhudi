@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from distutils.core import setup
 
-setup(name="Zhudi",
+setup(name="zhudi",
       version="1.1",
       description="Zhudi is a graphical interface to xDICT dictionaries",
       long_description="Have a look at README.",
