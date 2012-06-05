@@ -279,8 +279,8 @@ class main_window ():
     else:
       given_list = self.dictionary.simplified
     self.dictionary.search(given_list, text)
-    self.display_translation(0)
     self.update_results()
+    self.display_translation(0)
 
   def set_language(self, string):
     self.language = string
