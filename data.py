@@ -85,13 +85,3 @@ class Dictionary ():
     for i in range(len(dl)): # Keep the sorted results
       index.append(dl[i][0])
     self.index_list = index
-
-  def get_data_at_index(self, index):
-    """
-    This function returns all the data (in a tuple) at the given index.
-    """
-    return (self.simplified[index],
-            self.traditional[index],
-            self.translation[index],
-            self.pinyin[index],
-            self.zhuyin[index])
