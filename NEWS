@@ -1,5 +1,7 @@
 ** Version 1.2
   - Fixed issue when changing search query
+  - Fix issue when quiting Zhudi
+  - Fix issue when searching for nothing after having selected a candidate
 
 ** Version 1.1
   - Better cli arguments checking

@@ -134,6 +134,7 @@ class main_window ():
     self.romanisation = ""
     self.language = ""
     self.dictionary = dictionary
+    self.lock = False
     
     # Definition of the main window
     self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
@@ -272,15 +273,23 @@ class main_window ():
 
   def search_asked(self, searchfield):
     text = searchfield.get_text()
-    if self.language == "Latin":
-      given_list = self.dictionary.translation
-    elif self.hanzi == "Traditional":
-      given_list = self.dictionary.traditional
+    if text == "":
+      self.lock = True
+      self.dictionary.index_list = []
+      self.results_list.clear()
+      self.display_translation(0)
     else:
-      given_list = self.dictionary.simplified
-    self.dictionary.search(given_list, text)
-    self.update_results()
-    self.display_translation(0)
+      self.lock = False
+      if self.language == "Latin":
+        given_list = self.dictionary.translation
+      elif self.hanzi == "Traditional":
+        given_list = self.dictionary.traditional
+      else:
+        given_list = self.dictionary.simplified
+      self.dictionary.search(given_list, text)
+      self.update_results()
+      self.display_translation(0)
+  # end of search_asked
 
   def set_language(self, string):
     self.language = string
@@ -386,9 +395,11 @@ class main_window ():
       displayed_index += 1
 
   def display_another_result(self, gtktree):
-    selection = gtktree.get_cursor()
-    if selection is not None:
-      self.display_translation(int(str(selection[0])))
+    if not self.lock:
+      selection = gtktree.get_cursor()
+      if selection is not None:
+        if selection[0] is not None:
+          self.display_translation(int(str(selection[0])))
     
   def loop(self):
     Gtk.main()
