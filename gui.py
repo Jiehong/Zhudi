@@ -152,7 +152,7 @@ class main_window ():
     search_field.set_visible(True)
     search_field.connect("activate",
                          lambda x: self.search_asked(search_field))
-    search_field.set_placeholder_text("Type your search here…")
+    search_field.set_placeholder_text("Type your query here…")
 
     # Go, search! button
     go_button = Gtk.Button("Search")
@@ -204,7 +204,7 @@ class main_window ():
     results_tree.tvcolumn.set_sort_column_id(False)
     results_tree.set_reorderable(False)
     results_tree.connect("cursor-changed",
-                         lambda x: self.display_another_result(results_tree.get_selection()))
+                         lambda x: self.display_another_result(results_tree))
 
     results_scroll = Gtk.ScrolledWindow()
     # No horizontal bar, automatic vertical bar
@@ -385,16 +385,10 @@ class main_window ():
       self.results_list.append([string])
       displayed_index += 1
 
-  def display_another_result(self, selection):
-    model, treeiter = selection.get_selected()
-    given_text = model[treeiter][0]
-    letter = ""
-    till = 0
-    while letter != ".":
-      letter = given_text[till]
-      till += 1
-    new_index = int(given_text[0:till-1])
-    self.display_translation(new_index-1)
+  def display_another_result(self, gtktree):
+    selection = gtktree.get_cursor()
+    if selection is not None:
+      self.display_translation(int(str(selection[0])))
     
   def loop(self):
     Gtk.main()
