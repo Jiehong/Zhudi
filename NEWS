@@ -1,3 +1,6 @@
+** Version 1.2
+  - Fixed issue when changing search query
+
 ** Version 1.1
   - Better cli arguments checking
   - Bug importing cfdict.u8 due to cfdict bad UTF-8 encoding (CFDICT related)
