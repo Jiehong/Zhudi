@@ -16,6 +16,7 @@
     If not, see <http://www.gnu.org/licenses/>.
 
     '''
+
 from gi.repository import Gtk, Pango
 import data
 
