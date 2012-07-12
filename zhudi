@@ -181,7 +181,13 @@ def main():
                              translation_list,
                              pinyin_list)
     print(" Pinyin to Zhuyin conversion in progress…")
-    myData.pinyin_to_zhuyin()
+    zhuyin = myData.pinyin_to_zhuyin(pinyin_list)
+    myData.write_attr("zhuyin", zhuyin)
+    
+    # Saves the Zhuyin list into a file
+    with open("zhuyin", mode="w") as zhuyin_file:
+      for line in zhuyin:
+        zhuyin_file.write(line+"\n")
     print("done.")
     quit()
   # First case scenario: no arguments given but defaults files are found

@@ -32,15 +32,16 @@ class Dictionary ():
     self.zhuyin = e
     self.index_list = []
 
-  def pinyin_to_zhuyin(self):
+  def pinyin_to_zhuyin(self, pinyin):
     """
-    This function converts the pinyin list attribute into zhuyin and saves
-    it into the zhuyin attribute of the Data class.
+    This function converts the given pinyin list into zhuyin and returns
+    the latter list.
     """
     pinyin_zhuyin_dict = pz.pinyin_to_zhuyin
 
     # for speed issue, transforme the list of pinyin in one long string
-    to_convert = " " + " # ".join(self.pinyin)
+    to_convert = " " + " # ".join(pinyin)
+    to_convert += " " # This space is useful for the regexp matching
     to_convert = to_convert.lower()
     zhuyin = re.sub("u:","ü", to_convert)    # change u: into ü
     zhuyin = re.sub(" r "," er ", zhuyin)        # change r into er
@@ -53,13 +54,19 @@ class Dictionary ():
         zhuyin = re.sub(pinyin_zhuyin_dict[i][0]+" ",
                         pinyin_zhuyin_dict[i][1]+" ",
                         zhuyin) # tones
+    # delete the last space used for matching convenience
+    zhuyin = zhuyin[:-1]
     # Break the long string as a list and save it
     zhuyin = zhuyin.split(" # ")
     zhuyin[0] = zhuyin[0][1:] # get rid of the first space
-    self.zhuyin = zhuyin
-    with open("zhuyin", mode="w") as zhuyin_file:
-      for line in zhuyin:
-        zhuyin_file.write(line+"\n")
+
+    return zhuyin
+
+  def write_attr(self, attr, thing):
+    """
+    write_attr saves "thing" into self.attr, given "attr" as a string.
+    """
+    self.attr = thing
 
   def search(self, given_list, text):
     """

@@ -16,7 +16,7 @@
     If not, see <http://www.gnu.org/licenses/>.
 
     '''
-
+  
 from gi.repository import Gtk, Pango
 import data
 
@@ -28,7 +28,6 @@ class option_window():
     self.hanzi = ''
     self.romanisation = ''
     self.mw = main_window
-    
     # Definition of the options window
     self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
     self.window.set_size_request(300,180)
@@ -42,7 +41,6 @@ class option_window():
     hanzi_label.set_text("<big>Chinese characters form:</big>")
     hanzi_label.set_justify(Gtk.Justification.LEFT)
     hanzi_label.set_use_markup(True)
-                
     # hanzi box
     hanzi_box = Gtk.Grid()
     Traditional = Gtk.RadioButton.new_with_label_from_widget(None,
@@ -72,14 +70,11 @@ class option_window():
     Pin.connect("clicked", lambda x: self.set_romanisation("Pinyin"))
     romanisation_box.attach_next_to(Pin, Zhu, Gtk.PositionType.RIGHT,1,1)
     romanisation_box.set_column_homogeneous(True)
-                
     # Horizontal separator
     option_horizontal_separator = Gtk.Separator()
-                
     # Ok button
     ok_button = Gtk.Button("Ok")
     ok_button.connect("clicked", lambda x:self.kill_ok())
-        
     # Mapping of the option window
     loption_vertical_box = Gtk.Grid()
     loption_vertical_box.add(hanzi_label)
@@ -136,7 +131,6 @@ class main_window ():
     self.language = ""
     self.dictionary = dictionary
     self.lock = False
-    
     # Definition of the main window
     self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
     self.window.set_default_size(800,494) # Gold number ratio
@@ -308,7 +302,6 @@ class main_window ():
       hanzi_dic = self.dictionary.traditional
     else:
       hanzi_dic = self.dictionary.simplified
-        
     if self.romanisation == "Zhuyin":
       romanisation_dic = self.dictionary.zhuyin
     else:
@@ -344,32 +337,27 @@ class main_window ():
     big = tr.create_tag(size=30*Pango.SCALE)
     medium = tr.create_tag(size=15*Pango.SCALE)
     blue = tr.create_tag(foreground="blue")
-        
     # "Chinese" in bold
     start_1 = tr.get_iter_at_line(0)
     end_1 = tr.get_iter_at_line(0)
     end_1.forward_to_line_end()
     tr.apply_tag(bold, start_1, end_1)
-        
     # Bigger Chinese
     start_c = tr.get_iter_at_line(1)
     end_c = tr.get_iter_at_line(1)
     end_c.forward_to_line_end()
     tr.apply_tag(big, start_c, end_c)
-  
     # "Pronunciation" in bold
     start_2 = tr.get_iter_at_line(4)
     end_2 = tr.get_iter_at_line(4)
     end_2.forward_to_line_end()
     tr.apply_tag(bold, start_2, end_2)
-  
     # "Pronunciation" in blue
     start_3 = tr.get_iter_at_line(5)
     end_3 = tr.get_iter_at_line(5)
     end_3.forward_to_line_end()
     tr.apply_tag(blue, start_3, end_3)
     tr.apply_tag(medium,start_3, end_3)
-  
     # "Meaning" in bold
     start_3 = tr.get_iter_at_line(7)
     end_3 = tr.get_iter_at_line(7)
@@ -401,7 +389,7 @@ class main_window ():
       if selection is not None:
         if selection[0] is not None:
           self.display_translation(int(str(selection[0])))
-    
+
   def loop(self):
     Gtk.main()
 # end of main_Window
