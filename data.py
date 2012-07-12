@@ -66,7 +66,20 @@ class Dictionary ():
     """
     write_attr saves "thing" into self.attr, given "attr" as a string.
     """
-    self.attr = thing
+    if attr == "pinyin":
+      self.pinyin = thing
+    elif attr == "zhuyin":
+      self.zhuyin = thing
+    elif attr == "simplified":
+      self.simplified = thing
+    elif attr == "traditional":
+      self.traditional = thing
+    elif attr == "translation":
+      self.translation = thing
+    elif attr == "index_list":
+      self.index_list =  thing
+    elif True:
+      print(" Attribute "+attr+" is not defined for this class.")
 
   def search(self, given_list, text):
     """
@@ -91,4 +104,4 @@ class Dictionary ():
     index = []
     for i in range(len(dl)): # Keep the sorted results
       index.append(dl[i][0])
-    self.index_list = index
+    self.write_attr("index_list", index)
