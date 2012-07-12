@@ -2,7 +2,7 @@
 from distutils.core import setup
 
 setup(name="zhudi",
-      version="1.1",
+      version="1.2",
       description="Zhudi is a graphical interface to xDICT dictionaries",
       long_description="Have a look at README.",
       author="Jiehong Ma",
