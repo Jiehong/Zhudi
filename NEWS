@@ -2,6 +2,7 @@
   - Fixed issue when changing search query
   - Fixed issue when quiting Zhudi
   - Fixed issue when searching for nothing after having selected a candidate
+  - Some Unitests have been added which lead to little changes
 
 ** Version 1.1
   - Better cli arguments checking
