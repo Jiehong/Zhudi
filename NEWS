@@ -4,7 +4,9 @@
    Now, the pinyin pronunciation is written with nice looking unicode tones.
    Zhudi now saves and read a configuration file that contains the prefered
     values set in the option windows! (great improvement)
-   Zhudi nows displays the cangjie5 codes for each entries.
+   Zhudi nows displays some table-based input methods for each entry:
+         - Array30 (行列)
+         - Cangjie5 (倉頡5)
 
 ** Version 1.2
    - Fixed issue when changing search query
