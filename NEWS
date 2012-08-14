@@ -1,6 +1,7 @@
 ** Version 1.3
    - Fixed issue when clicing "Nothing found." in the results list.
    - Fixed issue when selecting a candidat while the list has been re-ordered.
+   Now, the pinyin pronunciation is written with nice looking unicode tones.
 
 ** Version 1.2
    - Fixed issue when changing search query
