@@ -19,6 +19,7 @@
   
 from gi.repository import Gtk, Pango
 import data
+import os
 
 class option_window():
   def kill_ok(self):
@@ -113,9 +114,11 @@ class option_window():
 
   def set_romanisation(self, string):
     self.mw.romanisation = string
+    self.mw.set_config(self.mw.romanisation, self.mw.hanzi)
 
   def set_hanzi(self, string):
     self.mw.hanzi = string
+    self.mw.set_config(self.mw.romanisation, self.mw.hanzi)
 # End of Option_window
 
 def open_option(self):
@@ -399,6 +402,20 @@ class main_window ():
             t += 1
           figure = row[0:t]
           self.display_translation(int(figure)-1)
+  
+  def set_config(self,romanisation, hanzi):
+    """
+    This function saves values to the config file. The config file is
+    overwritten if it already exists.
+    """
+    with open(os.environ["HOME"]+"/.zhudi/config", "w") as config_file:
+      config_file.write("# This file is the configuration file used by Zhudi in order to remember\n")
+      config_file.write("# user's configuration choices.\n")
+      config_file.write("# This file has been created automatically by Zhudi.\n\n")
+      config_file.write("romanisation:\n")
+      config_file.write(romanisation+"\n\n")
+      config_file.write("hanzi form:\n")
+      config_file.write(hanzi+"\n\n")
 
   def loop(self):
     Gtk.main()
