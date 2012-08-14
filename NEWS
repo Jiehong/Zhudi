@@ -1,35 +1,38 @@
+** Version 1.3
+   - Fixed issue when clicing "Nothing found." in the results list.
+
 ** Version 1.2
-  - Fixed issue when changing search query
-  - Fixed issue when quiting Zhudi
-  - Fixed issue when searching for nothing after having selected a candidate
-  - Some Unitests have been added which lead to little changes
+   - Fixed issue when changing search query
+   - Fixed issue when quiting Zhudi
+   - Fixed issue when searching for nothing after having selected a candidate
+   - Some Unitests have been added which lead to little changes
 
 ** Version 1.1
-  - Better cli arguments checking
-  - Bug importing cfdict.u8 due to cfdict bad UTF-8 encoding (CFDICT related)
-  - Improvement of Pinyin parser
-  - Improvement of Zhuyin parser (forgot ㄇㄜ/me)
-  - Successfully tested with CC-CEDICT and CFDICT
-  - The pinyin/zhuyin table has been put in a different file for clarity
-  - Complete re-write of the code and split of the zhudi.py file:
+   - Better cli arguments checking
+   - Bug importing cfdict.u8 due to cfdict bad UTF-8 encoding (CFDICT related)
+   - Improvement of Pinyin parser
+   - Improvement of Zhuyin parser (forgot ㄇㄜ/me)
+   - Successfully tested with CC-CEDICT and CFDICT
+   - The pinyin/zhuyin table has been put in a different file for clarity
+   - Complete re-write of the code and split of the zhudi.py file:
             - No global variables anymore;
             - No bug related to the first result (and faster);
             - The searching process has been divided into 2 parts;
             - Oriented object code for better maintenance.
-  - The code is now fully coherent in term of indentation
-  - Zhudi now automatically load files in ~/.zhudi/ if present
+   - The code is now fully coherent in term of indentation
+   - Zhudi now automatically load files in ~/.zhudi/ if present
 
 ** Version 1.0
-  - Ported to Python3
-	- Ported to GTK+3
-	- Brackets added around pronunciation in order to help distinguishing them
-	- Default GUI language: English (long-term: localisation)
-	- The search engine has been improved (it becomes case insensitive too)
-	- The results selection speed has been greatly improved
-	- The option windows button has been renamed along with the search button
+   - Ported to Python3
+	 - Ported to GTK+3
+	 - Brackets added around pronunciation in order to help distinguishing them
+	 - Default GUI language: English (long-term: localisation)
+	 - The search engine has been improved (it becomes case insensitive too)
+	 - The results selection speed has been greatly improved
+	 - The option windows button has been renamed along with the search button
 
 ** Version 0.9
-  - First public version
-  - Options window added
-  - The search engine allows barely requests
-  - Search button added
+   - First public version
+   - Options window added
+   - The search engine allows barely requests
+   - Search button added

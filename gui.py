@@ -293,7 +293,8 @@ class main_window ():
     tr = self.translation_box.get_buffer()
     if len(self.dictionary.index_list) == 0:
       tr.set_text("Nothing found.")
-      self.results_list.append(["Nothing found."])
+      if len(self.results_list) == 0:
+        self.results_list.append(["Nothing found."])
       return
     else:
       index = self.dictionary.index_list[which]
