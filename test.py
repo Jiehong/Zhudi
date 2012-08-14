@@ -101,5 +101,20 @@ class TestDataDictionaryFunctions(unittest.TestCase):
     self.dictionary.search(given_list,text)
     self.assertEqual(self.dictionary.index_list,[1])
 
+  def test_unicode_pinyin(self):
+      """
+      Test unicode_pinyin function.
+      This function returns a pinyin representation with unicode characters.
+      This function only works for one syllable.
+
+      Ex: pin1 -> pīn
+      """
+      given_list = ["pin1", "jia3", "jiu4", "hui4", "biao2", "ma5"]
+      expected_list = ["pīn", "jiǎ", "jiù", "huì", "biáo", "ma"]
+      resulting_list = []
+      for k in given_list:
+        resulting_list.append(self.dictionary.unicode_pinyin(k))
+      self.assertEqual(resulting_list, expected_list)
+
 if __name__ == '__main__':
   unittest.main()

@@ -62,6 +62,65 @@ class Dictionary ():
 
     return zhuyin
 
+  def unicode_pinyin(self, pin1yin1):
+    """
+    Unicode_pinyin() takes a string representing a pinyin syllable with tone.
+    Ex : "ni3".
+    The function returns the correct unicode pinyin representation.
+    """
+    syl = pin1yin1[:-1]
+    tone = int(pin1yin1[-1])
+    first_tone = "āēīōūǖ"
+    second_tone = "áéíóúǘ"
+    third_tone = "ǎěǐǒǔǚ"
+    fourth_tone = "àèìòùǜ"
+    fifth_tone = "aeiouü"
+    tones = [first_tone, second_tone, third_tone, fourth_tone, fifth_tone]
+    def find_vowels(string):
+      """
+      This function returns a list of the vowels found, in order.
+      """
+      vowels_list = "aeiouü"
+      vowels_places = [string.find(x) for x in vowels_list]
+      output = ["", "", "", "", ""]
+      for i in range(len(vowels_places)):
+        if vowels_places[i] != -1:
+          output[vowels_places[i]] = vowels_list[i]
+      return output
+    def is_there_iu(vowels_list):
+      """
+      This function check if "iu" is in the pinyin string, if so, returns True
+      False otherwise.
+      """
+      for i in range(len(vowels_list)):
+        if vowels_list[i] != vowels_list[-1]:
+          if vowels_list[i] == "i" and vowels_list[i+1] == "u":
+            return True
+          return False
+    vowels = find_vowels(syl)
+    if is_there_iu(vowels) == True:
+      syl = syl.replace("u", tones[tone-1][4])
+      return syl
+    # To check, in order: 'a','o','e','i','u','ü' (cf. wiki)
+    if "a" in vowels:
+      syl = syl.replace("a", tones[tone-1][0])
+      return syl
+    if "o" in vowels:
+      syl = syl.replace("o", tones[tone-1][3])
+      return syl
+    if "e" in vowels:
+      syl = syl.replace("e", tones[tone-1][1])
+      return syl
+    if "i" in vowels:
+      syl = syl.replace("i", tones[tone-1][2])
+      return syl
+    if "u" in vowels:
+      syl = syl.replace("u", tones[tone-1][4])
+      return syl
+    if "ü" in vowels:
+      syl = syl.replace("ü", tones[tone-1][5])
+      return syl
+
   def write_attr(self, attr, thing):
     """
     write_attr saves "thing" into self.attr, given "attr" as a string.
