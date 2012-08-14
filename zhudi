@@ -264,8 +264,11 @@ def main():
   # Load the cangjie infos
   cangjie5_object = data.Cangjie5Table()
   cangjie5_object.load()
+  # Load array30 infos
+  array30_object = data.Array30Table()
+  array30_object.load()
   global mw
-  mw = gui.main_window(myData, cangjie5_object)
+  mw = gui.main_window(myData, cangjie5_object, array30_object)
   mw.hanzi = hanzi
   mw.romanisation = romanisation
   mw.language = language

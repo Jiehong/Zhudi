@@ -128,13 +128,14 @@ def open_option(self):
   opt.build()
 
 class main_window ():
-  def __init__(self, dictionary, cangjie5object):
+  def __init__(self, dictionary, cangjie5object, array30object):
     self.hanzi = ""
     self.romanisation = ""
     self.language = ""
     self.dictionary = dictionary
     self.lock = False
     self.cangjie5object = cangjie5object
+    self.array30object = array30object
     # Definition of the main window
     self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
     self.window.set_default_size(800,494) # Gold number ratio
@@ -339,22 +340,35 @@ class main_window ():
         pronounciation_string.append(p_string[point])
         pronounciation_string.append("]")
     # Display the cangjie of the entry
-    code = ""
-    displayed = ""
+    cangjie5_code = ""
+    cangjie5_displayed = ""
     for hanzi in hanzi_dic[index]:
       if hanzi != "\n":
         key_code, displayed_code = self.cangjie5object.proceed(hanzi)
-        code += key_code
-        code += " "
-        displayed += "["
-        displayed += displayed_code
-        displayed += "]"
+        cangjie5_code += key_code
+        cangjie5_code += " "
+        cangjie5_displayed += "["
+        cangjie5_displayed += displayed_code
+        cangjie5_displayed += "]"
+    # Display the array30 of the entry
+    array30_code = ""
+    array30_displayed = ""
+    for hanzi in hanzi_dic[index]:
+      if hanzi != "\n":
+        key_code, displayed_code = self.array30object.proceed(hanzi)
+        array30_code += key_code
+        array30_code += " "
+        array30_displayed += "["
+        array30_displayed += displayed_code
+        array30_displayed += "]"
     # Display in the Translation box
+    print(string)
     tr.set_text("Chinese\n"+hanzi_dic[index]+
                 "\n\n"+"Pronunciation\n"+''.join(pronounciation_string)+"\n\n"
+                "Meaning\n"+string+
                 "Input methods codes:\n"+
-                "Cangjie5: "+displayed+" ("+code+")\n\n"+
-                "Meaning\n"+string)
+                "Array30: "+array30_displayed+" ("+array30_code+")\n"+
+                "Cangjie5: "+cangjie5_displayed+" ("+cangjie5_code+")")
     bold = tr.create_tag(weight=Pango.Weight.BOLD)
     big = tr.create_tag(size=30*Pango.SCALE)
     medium = tr.create_tag(size=15*Pango.SCALE)
@@ -385,9 +399,10 @@ class main_window ():
     end_3 = tr.get_iter_at_line(7)
     end_3.forward_to_line_end()
     tr.apply_tag(bold, start_3, end_3)
+    guess = string.count("\n")
     # "Input methods codes" in bold
-    start_4 = tr.get_iter_at_line(9)
-    end_4 = tr.get_iter_at_line(9)
+    start_4 = tr.get_iter_at_line(guess+7)
+    end_4 = tr.get_iter_at_line(guess+7)
     end_4.forward_to_line_end()
     tr.apply_tag(bold, start_4, end_4)
 

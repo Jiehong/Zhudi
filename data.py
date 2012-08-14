@@ -183,6 +183,25 @@ class ChineseTable ():
       to_display = to_display + self.keys_displayed_faces[where]
     return to_display
 
+  def proceed(self, char):
+    """
+    This function returns the key code of the character in both code and with
+    displayed_faces.
+    """
+    output = []
+    if char not in self.characters_list:
+      code = char
+      displayed_code = char
+    else:
+      code = self.characters_list[char]
+      displayed_code = ""
+      for letter in code:
+        letter_pos = self.keys_faces.rfind(letter)
+        displayed_code += self.keys_displayed_faces[letter_pos]
+    output.append(code)
+    output.append(displayed_code)
+    return output
+
 class Cangjie5Table (ChineseTable):
   """
   This class contains the full cangjie5 informations to look it up.
@@ -203,17 +222,22 @@ class Cangjie5Table (ChineseTable):
     self.keys_faces = "abcdefghijklmnopqrstuvwxyz"
     self.keys_displayed_faces = "日月金木水火土竹戈十大中一弓人心手口尸廿山女田難卜重"
 
-  def proceed(self, char):
+class Array30Table (ChineseTable):
+  """
+  This class contains the full Array30 informations to look it up.
+  """
+  def load(self):
     """
-    This function returns the key code of the character in both code and with
-    displayed_faces.
+    Loads the cangjie file and saves is in the attribute (self.characters_list)
     """
-    output = []
-    code = self.characters_list[char]
-    displayed_code = ""
-    for letter in code:
-      letter_pos = self.keys_faces.rfind(letter)
-      displayed_code += self.keys_displayed_faces[letter_pos]
-    output.append(code)
-    output.append(displayed_code)
-    return output
+    with open(os.environ["HOME"]+"/.zhudi/array30", "r") as cangjie_file:
+      lines = cangjie_file.readlines()
+    for line in lines:
+      space_pos = line.rfind(" ")
+      keys = line[0:space_pos]
+      char = line[space_pos+1:-1]
+      self.characters_list[char] = keys
+
+    # Set the keys and keys_faces
+    self.keys_faces = "qwertyuiopasdfghjkl;zxcvbnm,./"
+    self.keys_displayed_faces = "1^", "2^", "3^", "4^", "5^", "6^", "7^", "8^", "9^", "0-", "1-", "2-", "3-", "4-", "5-", "6-", "7-", "8-", "9-", "0-", "1v", "2v", "3v", "4v", "5v", "6v", "7v", "8v", "9v", "0v"
