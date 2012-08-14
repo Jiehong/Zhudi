@@ -261,9 +261,11 @@ def main():
                 "wrong. Default to the Traditional.")
           hanzi = Traditional
   myData = data.Dictionary(simplified, traditional, translation, pinyin, zhuyin)
-  
+  # Load the cangjie infos
+  cangjie5_object = data.Cangjie5Table()
+  cangjie5_object.load()
   global mw
-  mw = gui.main_window(myData)
+  mw = gui.main_window(myData, cangjie5_object)
   mw.hanzi = hanzi
   mw.romanisation = romanisation
   mw.language = language

@@ -16,9 +16,10 @@
     If not, see <http://www.gnu.org/licenses/>.
 
     '''
-import re
+import re, os
 
 import pinyin_to_zhuyin_table as pz
+import collections
 
 class Dictionary ():
   """
@@ -164,3 +165,55 @@ class Dictionary ():
     for i in range(len(dl)): # Keep the sorted results
       index.append(dl[i][0])
     self.write_attr("index_list", index)
+
+class ChineseTable ():
+  """
+  This class aims to contain data and name about a Chinese table input method.
+  """
+  def __init__(self):
+    self.characters_list = collections.defaultdict()
+    self.keys_faces = []
+    self.keys_displayed_faces = []
+
+  def get_keys(character):
+    code = self.characters_list[character]
+    to_display = ""
+    for c in code:
+      where = self.keys_faces.rfind(c)
+      to_display = to_display + self.keys_displayed_faces[where]
+    return to_display
+
+class Cangjie5Table (ChineseTable):
+  """
+  This class contains the full cangjie5 informations to look it up.
+  """
+  def load(self):
+    """
+    Loads the cangjie file and saves is in the attribute (self.characters_list)
+    """
+    with open(os.environ["HOME"]+"/.zhudi/cangjie5", "r") as cangjie_file:
+      lines = cangjie_file.readlines()
+    for line in lines:
+      space_pos = line.rfind(" ")
+      keys = line[0:space_pos]
+      char = line[space_pos+1:-1]
+      self.characters_list[char] = keys
+
+    # Set the keys and keys_faces
+    self.keys_faces = "abcdefghijklmnopqrstuvwxyz"
+    self.keys_displayed_faces = "日月金木水火土竹戈十大中一弓人心手口尸廿山女田難卜重"
+
+  def proceed(self, char):
+    """
+    This function returns the key code of the character in both code and with
+    displayed_faces.
+    """
+    output = []
+    code = self.characters_list[char]
+    displayed_code = ""
+    for letter in code:
+      letter_pos = self.keys_faces.rfind(letter)
+      displayed_code += self.keys_displayed_faces[letter_pos]
+    output.append(code)
+    output.append(displayed_code)
+    return output

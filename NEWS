@@ -2,6 +2,9 @@
    - Fixed issue when clicing "Nothing found." in the results list.
    - Fixed issue when selecting a candidat while the list has been re-ordered.
    Now, the pinyin pronunciation is written with nice looking unicode tones.
+   Zhudi now saves and read a configuration file that contains the prefered
+    values set in the option windows! (great improvement)
+   Zhudi nows displays the cangjie5 codes for each entries.
 
 ** Version 1.2
    - Fixed issue when changing search query

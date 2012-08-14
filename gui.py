@@ -128,12 +128,13 @@ def open_option(self):
   opt.build()
 
 class main_window ():
-  def __init__(self, dictionary):
+  def __init__(self, dictionary, cangjie5object):
     self.hanzi = ""
     self.romanisation = ""
     self.language = ""
     self.dictionary = dictionary
     self.lock = False
+    self.cangjie5object = cangjie5object
     # Definition of the main window
     self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
     self.window.set_default_size(800,494) # Gold number ratio
@@ -337,10 +338,23 @@ class main_window ():
         pronounciation_string.append("[")
         pronounciation_string.append(p_string[point])
         pronounciation_string.append("]")
-    # pronounciation_string = p_string
+    # Display the cangjie of the entry
+    code = ""
+    displayed = ""
+    for hanzi in hanzi_dic[index]:
+      if hanzi != "\n":
+        key_code, displayed_code = self.cangjie5object.proceed(hanzi)
+        code += key_code
+        code += " "
+        displayed += "["
+        displayed += displayed_code
+        displayed += "]"
+    # Display in the Translation box
     tr.set_text("Chinese\n"+hanzi_dic[index]+
-                "\n\n"+"Pronunciation\n"+''.join(pronounciation_string)+
-                "\n\nMeaning\n"+string) # Display in the Translation box
+                "\n\n"+"Pronunciation\n"+''.join(pronounciation_string)+"\n\n"
+                "Input methods codes:\n"+
+                "Cangjie5: "+displayed+" ("+code+")\n\n"+
+                "Meaning\n"+string)
     bold = tr.create_tag(weight=Pango.Weight.BOLD)
     big = tr.create_tag(size=30*Pango.SCALE)
     medium = tr.create_tag(size=15*Pango.SCALE)
@@ -371,6 +385,11 @@ class main_window ():
     end_3 = tr.get_iter_at_line(7)
     end_3.forward_to_line_end()
     tr.apply_tag(bold, start_3, end_3)
+    # "Input methods codes" in bold
+    start_4 = tr.get_iter_at_line(9)
+    end_4 = tr.get_iter_at_line(9)
+    end_4.forward_to_line_end()
+    tr.apply_tag(bold, start_4, end_4)
 
   def update_results(self):
     self.results_list.clear()
