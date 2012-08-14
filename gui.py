@@ -327,9 +327,13 @@ class main_window ():
     p_string = romanisation_dic[index].split()
     pronounciation_string = []
     for point in range(len(p_string)):
-      pronounciation_string.append("[")
-      pronounciation_string.append(p_string[point])
-      pronounciation_string.append("]")
+      if self.romanisation == "Pinyin":
+        pronounciation_string.append(self.dictionary.unicode_pinyin(p_string[point]))
+        pronounciation_string.append(" ")
+      else:
+        pronounciation_string.append("[")
+        pronounciation_string.append(p_string[point])
+        pronounciation_string.append("]")
     # pronounciation_string = p_string
     tr.set_text("Chinese\n"+hanzi_dic[index]+
                 "\n\n"+"Pronunciation\n"+''.join(pronounciation_string)+
