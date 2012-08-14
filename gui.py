@@ -199,8 +199,8 @@ class main_window ():
     results_tree.set_enable_search(False)
     results_tree.tvcolumn.set_sort_column_id(False)
     results_tree.set_reorderable(False)
-    results_tree.connect("cursor-changed",
-                         lambda x: self.display_another_result(results_tree))
+    select = results_tree.get_selection()
+    select.connect("changed", self.display_another_result)
 
     results_scroll = Gtk.ScrolledWindow()
     # No horizontal bar, automatic vertical bar
@@ -384,12 +384,17 @@ class main_window ():
       self.results_list.append([string])
       displayed_index += 1
 
-  def display_another_result(self, gtktree):
+  def display_another_result(self, selection):
     if not self.lock:
-      selection = gtktree.get_cursor()
-      if selection is not None:
-        if selection[0] is not None:
-          self.display_translation(int(str(selection[0])))
+      model, treeiter = selection.get_selected()
+      if treeiter is not None:
+        row = model[treeiter][0]
+        t = 0
+        if row is not None:
+          while row[t] != ".":
+            t += 1
+          figure = row[0:t]
+          self.display_translation(int(figure)-1)
 
   def loop(self):
     Gtk.main()
