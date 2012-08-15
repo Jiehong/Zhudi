@@ -7,6 +7,7 @@
    Zhudi nows displays some table-based input methods for each entry:
          - Array30 (行列)
          - Cangjie5 (倉頡5)
+         - Wubi86 (五筆86)
 
 ** Version 1.2
    - Fixed issue when changing search query
