@@ -267,8 +267,11 @@ def main():
   # Load array30 infos
   array30_object = data.Array30Table()
   array30_object.load()
+  # Load wubi86 infos
+  wubi86_object = data.Wubi86Table()
+  wubi86_object.load()
   global mw
-  mw = gui.main_window(myData, cangjie5_object, array30_object)
+  mw = gui.main_window(myData, cangjie5_object, array30_object, wubi86_object)
   mw.hanzi = hanzi
   mw.romanisation = romanisation
   mw.language = language

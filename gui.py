@@ -128,7 +128,7 @@ def open_option(self):
   opt.build()
 
 class main_window ():
-  def __init__(self, dictionary, cangjie5object, array30object):
+  def __init__(self, dictionary, cangjie5object, array30object, wubi86object):
     self.hanzi = ""
     self.romanisation = ""
     self.language = ""
@@ -136,6 +136,7 @@ class main_window ():
     self.lock = False
     self.cangjie5object = cangjie5object
     self.array30object = array30object
+    self.wubi86object = wubi86object
     # Definition of the main window
     self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
     self.window.set_default_size(800,494) # Gold number ratio
@@ -361,14 +362,21 @@ class main_window ():
         array30_displayed += "["
         array30_displayed += displayed_code
         array30_displayed += "]"
+    # Display the array30 of the entry (here code = displayed)
+    wubi86_code = ""
+    for hanzi in hanzi_dic[index]:
+      if hanzi != "\n":
+        key_code, displayed_code = self.wubi86object.proceed(hanzi)
+        wubi86_code += key_code
+        wubi86_code += " "
     # Display in the Translation box
-    print(string)
     tr.set_text("Chinese\n"+hanzi_dic[index]+
                 "\n\n"+"Pronunciation\n"+''.join(pronounciation_string)+"\n\n"
                 "Meaning\n"+string+
                 "Input methods codes:\n"+
                 "Array30: "+array30_displayed+" ("+array30_code+")\n"+
-                "Cangjie5: "+cangjie5_displayed+" ("+cangjie5_code+")")
+                "Cangjie5: "+cangjie5_displayed+" ("+cangjie5_code+")\n"+
+                "Wubi86: "+wubi86_code)
     bold = tr.create_tag(weight=Pango.Weight.BOLD)
     big = tr.create_tag(size=30*Pango.SCALE)
     medium = tr.create_tag(size=15*Pango.SCALE)

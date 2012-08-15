@@ -241,3 +241,23 @@ class Array30Table (ChineseTable):
     # Set the keys and keys_faces
     self.keys_faces = "qwertyuiopasdfghjkl;zxcvbnm,./"
     self.keys_displayed_faces = "1^", "2^", "3^", "4^", "5^", "6^", "7^", "8^", "9^", "0-", "1-", "2-", "3-", "4-", "5-", "6-", "7-", "8-", "9-", "0-", "1v", "2v", "3v", "4v", "5v", "6v", "7v", "8v", "9v", "0v"
+
+class Wubi86Table (ChineseTable):
+  """
+  This class contains the full Wubi86 informations to look it up.
+  """
+  def load(self):
+    """
+    Loads the Wubi86 file and saves is in the attribute (self.characters_list)
+    """
+    with open(os.environ["HOME"]+"/.zhudi/wubi86", "r") as cangjie_file:
+      lines = cangjie_file.readlines()
+      for line in lines:
+        space_pos = line.rfind(" ")
+        keys = line[0:space_pos]
+        char = line[space_pos+1:-1]
+        self.characters_list[char] = keys
+
+    # Set the keys and keys_faces
+        self.keys_faces = "abcdefghijklmnopqrstuvwxyz"
+        self.keys_displayed_faces = "abcdefghijklmnopqrstuvwxyz"
