@@ -170,10 +170,11 @@ class ChineseTable ():
   """
   This class aims to contain data and name about a Chinese table input method.
   """
-  def __init__(self):
+  def __init__(self, table_path):
     self.characters_list = collections.defaultdict()
     self.keys_faces = []
     self.keys_displayed_faces = []
+    self.table_path = table_path
 
   def get_keys(character):
     code = self.characters_list[character]
@@ -210,7 +211,7 @@ class Cangjie5Table (ChineseTable):
     """
     Loads the cangjie file and saves is in the attribute (self.characters_list)
     """
-    with open(os.environ["HOME"]+"/.zhudi/cangjie5", "r") as cangjie_file:
+    with open(self.table_path, "r") as cangjie_file:
       lines = cangjie_file.readlines()
     for line in lines:
       space_pos = line.rfind(" ")
@@ -230,7 +231,7 @@ class Array30Table (ChineseTable):
     """
     Loads the cangjie file and saves is in the attribute (self.characters_list)
     """
-    with open(os.environ["HOME"]+"/.zhudi/array30", "r") as cangjie_file:
+    with open(self.table_path, "r") as cangjie_file:
       lines = cangjie_file.readlines()
     for line in lines:
       space_pos = line.rfind(" ")
@@ -250,7 +251,7 @@ class Wubi86Table (ChineseTable):
     """
     Loads the Wubi86 file and saves is in the attribute (self.characters_list)
     """
-    with open(os.environ["HOME"]+"/.zhudi/wubi86", "r") as cangjie_file:
+    with open(self.table_path, "r") as cangjie_file:
       lines = cangjie_file.readlines()
       for line in lines:
         space_pos = line.rfind(" ")

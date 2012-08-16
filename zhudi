@@ -49,6 +49,11 @@ parser.add_argument("-sd", "--simplified-file", dest="simplified_file_name",
                     " Chinese. This file comes from the split of the *.u8"+
                     " dictionary file.")
 
+# Function to locate the data folder
+_ROOT = os.path.abspath(os.path.dirname(__file__))
+def get_data_path(path):
+  return os.path.join(_ROOT, 'data', path)
+
 def split(dictname):
   """
   This function aims to load the *.u8 file and split it.
@@ -266,13 +271,13 @@ def main():
           hanzi = Traditional
   myData = data.Dictionary(simplified, traditional, translation, pinyin, zhuyin)
   # Load the cangjie infos
-  cangjie5_object = data.Cangjie5Table()
+  cangjie5_object = data.Cangjie5Table(get_data_path('cangjie5'))
   cangjie5_object.load()
   # Load array30 infos
-  array30_object = data.Array30Table()
+  array30_object = data.Array30Table(get_data_path('array30'))
   array30_object.load()
   # Load wubi86 infos
-  wubi86_object = data.Wubi86Table()
+  wubi86_object = data.Wubi86Table(get_data_path('wubi86'))
   wubi86_object.load()
   global mw
   mw = gui.main_window(myData, cangjie5_object, array30_object, wubi86_object)
