@@ -442,8 +442,11 @@ class main_window ():
         if row is not None:
           while row[t] != ".":
             t += 1
-          figure = row[0:t]
-          self.display_translation(int(figure)-1)
+          figure = int(row[0:t])
+          if figure > len(self.dictionary.index_list):
+            self.display_translation(0)
+          else:
+            self.display_translation(figure-1)
   
   def set_config(self,romanisation, hanzi):
     """
