@@ -22,8 +22,16 @@ import pinyin_to_zhuyin_table as pz
 import collections
 
 class Dictionary ():
-  """
-  This class aims to contain data and methods to convert, serach them.
+  """ A class containing some data from a dic and some methods along with them.
+
+  Call: Dictionary(1,2,3,4,5)
+  Arguments:
+   1: a list of simplified forms
+   2: a list of traditional forms
+   3: a list of translations
+   4: a list of pinyin
+   5: a list of zhuyin (default = [])
+  
   """
   def __init__(self, a, b, c, d, e=[]):
     self.simplified = a
@@ -34,10 +42,7 @@ class Dictionary ():
     self.index_list = []
 
   def pinyin_to_zhuyin(self, pinyin):
-    """
-    This function converts the given pinyin list into zhuyin and returns
-    the latter list.
-    """
+    """Converts the given pinyin list into zhuyin. Returns a list."""
     pinyin_zhuyin_dict = pz.pinyin_to_zhuyin
 
     # for speed issue, transforme the list of pinyin in one long string
@@ -64,10 +69,12 @@ class Dictionary ():
     return zhuyin
 
   def unicode_pinyin(self, pin1yin1):
-    """
-    Unicode_pinyin() takes a string representing a pinyin syllable with tone.
-    Ex : "ni3".
-    The function returns the correct unicode pinyin representation.
+    """ Convert a string representing a pinyin syllable with tone. Returns a
+    string.
+    
+    Argument:
+     A string like "ni3".
+    
     """
     syl = pin1yin1[:-1]
     tone = int(pin1yin1[-1])
@@ -78,9 +85,7 @@ class Dictionary ():
     fifth_tone = "aeiouü"
     tones = [first_tone, second_tone, third_tone, fourth_tone, fifth_tone]
     def find_vowels(string):
-      """
-      This function returns a list of the vowels found, in order.
-      """
+      """Returns a list of the vowels found, in order, as a list."""
       vowels_list = "aeiouü"
       vowels_places = [string.find(x) for x in vowels_list]
       output = ["", "", "", "", ""]
@@ -89,10 +94,7 @@ class Dictionary ():
           output[vowels_places[i]] = vowels_list[i]
       return output
     def is_there_iu(vowels_list):
-      """
-      This function check if "iu" is in the pinyin string, if so, returns True
-      False otherwise.
-      """
+      """Check if "iu" is in the pinyin string. Returns a boolean."""
       for i in range(len(vowels_list)):
         if vowels_list[i] != vowels_list[-1]:
           if vowels_list[i] == "i" and vowels_list[i+1] == "u":
@@ -123,9 +125,7 @@ class Dictionary ():
       return syl
 
   def write_attr(self, attr, thing):
-    """
-    write_attr saves "thing" into self.attr, given "attr" as a string.
-    """
+    """Writes "thing" into self.attr, given "attr" as a string."""
     if attr == "pinyin":
       self.pinyin = thing
     elif attr == "zhuyin":
@@ -142,9 +142,15 @@ class Dictionary ():
       print(" Attribute "+attr+" is not defined for this class.")
 
   def search(self, given_list, text):
-    """
-    Given a list and a text, this function saves the list of indices in
-    the index_list attribute of the Data class.
+    """ Search for a string in a list.
+
+    Arguments:
+     given_list: a list of words
+     text: a string
+
+    Searchs for "string" in "given_list". Returns a list of indices in the
+    index_list attribute of the Data class.
+    
     """
     words = (text.lower()).split()
     index = []
@@ -167,9 +173,7 @@ class Dictionary ():
     self.write_attr("index_list", index)
 
 class ChineseTable ():
-  """
-  This class aims to contain data and name about a Chinese table input method.
-  """
+  """Contains data and name of a Chinese table input method."""
   def __init__(self, table_path):
     self.characters_list = collections.defaultdict()
     self.keys_faces = []
@@ -185,10 +189,7 @@ class ChineseTable ():
     return to_display
 
   def proceed(self, char):
-    """
-    This function returns the key code of the character in both code and with
-    displayed_faces.
-    """
+    """ Returns the key code of the character as a code and as displayed_faces."""
     output = []
     if char not in self.characters_list:
       code = char
@@ -204,13 +205,9 @@ class ChineseTable ():
     return output
 
 class Cangjie5Table (ChineseTable):
-  """
-  This class contains the full cangjie5 informations to look it up.
-  """
+  """Contains the full cangjie5 input method information."""
   def load(self):
-    """
-    Loads the cangjie file and saves is in the attribute (self.characters_list)
-    """
+    """Loads the file and saves it in the attribute (self.characters_list)."""
     with open(self.table_path, "r") as cangjie_file:
       lines = cangjie_file.readlines()
     for line in lines:
@@ -224,13 +221,9 @@ class Cangjie5Table (ChineseTable):
     self.keys_displayed_faces = "日月金木水火土竹戈十大中一弓人心手口尸廿山女田難卜重"
 
 class Array30Table (ChineseTable):
-  """
-  This class contains the full Array30 informations to look it up.
-  """
+  """Contains the full Array30 input method information."""
   def load(self):
-    """
-    Loads the cangjie file and saves is in the attribute (self.characters_list)
-    """
+    """Loads the file and saves it in the attribute (self.characters_list)."""
     with open(self.table_path, "r") as cangjie_file:
       lines = cangjie_file.readlines()
     for line in lines:
@@ -244,13 +237,9 @@ class Array30Table (ChineseTable):
     self.keys_displayed_faces = "1^", "2^", "3^", "4^", "5^", "6^", "7^", "8^", "9^", "0-", "1-", "2-", "3-", "4-", "5-", "6-", "7-", "8-", "9-", "0-", "1v", "2v", "3v", "4v", "5v", "6v", "7v", "8v", "9v", "0v"
 
 class Wubi86Table (ChineseTable):
-  """
-  This class contains the full Wubi86 informations to look it up.
-  """
+  """Contains the full Wubi86 input table information."""
   def load(self):
-    """
-    Loads the Wubi86 file and saves is in the attribute (self.characters_list)
-    """
+    """Loads the file and saves is in the attribute (self.characters_list)"""
     with open(self.table_path, "r") as cangjie_file:
       lines = cangjie_file.readlines()
       for line in lines:

@@ -55,9 +55,7 @@ def get_data_path(path):
   return os.path.join(_ROOT, 'data', path)
 
 def split(dictname):
-  """
-  This function aims to load the *.u8 file and split it.
-  """
+  """Loads the *.u8 file and split it."""
   dictionary = dictname
   # Open the dictionary in text mode, read only
   with open(dictionary,mode="r") as dic:
@@ -133,6 +131,7 @@ def read_files(pinyin_file_name,
                traditional_file_name,
                simplified_file_name,
                translation_file_name):
+  """Reads some files needed to build the Dictionary class."""
   try:
     pinyin_file = open(pinyin_file_name,"r")
     pinyin = pinyin_file.readlines()
@@ -157,9 +156,9 @@ def read_files(pinyin_file_name,
 # End of read_files()
 
 def get_config():
-  """
-  This function reads the config file, if it exists, and returns a list of
-  variables related to that file.
+  """ Reads the config file, if it exists, and returns a list of variables
+  related to that file.
+  
   """
   try:
     open(os.environ["HOME"]+"/.zhudi/config", "r")

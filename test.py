@@ -68,6 +68,7 @@ class TestDataDictionaryFunctions(unittest.TestCase):
     """
     Test write_attr function. This function saves a list in an existing
     attribute of the Dictionary class.
+    
     """
     # Good case
     list_ref = [1, 2, 3, 4]
@@ -90,6 +91,7 @@ class TestDataDictionaryFunctions(unittest.TestCase):
 
         text  = "bye"
         -> [1]
+    
     """
 
     given_list = ["Hello", "Bye", "Hello Fred", "Python"]
@@ -108,6 +110,7 @@ class TestDataDictionaryFunctions(unittest.TestCase):
       This function only works for one syllable.
 
       Ex: pin1 -> pīn
+      
       """
       given_list = ["pin1", "jia3", "jiu4", "hui4", "biao2", "ma5"]
       expected_list = ["pīn", "jiǎ", "jiù", "huì", "biáo", "ma"]

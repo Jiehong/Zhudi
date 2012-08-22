@@ -1,6 +1,4 @@
-"""
-Correspondance table between pinyin and zhuyin. The last 5 items are tones.
-"""
+"""Correspondance table between pinyin and zhuyin. The last 5 items are tones."""
 pinyin_to_zhuyin=[('zhuang', 'ㄓㄨㄤ'),
                   ('shuang', 'ㄕㄨㄤ'),
                   ('chuang', 'ㄔㄨㄤ'),
