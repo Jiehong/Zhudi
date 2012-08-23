@@ -234,7 +234,7 @@ class Array30Table (ChineseTable):
 
     # Set the keys and keys_faces
     self.keys_faces = "qwertyuiopasdfghjkl;zxcvbnm,./"
-    self.keys_displayed_faces = "1^", "2^", "3^", "4^", "5^", "6^", "7^", "8^", "9^", "0-", "1-", "2-", "3-", "4-", "5-", "6-", "7-", "8-", "9-", "0-", "1v", "2v", "3v", "4v", "5v", "6v", "7v", "8v", "9v", "0v"
+    self.keys_displayed_faces = "1↑", "2↑", "3↑", "4↑", "5↑", "6↑", "7↑", "8↑", "9↑", "0-", "1-", "2-", "3-", "4-", "5-", "6-", "7-", "8-", "9-", "0-", "1↓", "2↓", "3↓", "4↓", "5↓", "6↓", "7↓", "8↓", "9↓", "0↓"
 
 class Wubi86Table (ChineseTable):
   """Contains the full Wubi86 input table information."""
