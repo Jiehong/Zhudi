@@ -56,7 +56,7 @@ class Dictionary ():
         zhuyin = re.sub(" "+pinyin_zhuyin_dict[i][0],
                         " "+pinyin_zhuyin_dict[i][1],
                         zhuyin)   # do not change the tones
-      if i >= len(pinyin_zhuyin_dict)-5:
+      elif i >= len(pinyin_zhuyin_dict)-5:
         zhuyin = re.sub(pinyin_zhuyin_dict[i][0]+" ",
                         pinyin_zhuyin_dict[i][1]+" ",
                         zhuyin) # tones
@@ -138,7 +138,7 @@ class Dictionary ():
       self.translation = thing
     elif attr == "index_list":
       self.index_list =  thing
-    elif True:
+    else:
       print(" Attribute "+attr+" is not defined for this class.")
 
   def search(self, given_list, text):
@@ -242,12 +242,12 @@ class Wubi86Table (ChineseTable):
     """Loads the file and saves is in the attribute (self.characters_list)"""
     with open(self.table_path, "r") as cangjie_file:
       lines = cangjie_file.readlines()
-      for line in lines:
-        space_pos = line.rfind(" ")
-        keys = line[0:space_pos]
-        char = line[space_pos+1:-1]
-        self.characters_list[char] = keys
+    for line in lines:
+      space_pos = line.rfind(" ")
+      keys = line[0:space_pos]
+      char = line[space_pos+1:-1]
+      self.characters_list[char] = keys
 
     # Set the keys and keys_faces
-        self.keys_faces = "abcdefghijklmnopqrstuvwxyz"
-        self.keys_displayed_faces = "abcdefghijklmnopqrstuvwxyz"
+    self.keys_faces = "abcdefghijklmnopqrstuvwxyz"
+    self.keys_displayed_faces = "abcdefghijklmnopqrstuvwxyz"
