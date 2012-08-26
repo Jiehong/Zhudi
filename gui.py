@@ -341,24 +341,18 @@ class main_window ():
         pronounciation_string.append(p_string[point])
         pronounciation_string.append("]")
     # Display the cangjie of the entry
-    cangjie5_code = ""
     cangjie5_displayed = ""
     for hanzi in hanzi_dic[index]:
       if hanzi != "\n":
         key_code, displayed_code = self.cangjie5object.proceed(hanzi)
-        cangjie5_code += key_code
-        cangjie5_code += " "
         cangjie5_displayed += "["
         cangjie5_displayed += displayed_code
         cangjie5_displayed += "]"
     # Display the array30 of the entry
-    array30_code = ""
     array30_displayed = ""
     for hanzi in hanzi_dic[index]:
       if hanzi != "\n":
         key_code, displayed_code = self.array30object.proceed(hanzi)
-        array30_code += key_code
-        array30_code += " "
         array30_displayed += "["
         array30_displayed += displayed_code
         array30_displayed += "]"
@@ -367,15 +361,16 @@ class main_window ():
     for hanzi in hanzi_dic[index]:
       if hanzi != "\n":
         key_code, displayed_code = self.wubi86object.proceed(hanzi)
+        wubi86_code += "["
         wubi86_code += key_code
-        wubi86_code += " "
+        wubi86_code += "]"
     # Display in the Translation box
     tr.set_text("Chinese\n"+hanzi_dic[index]+
                 "\n\n"+"Pronunciation\n"+''.join(pronounciation_string)+"\n\n"
                 "Meaning\n"+string+
                 "Input methods codes:\n"+
-                "Array30: "+array30_displayed+" ("+array30_code+")\n"+
-                "Cangjie5: "+cangjie5_displayed+" ("+cangjie5_code+")\n"+
+                "Array30: "+array30_displayed+"\n"+
+                "Cangjie5: "+cangjie5_displayed+"\n"+
                 "Wubi86: "+wubi86_code)
     bold = tr.create_tag(weight=Pango.Weight.BOLD)
     big = tr.create_tag(size=30*Pango.SCALE)
