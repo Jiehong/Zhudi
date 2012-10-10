@@ -27,10 +27,10 @@ If not, see <http://www.gnu.org/licenses/>.
 import unittest
 
 # Add here the part you want to test if it is a new one
-import data
+import zhudi_core
 
 class TestDataDictionaryFunctions(unittest.TestCase):
-  """ TestDataFunctions aims to test functions defined in data.py,
+  """ TestDataFunctions aims to test functions defined in zhudi_core.py,
    and especially the ones in the Dictionary class. """
 
   def setUp(self):
@@ -45,7 +45,7 @@ class TestDataDictionaryFunctions(unittest.TestCase):
       pin = pin_file.readlines()
     with open("zhuyin", mode="r") as zhu_file:
       zhu = zhu_file.readlines()
-    self.dictionary = data.Dictionary(simp,trad,trans,pin,zhu)
+    self.dictionary = zhudi_core.Dictionary(simp,trad,trans,pin,zhu)
 
   def test_pinyin_to_zhuyin(self):
     """ Test pinyin_to_zhuyin conversion function. """

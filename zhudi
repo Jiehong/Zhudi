@@ -22,7 +22,7 @@ import os
 import sys
 import argparse
 
-import data
+import zhudi_core
 import gui
 
 # Parse arguments/definitions
@@ -54,130 +54,8 @@ _ROOT = os.path.abspath(os.path.dirname(__file__))
 def get_data_path(path):
   return os.path.join(_ROOT, 'data', path)
 
-def split(dictname):
-  """Loads the *.u8 file and split it."""
-  dictionary = dictname
-  # Open the dictionary in text mode, read only
-  with open(dictionary,mode="r") as dic:
-    liste = dic.readlines() # Use the text file as lines
-  space_ind = []
-  pinyin_delimiters = []
-  translation_delimiters = []
-  simplified_list = []
-  traditional_list = []
-  pinyin_list = []
-  translation_list = []
-
-  simplified_file = open("simplified", mode="w")
-  traditional_file = open("traditional", mode="w")
-  translation_file = open("translation", mode="w")
-  pinyin_file = open("pinyin", mode="w")
-  for i in liste: # for each line
-    space_ind = []
-    pinyin_delimiters = []
-    translation_delimiters = []
-    translation = []
-
-    if i[0] !="#":
-      for k in range(len(i)):
-        if i[k] == " ": # look  for spaces
-          space_ind.append(k)
-        if i[k] =="[": # look for pinyin delimiters
-          pinyin_delimiters.append(k)
-        if i[k] =="]":
-          pinyin_delimiters.append(k)
-        if i[k] == "/": # look for translation delimiters
-          translation_delimiters.append(k)
-      traditional = i[0:space_ind[0]]
-      simplified = i[space_ind[0]+1:space_ind[1]]
-      pinyin = i[pinyin_delimiters[0]+1:pinyin_delimiters[1]]
-      for n in range(len(translation_delimiters)-1):
-        translation.append(i[translation_delimiters[n]+1:translation_delimiters[n+1]])
-      # Get rid of sticking pinyin like di4shang4 instead of di4 shang4
-      clean_pinyin = ""
-      for n in range(len(pinyin)):
-        clean_pinyin += pinyin[n]
-        if pinyin[n].isdigit() and (n < len(pinyin)-1):
-          if pinyin[n+1] != " ":
-            clean_pinyin += " "
-      translation_clean = ""
-      for i in range(len(translation)):
-        if i != 0:
-          translation_clean += "/"
-        translation_clean += translation[i]
-
-      pinyin_list.append(clean_pinyin)
-      traditional_list.append(traditional)
-      simplified_list.append(simplified)
-      translation_list.append(translation_clean)
-      
-      simplified_file.write(simplified+"\n")
-      traditional_file.write(traditional+"\n")
-      translation_file.write(translation_clean+"\n")
-      pinyin_file.write(clean_pinyin+"\n")
-  simplified_file.close()
-  traditional_file.close()
-  translation_file.close()
-  pinyin_file.close()
-  return (simplified_list,
-          traditional_list,
-          translation_list,
-          pinyin_list)
-# End of split()
-
-# Read files and defaults values
-def read_files(pinyin_file_name,
-               zhuyin_file_name,
-               traditional_file_name,
-               simplified_file_name,
-               translation_file_name):
-  """Reads some files needed to build the Dictionary class."""
-  try:
-    pinyin_file = open(pinyin_file_name,"r")
-    pinyin = pinyin_file.readlines()
-    pinyin_file.close
-    zhuyin_file = open(zhuyin_file_name,"r")
-    zhuyin = zhuyin_file.readlines()
-    zhuyin_file.closed
-    traditional_file = open(traditional_file_name,"r")
-    traditional = traditional_file.readlines()
-    traditional_file.closed
-    simplified_file = open(simplified_file_name,"r")
-    simplified = simplified_file.readlines()
-    simplified_file.closed
-    translation_file = open(translation_file_name,"r")
-    translation = translation_file.readlines()
-    translation_file.closed
-    return pinyin, zhuyin, traditional, simplified, translation
-  except(IOError) as errno:
-    print("### The dictionary files couldn't be read. Make sure you have"+
-          " split the dictonary file first. ###")
-    quit()
-# End of read_files()
-
-def get_config():
-  """ Reads the config file, if it exists, and returns a list of variables
-  related to that file.
-  
-  """
-  try:
-    open(os.environ["HOME"]+"/.zhudi/config", "r")
-  except(IOError) as errno:
-    # If no config file found
-    return []
-  saved_values = []
-  with open(os.environ["HOME"]+"/.zhudi/config", "r") as config_file:
-    lines = config_file.readlines()
-  for n_line in range(len(lines)):
-    if (lines[n_line][0] != "#") or (lines[n_line][0] != ""):
-      if lines[n_line][:-1].lower() == "romanisation:":
-        saved_values.append(["romanisation", lines[n_line+1][:-1].lower()])
-      if lines[n_line][:-1].lower() == "hanzi form:":
-        saved_values.append(["hanzi", lines[n_line+1][:-1].lower()])
-  config_file.close()
-  return saved_values
-
 def main():
+  preproc_o = zhudi_core.preProcessing()
   options = parser.parse_args()
   filename = options.filename
   pinyin_file_name=options.pinyin_file_name
@@ -199,16 +77,16 @@ def main():
   passed = False
   if (filename is not None) and all(x is None for x in files):
     print("Splitting dictionary in progress…")
-    files = split(filename)
+    files = zhudi_core.split(filename)
     simplified_list = files[0]
     traditional_list = files[1]
     translation_list = files[2]
     pinyin_list = files[3]
     
-    myData = data.Dictionary(simplified_list,
-                             traditional_list,
-                             translation_list,
-                             pinyin_list)
+    myData = zhudi_core.Dictionary(simplified_list,
+                                   traditional_list,
+                                   translation_list,
+                                   pinyin_list)
     print(" Pinyin to Zhuyin conversion in progress…")
     zhuyin = myData.pinyin_to_zhuyin(pinyin_list)
     myData.write_attr("zhuyin", zhuyin)
@@ -226,19 +104,18 @@ def main():
       if os.path.isfile(r) is True:
         d += 1
     if d == len(default_files):
-      pinyin, zhuyin, traditional, simplified, translation = read_files(
-        default_files[0],
-        default_files[1],
-        default_files[2],
-        default_files[3],
-        default_files[4])
+      pinyin, zhuyin, traditional, simplified, translation = preproc_o.read_files(default_files[0],
+                                                                                   default_files[1],
+                                                                                   default_files[2],
+                                                                                   default_files[3],
+                                                                                   default_files[4])
       passed = True
     else:
       print("### No input files have been given to me. Please, consider"+
             " giving me some. ###")
       quit()
   elif all(x is not None for x in files):
-    pinyin, zhuyin, traditional, simplified, translation = read_files(
+    pinyin, zhuyin, traditional, simplified, translation = preproc_o.read_files(
       files[0],
       files[1],
       files[2],
@@ -250,7 +127,7 @@ def main():
     parser.print_help()
   # Default values
   language = "Chinese"
-  saved_values = get_config()
+  saved_values = preproc_o.get_config()
   if saved_values == []:
     romanisation = "Zhuyin"
     hanzi = "Traditional"
@@ -268,15 +145,15 @@ def main():
           print("It seems like the hanzi form set by the the config file is"
                 "wrong. Default to the Traditional.")
           hanzi = Traditional
-  myData = data.Dictionary(simplified, traditional, translation, pinyin, zhuyin)
+  myData = zhudi_core.Dictionary(simplified, traditional, translation, pinyin, zhuyin)
   # Load the cangjie infos
-  cangjie5_object = data.Cangjie5Table(get_data_path('cangjie5'))
+  cangjie5_object = zhudi_core.Cangjie5Table(get_data_path('cangjie5'))
   cangjie5_object.load()
   # Load array30 infos
-  array30_object = data.Array30Table(get_data_path('array30'))
+  array30_object = zhudi_core.Array30Table(get_data_path('array30'))
   array30_object.load()
   # Load wubi86 infos
-  wubi86_object = data.Wubi86Table(get_data_path('wubi86'))
+  wubi86_object = zhudi_core.Wubi86Table(get_data_path('wubi86'))
   wubi86_object.load()
   global mw
   mw = gui.main_window(myData, cangjie5_object, array30_object, wubi86_object)
