@@ -128,6 +128,7 @@ def main():
   # Default values
   language = "Chinese"
   saved_values = preproc_o.get_config()
+  print(saved_values)
   if saved_values == []:
     romanisation = "Zhuyin"
     hanzi = "Traditional"

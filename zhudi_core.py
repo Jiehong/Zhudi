@@ -147,17 +147,17 @@ class preProcessing ():
     except(IOError) as errno:
       # If no config file found
       return []
-      saved_values = []
-      with open(os.environ["HOME"]+"/.zhudi/config", "r") as config_file:
-        lines = config_file.readlines()
-        for n_line in range(len(lines)):
-          if (lines[n_line][0] != "#") or (lines[n_line][0] != ""):
-            if lines[n_line][:-1].lower() == "romanisation:":
-              saved_values.append(["romanisation", lines[n_line+1][:-1].lower()])
-              if lines[n_line][:-1].lower() == "hanzi form:":
-                saved_values.append(["hanzi", lines[n_line+1][:-1].lower()])
-                config_file.close()
-                return saved_values
+    saved_values = []
+    with open(os.environ["HOME"]+"/.zhudi/config", "r") as config_file:
+      lines = config_file.readlines()
+      for n_line in range(len(lines)):
+        if (lines[n_line][0] != "#") or (lines[n_line][0] != ""):
+          if lines[n_line][:-1].lower() == "romanisation:":
+            saved_values.append(["romanisation", lines[n_line+1][:-1].lower()])
+          if lines[n_line][:-1].lower() == "hanzi form:":
+            saved_values.append(["hanzi", lines[n_line+1][:-1].lower()])
+    config_file.close()
+    return saved_values
 
 class Dictionary ():
   """ A class containing some data from a dic and some methods along with them.
@@ -327,7 +327,9 @@ class ChineseTable ():
     return to_display
 
   def proceed(self, char):
-    """ Returns the key code of the character as a code and as displayed_faces."""
+    """ Returns the key code of the character as a code and as displayed_faces.
+
+    """
     output = []
     if char not in self.characters_list:
       code = char
