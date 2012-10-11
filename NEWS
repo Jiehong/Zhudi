@@ -10,6 +10,7 @@
      - Wubi86 (五筆86)
    - Fixed issue occuring when changing query.
    - Better separation between core/gui/starting functions.
+   - GUI refactoring
 
 ** Version 1.2
    - Fixed issue when changing search query
