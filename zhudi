@@ -128,7 +128,6 @@ def main():
   # Default values
   language = "Chinese"
   saved_values = preproc_o.get_config()
-  print(saved_values)
   if saved_values == []:
     romanisation = "Zhuyin"
     hanzi = "Traditional"
@@ -157,6 +156,7 @@ def main():
   wubi86_object = zhudi_core.Wubi86Table(get_data_path('wubi86'))
   wubi86_object.load()
   global mw
+  
   mw = gui.main_window(myData, cangjie5_object, array30_object, wubi86_object)
   mw.hanzi = hanzi
   mw.romanisation = romanisation

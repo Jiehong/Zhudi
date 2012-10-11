@@ -21,113 +21,7 @@ from gi.repository import Gtk, Pango
 import data
 import os
 
-class option_window():
-  def kill_ok(self):
-    self.window.hide()
-
-  def __init__(self, main_window):
-    self.hanzi = ''
-    self.romanisation = ''
-    self.mw = main_window
-    # Definition of the options window
-    self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
-    self.window.set_size_request(300,180)
-    self.window.set_title("Options")
-    self.window.set_position(Gtk.WindowPosition.CENTER)
-    self.window.connect("destroy", lambda x:self.window.destroy)
-
-  def build(self):
-    # Hanzi label
-    hanzi_label = Gtk.Label()
-    hanzi_label.set_text("<big>Chinese characters form:</big>")
-    hanzi_label.set_justify(Gtk.Justification.LEFT)
-    hanzi_label.set_use_markup(True)
-    # hanzi box
-    hanzi_box = Gtk.Grid()
-    Traditional = Gtk.RadioButton.new_with_label_from_widget(None,
-                                                             "Traditional")
-    Traditional.connect("clicked", lambda x: self.set_hanzi("Traditional"))
-    hanzi_box.add(Traditional)
-    Simplified = Gtk.RadioButton.new_with_label_from_widget(Traditional,
-                                                            "Simplified")
-    Simplified.connect("clicked", lambda x: self.set_hanzi("Simplified"))
-    hanzi_box.attach_next_to(Simplified,
-                             Traditional,
-                             Gtk.PositionType.RIGHT,1,1)
-    hanzi_box.set_column_homogeneous(True)
-
-    # Romanisation label
-    romanisation_label = Gtk.Label()
-    romanisation_label.set_text("<big>Pronunciation system:</big>")
-    romanisation_label.set_justify(Gtk.Justification.LEFT)
-    romanisation_label.set_use_markup(True)
-
-    # romanisation box
-    romanisation_box = Gtk.Grid()
-    Zhu = Gtk.RadioButton.new_with_label_from_widget(None,"Zhuyin Fuhao")
-    Zhu.connect("clicked", lambda x: self.set_romanisation("Zhuyin"))
-    romanisation_box.add(Zhu)
-    Pin = Gtk.RadioButton.new_with_label_from_widget(Zhu,"Hanyu Pinyin")
-    Pin.connect("clicked", lambda x: self.set_romanisation("Pinyin"))
-    romanisation_box.attach_next_to(Pin, Zhu, Gtk.PositionType.RIGHT,1,1)
-    romanisation_box.set_column_homogeneous(True)
-    # Horizontal separator
-    option_horizontal_separator = Gtk.Separator()
-    # Ok button
-    ok_button = Gtk.Button("Ok")
-    ok_button.connect("clicked", lambda x:self.kill_ok())
-    # Mapping of the option window
-    loption_vertical_box = Gtk.Grid()
-    loption_vertical_box.add(hanzi_label)
-    loption_vertical_box.attach_next_to(hanzi_box,
-                                        hanzi_label,
-                                        Gtk.PositionType.BOTTOM,1,1)
-    loption_vertical_box.attach_next_to(romanisation_label,
-                                        hanzi_box,
-                                        Gtk.PositionType.BOTTOM,1,1)
-    loption_vertical_box.attach_next_to(romanisation_box,
-                                        romanisation_label,
-                                        Gtk.PositionType.BOTTOM,1,1)
-    loption_vertical_box.attach_next_to(option_horizontal_separator,
-                                        romanisation_box,
-                                        Gtk.PositionType.BOTTOM,1,1)
-    loption_vertical_box.attach_next_to(ok_button,
-                                        option_horizontal_separator,
-                                        Gtk.PositionType.BOTTOM,1,2)
-    loption_vertical_box.set_column_homogeneous(True)
-    loption_vertical_box.set_row_homogeneous(True)
-
-    # Adding them in the main window
-    self.window.add(loption_vertical_box)
-
-    # Eventually, show the option window and the widgetss
-    self.window.show_all()
-
-    if self.hanzi == "Traditional":
-      Traditional.set_active(True)
-    else:
-      Simplified.set_active(True)
-    if self.romanisation == "Zhuyin":
-      Zhu.set_active(True)
-    else:
-      Pin.set_active(True)
-
-  def set_romanisation(self, string):
-    self.mw.romanisation = string
-    self.mw.set_config(self.mw.romanisation, self.mw.hanzi)
-
-  def set_hanzi(self, string):
-    self.mw.hanzi = string
-    self.mw.set_config(self.mw.romanisation, self.mw.hanzi)
-# End of Option_window
-
-def open_option(self):
-  opt = option_window(self)
-  opt.hanzi = self.hanzi
-  opt.romanisation = self.romanisation
-  opt.build()
-
-class main_window ():
+class dictionary_widget_main ():
   def __init__(self, dictionary, cangjie5object, array30object, wubi86object):
     self.hanzi = ""
     self.romanisation = ""
@@ -137,11 +31,6 @@ class main_window ():
     self.cangjie5object = cangjie5object
     self.array30object = array30object
     self.wubi86object = wubi86object
-    # Definition of the main window
-    self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
-    self.window.set_default_size(800,494) # Gold number ratio
-    self.window.set_title("Zhudi")
-    self.window.set_position(Gtk.WindowPosition.CENTER)
 
   def build(self):
     # Search label
@@ -163,7 +52,7 @@ class main_window ():
 
     # Options button
     option_button = Gtk.Button("Options")
-    option_button.connect("clicked", lambda x: open_option(self))
+    option_button.connect("clicked", lambda x: self.open_option())
 
     # Search + button box
     SB_box = Gtk.Grid()
@@ -265,12 +154,7 @@ class main_window ():
                                   Gtk.PositionType.RIGHT,1,1)
     horizontal_box.set_column_homogeneous(True)
     horizontal_box.set_row_homogeneous(True)
-
-    # Adding them in the main window
-    self.window.add(horizontal_box)
-
-    self.window.connect("destroy",Gtk.main_quit)
-    self.window.show_all()
+    return horizontal_box
 
   def search_asked(self, searchfield):
     text = searchfield.get_text()
@@ -456,7 +340,174 @@ class main_window ():
       config_file.write(romanisation+"\n\n")
       config_file.write("hanzi form:\n")
       config_file.write(hanzi+"\n\n")
+      
+  def open_option(self):
+    opt = self.dictionary_widget_option(self)
+    opt.hanzi = self.hanzi
+    opt.romanisation = self.romanisation
+    opt.build()
+
+  class dictionary_widget_option():
+    def kill_ok(self):
+      self.window.hide()
+
+    def __init__(self, main_window):
+      self.hanzi = ''
+      self.romanisation = ''
+      self.mw = main_window
+      # Definition of the options window
+      self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
+      self.window.set_size_request(300,180)
+      self.window.set_title("Options")
+      self.window.set_position(Gtk.WindowPosition.CENTER)
+      self.window.connect("destroy", lambda x:self.window.destroy)
+
+    def build(self):
+      # Hanzi label
+      hanzi_label = Gtk.Label()
+      hanzi_label.set_text("<big>Chinese characters form:</big>")
+      hanzi_label.set_justify(Gtk.Justification.LEFT)
+      hanzi_label.set_use_markup(True)
+      # hanzi box
+      hanzi_box = Gtk.Grid()
+      Traditional = Gtk.RadioButton.new_with_label_from_widget(None,
+                                                               "Traditional")
+      Traditional.connect("clicked", lambda x: self.set_hanzi("Traditional"))
+      hanzi_box.add(Traditional)
+      Simplified = Gtk.RadioButton.new_with_label_from_widget(Traditional,
+                                                              "Simplified")
+      Simplified.connect("clicked", lambda x: self.set_hanzi("Simplified"))
+      hanzi_box.attach_next_to(Simplified,
+                               Traditional,
+                               Gtk.PositionType.RIGHT,1,1)
+      hanzi_box.set_column_homogeneous(True)
+
+      # Romanisation label
+      romanisation_label = Gtk.Label()
+      romanisation_label.set_text("<big>Pronunciation system:</big>")
+      romanisation_label.set_justify(Gtk.Justification.LEFT)
+      romanisation_label.set_use_markup(True)
+
+      # romanisation box
+      romanisation_box = Gtk.Grid()
+      Zhu = Gtk.RadioButton.new_with_label_from_widget(None,"Zhuyin Fuhao")
+      Zhu.connect("clicked", lambda x: self.set_romanisation("Zhuyin"))
+      romanisation_box.add(Zhu)
+      Pin = Gtk.RadioButton.new_with_label_from_widget(Zhu,"Hanyu Pinyin")
+      Pin.connect("clicked", lambda x: self.set_romanisation("Pinyin"))
+      romanisation_box.attach_next_to(Pin, Zhu, Gtk.PositionType.RIGHT,1,1)
+      romanisation_box.set_column_homogeneous(True)
+      # Horizontal separator
+      option_horizontal_separator = Gtk.Separator()
+      # Ok button
+      ok_button = Gtk.Button("Ok")
+      ok_button.connect("clicked", lambda x:self.kill_ok())
+      # Mapping of the option window
+      loption_vertical_box = Gtk.Grid()
+      loption_vertical_box.add(hanzi_label)
+      loption_vertical_box.attach_next_to(hanzi_box,
+                                          hanzi_label,
+                                          Gtk.PositionType.BOTTOM,1,1)
+      loption_vertical_box.attach_next_to(romanisation_label,
+                                          hanzi_box,
+                                          Gtk.PositionType.BOTTOM,1,1)
+      loption_vertical_box.attach_next_to(romanisation_box,
+                                          romanisation_label,
+                                          Gtk.PositionType.BOTTOM,1,1)
+      loption_vertical_box.attach_next_to(option_horizontal_separator,
+                                          romanisation_box,
+                                          Gtk.PositionType.BOTTOM,1,1)
+      loption_vertical_box.attach_next_to(ok_button,
+                                          option_horizontal_separator,
+                                          Gtk.PositionType.BOTTOM,1,2)
+      loption_vertical_box.set_column_homogeneous(True)
+      loption_vertical_box.set_row_homogeneous(True)
+
+      # Adding them in the main window
+      self.window.add(loption_vertical_box)
+
+      # Eventually, show the option window and the widgetss
+      self.window.show_all()
+
+      if self.hanzi == "Traditional":
+        Traditional.set_active(True)
+      else:
+        Simplified.set_active(True)
+      if self.romanisation == "Zhuyin":
+        Zhu.set_active(True)
+      else:
+        Pin.set_active(True)
+
+    def set_romanisation(self, string):
+      self.mw.romanisation = string
+      self.mw.set_config(self.mw.romanisation, self.mw.hanzi)
+
+    def set_hanzi(self, string):
+      self.mw.hanzi = string
+      self.mw.set_config(self.mw.romanisation, self.mw.hanzi)
+  # End of Option_window
+
+class main_window ():
+  """ Class that defines the welcom screen, and gives access to other layers. """
+  def __init__(self, dictionary, cangjie5object, array30object, wubi86object):
+    self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
+    self.window.set_default_size(800,494) # Gold number ratio
+    self.window.set_title("Zhudi")
+    self.window.set_position(Gtk.WindowPosition.CENTER)
+
+    self.hanzi = ""
+    self.romanisation = ""
+    self.language = ""
+    self.dictionary = dictionary
+    self.cangjie5object = cangjie5object
+    self.array30object = array30object
+    self.wubi86object = wubi86object
 
   def loop(self):
     Gtk.main()
-# end of main_Window
+
+  def build(self):
+    # Items in the top drop down menu
+    self.menu_store = Gtk.ListStore(int, str)
+    self.menu_store.append([1, "Dictionary"])
+    self.drop_menu = Gtk.ComboBox.new_with_model_and_entry(self.menu_store)
+    self.drop_menu.set_entry_text_column(1)
+    self.drop_menu.connect("changed", self.select_mode)
+
+    self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+    self.top_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+    self.horizontal_separator = Gtk.Separator()
+    self.top_hbox.pack_start(self.horizontal_separator, False, False, 0)
+    self.top_hbox.pack_start(self.horizontal_separator, True, True, 0)
+    self.top_hbox.pack_start(self.drop_menu, True, False, 0)
+    self.vbox.pack_start(self.top_hbox, False, False, 0)
+    self.vertical_separator = Gtk.Separator()
+    self.vbox.pack_start(self.vertical_separator, False, False, 0)
+    
+    self.window.add(self.vbox)
+    self.window.connect("destroy",Gtk.main_quit)
+    self.window.show_all()
+
+  def select_mode(self, drop_menu):
+    """ Change mode according to the selected item in the drop down menu. """
+    tree_iter = drop_menu.get_active_iter()
+    if tree_iter != None:
+      model = drop_menu.get_model()
+      row_id, name = model[tree_iter][:2]
+      if row_id == 1:
+        self.run_dictionary()
+
+  def run_dictionary(self):
+    """ Start the dictionary widget. """
+    self.main_widget = dictionary_widget_main(self.dictionary, self.cangjie5object,self.array30object, self.wubi86object)
+    self.main_widget.hanzi = self.hanzi
+    self.main_widget.romanisation = self.romanisation
+    self.main_widget.language = self.language
+    self.sub_gui = self.main_widget.build()
+    self.vbox.pack_start(self.sub_gui, True, True, 0)
+    self.window.show_all()
+
+  def clean(self):
+    self.vbox.destroy()
+    self.build()
+# end of main_window

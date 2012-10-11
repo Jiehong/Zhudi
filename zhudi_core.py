@@ -59,7 +59,7 @@ class preProcessing ():
 
       if i[0] !="#":
         for k in range(len(i)):
-          if i[k] == " ": # look  for spaces
+          if i[k] == " ": # look for spaces
             space_ind.append(k)
           if i[k] =="[": # look for pinyin delimiters
             pinyin_delimiters.append(k)
@@ -200,10 +200,9 @@ class Dictionary ():
                         zhuyin) # tones
     # delete the last space used for matching convenience
     zhuyin = zhuyin[:-1]
-    # Break the long string as a list and save it
+    # Break the long string as a list
     zhuyin = zhuyin.split(" # ")
     zhuyin[0] = zhuyin[0][1:] # get rid of the first space
-
     return zhuyin
 
   def unicode_pinyin(self, pin1yin1):
@@ -243,24 +242,11 @@ class Dictionary ():
       syl = syl.replace("u", tones[tone-1][4])
       return syl
     # To check, in order: 'a','o','e','i','u','ü' (cf. wiki)
-    if "a" in vowels:
-      syl = syl.replace("a", tones[tone-1][0])
-      return syl
-    if "o" in vowels:
-      syl = syl.replace("o", tones[tone-1][3])
-      return syl
-    if "e" in vowels:
-      syl = syl.replace("e", tones[tone-1][1])
-      return syl
-    if "i" in vowels:
-      syl = syl.replace("i", tones[tone-1][2])
-      return syl
-    if "u" in vowels:
-      syl = syl.replace("u", tones[tone-1][4])
-      return syl
-    if "ü" in vowels:
-      syl = syl.replace("ü", tones[tone-1][5])
-      return syl
+    to_test = "aoeiuü"
+    for case in to_test:
+      if case in vowels:
+        syl = syl.replace(case, tones[tone-1][fifth_tone.find(case)])
+        return syl
 
   def write_attr(self, attr, thing):
     """Writes "thing" into self.attr, given "attr" as a string."""
