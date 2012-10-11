@@ -455,6 +455,7 @@ class main_window ():
     self.window.set_title("Zhudi")
     self.window.set_position(Gtk.WindowPosition.CENTER)
 
+    self.lock = 0
     self.hanzi = ""
     self.romanisation = ""
     self.language = ""
@@ -483,6 +484,11 @@ class main_window ():
     self.vbox.pack_start(self.top_hbox, False, False, 0)
     self.vertical_separator = Gtk.Separator()
     self.vbox.pack_start(self.vertical_separator, False, False, 0)
+
+    if self.lock == 0:
+      self.default_mode()
+      self.vbox.pack_start(self.default_text, False, False, 0)
+      self.lock = 1
     
     self.window.add(self.vbox)
     self.window.connect("destroy",Gtk.main_quit)
@@ -497,8 +503,26 @@ class main_window ():
       if row_id == 1:
         self.run_dictionary()
 
+  def default_mode(self):
+    """ This is the default mode, i.e. when no mode is selected."""
+    self.default_text = Gtk.Frame(label_yalign = 0.5, label_xalign = 0.5,)
+    self.default_text.set_label("\n\n\n\n"
+                                "          Zhudi"
+                                "\n\n"
+                                "                                     Jiehong Ma, 2011–2012"
+                                "\n\n"
+                                "Zhudi has been designed in order to help\n"
+                                "people learning Chinese thanks to free tools.\n"
+                                "It aimes at providing reliable, and useful\n"
+                                "informations to the Chinese learner.\n"
+                                "The author is also a Chinese learner as well,\n"
+                                "and he uses Zhudi almost everyday.\n"
+                                "\n"
+                                "This software is under the GNU GPLv3 licence.")
+
   def run_dictionary(self):
     """ Start the dictionary widget. """
+    self.clean()
     self.main_widget = dictionary_widget_main(self.dictionary, self.cangjie5object,self.array30object, self.wubi86object)
     self.main_widget.hanzi = self.hanzi
     self.main_widget.romanisation = self.romanisation
