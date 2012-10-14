@@ -104,20 +104,37 @@ class TestDataDictionaryFunctions(unittest.TestCase):
     self.assertEqual(self.dictionary.index_list,[1])
 
   def test_unicode_pinyin(self):
-      """
-      Test unicode_pinyin function.
-      This function returns a pinyin representation with unicode characters.
-      This function only works for one syllable.
-
-      Ex: pin1 -> pīn
+    """
+    Test unicode_pinyin function.
+    This function returns a pinyin representation with unicode characters.
+    This function only works for one syllable.
+    
+    Ex: pin1 -> pīn
+    
+    """
+    given_list = ["pin1", "jia3", "jiu4", "hui4", "biao2", "ma5"]
+    expected_list = ["pīn", "jiǎ", "jiù", "huì", "biáo", "ma"]
+    resulting_list = []
+    for k in given_list:
+      resulting_list.append(self.dictionary.unicode_pinyin(k))
+    self.assertEqual(resulting_list, expected_list)
       
-      """
-      given_list = ["pin1", "jia3", "jiu4", "hui4", "biao2", "ma5"]
-      expected_list = ["pīn", "jiǎ", "jiù", "huì", "biáo", "ma"]
-      resulting_list = []
-      for k in given_list:
-        resulting_list.append(self.dictionary.unicode_pinyin(k))
-      self.assertEqual(resulting_list, expected_list)
+  def test_sentence_segmentation(self):
+    """
+    Test sentence_segmentation function (in ChineseProcessing class).
+    This function returns a list of words given a sentence.
+    Its results depends on the dictionary.
+
+    Ex: 我以為你不想再見我了
+    --> ['我', '以為', '你', '不想', '再見', '我', '了']
+
+    """
+    given_sentence = "我以為你不想再見我了"
+    expected_result = ['我', '以為', '你', '不想', '再見', '我', '了']
+    Test = zhudi_core.ChineseProcessing(self.dictionary)
+    Test.load()
+    actual_result = Test.sentence_segmentation(given_sentence)
+    self.assertEqual(actual_result, expected_result)
 
 if __name__ == '__main__':
   unittest.main()

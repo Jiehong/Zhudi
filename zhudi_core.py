@@ -378,6 +378,66 @@ class Wubi86Table (ChineseTable):
     self.keys_faces = "abcdefghijklmnopqrstuvwxyz"
     self.keys_displayed_faces = "abcdefghijklmnopqrstuvwxyz"
 
+class ChineseProcessing ():
+  """ This class is intended to contains any functions dealing with Chinese.
+  In other words, any functions treating a sentence, a word, etc.
+
+  """
+  def __init__(self, Dictionary):
+    """ The Dictionary class is necessary for our functions to work. """
+    self.dict = Dictionary
+    self.trad_set = []
+    self.simp_set = []
+
+  def load(self):
+    """ Load and prepare needed data. """
+    for style in [self.dict.traditional, self.dict.simplified]:
+      temp = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []] # 20
+      out = []
+      for item in style:
+        item = item[:-1] # get rid of the \n
+        if len(item) <= 20:
+          temp[len(item)-1].append(item)
+      for nested_list in temp:
+        out.append(set(nested_list)) # transform in set for performance issue
+        if style == self.dict.traditional:
+          self.trad_set = out
+        else:
+          self.simp_set = out
+  # end of load()
+
+  def sentence_segmentation(self, string):
+    """ Parse the string input for Chinese words based on words in our
+    dictionary. Retuns a list of words.
+
+    """
+    def longest_word(string):
+      traditional = self.trad_set
+      simplified = self.simp_set
+      max = 20
+      if len(string) < max:
+        upper = len(string)
+      else:
+        upper = max
+      for i in range(upper, 1, -1): # from max-1 to 1
+        current_string = string[0:i]
+        if current_string in traditional[i-1]:
+          return current_string
+        elif current_string in simplified[i-1]:
+          return current_string
+    # end of longest_word
+    output = []
+    while len(string) >= 1:
+      lw = longest_word(string)
+      if lw == None:
+        lw = string[0]
+        string = string[1:] # the character is alone
+      else:
+        string = string[len(lw):]
+      output.append(lw)
+    return output
+# end of ChineseProcessing
+
 pinyin_to_zhuyin=[('zhuang', 'ㄓㄨㄤ'),
                   ('shuang', 'ㄕㄨㄤ'),
                   ('chuang', 'ㄔㄨㄤ'),
