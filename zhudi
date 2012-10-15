@@ -155,9 +155,11 @@ def main():
   # Load wubi86 infos
   wubi86_object = zhudi_core.Wubi86Table(get_data_path('wubi86'))
   wubi86_object.load()
+  # Load text segmentation tools
+  segmentation_tools = zhudi_core.ChineseProcessing(myData)
   global mw
   
-  mw = gui.main_window(myData, cangjie5_object, array30_object, wubi86_object)
+  mw = gui.main_window(myData, cangjie5_object, array30_object, wubi86_object, segmentation_tools)
   mw.hanzi = hanzi
   mw.romanisation = romanisation
   mw.language = language

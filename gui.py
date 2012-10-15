@@ -447,9 +447,90 @@ class dictionary_widget_main ():
       self.mw.set_config(self.mw.romanisation, self.mw.hanzi)
   # End of Option_window
 
+class segmentation_widget ():
+  """ Class that defines the segmentation GUI layer. """
+  def __init__(self, ChineseProcessing_class):
+    self.tools = ChineseProcessing_class
+
+  def build(self):
+    # Frame label
+    self.frame_label = Gtk.Label()
+    self.frame_label.set_text("<big>Chinese text to process:</big>")
+    self.frame_label.set_use_markup(True)
+
+    # Horzontal separator
+    self.horizontal_separator = Gtk.Separator()
+    
+    # Go! button
+    self.go_button = Gtk.Button("Go!")
+    self.go_button.connect("clicked",
+                           lambda x: self.go(self.text_field.get_buffer()))
+    # Frame title + Go! button
+    self.title_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3)
+    self.title_box.pack_start(self.frame_label, False, False, 0)
+    self.title_box.pack_start(self.horizontal_separator, True, False, 0)
+    self.title_box.pack_start(self.go_button, True, True, 0)
+
+    # Text field (to process)
+    self.text_field = Gtk.TextView()
+    self.text_field.set_editable(True)
+    self.text_field.set_cursor_visible(True)
+    self.text_field.set_wrap_mode(Gtk.WrapMode.CHAR)
+    self.scrolledwindow = Gtk.ScrolledWindow()
+    self.scrolledwindow.set_hexpand(True)
+    self.scrolledwindow.set_vexpand(True)
+    self.scrolledwindow.add(self.text_field)
+
+    # Mapping of window
+    self.left_vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+    self.left_vertical_box.pack_start(self.title_box, False, True, 0)
+    self.left_vertical_box.pack_start(self.scrolledwindow, True, True, 0)
+
+    # Results frame
+    self.results_label = Gtk.Label()
+    self.results_label.set_text("<big>Translation</big>")
+    self.results_label.set_use_markup(True)
+    self.results_field = Gtk.TextView(buffer=None)
+    self.results_field.set_editable(False)
+    self.results_field.set_cursor_visible(False)
+    # No horizontal bar, vertical bar if needed
+    self.results_field.set_wrap_mode(Gtk.WrapMode.WORD)
+    
+    self.results_scroll = Gtk.ScrolledWindow()
+    self.results_scroll.add_with_viewport(self.results_field)
+
+    self.results_frame = Gtk.Frame()
+    self.results_frame.set_label_widget(self.results_label)
+    self.results_frame.add(self.results_scroll)
+
+    self.right_vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+    self.right_vertical_box.pack_start(self.results_frame, True, True, 0)
+
+    self.horizontal_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+    self.horizontal_box.pack_start(self.left_vertical_box, False, True, 0)
+    self.horizontal_box.pack_start(self.right_vertical_box, False, True, 0)
+    self.horizontal_box.set_homogeneous(True)
+    return self.horizontal_box
+
+  def go(self, text_buffer):
+    beginning = text_buffer.get_start_iter()
+    end = text_buffer.get_end_iter()
+    text = text_buffer.get_text(beginning, end, True) # grab hidden characters
+    self.tools.load()
+    segmented_text = self.tools.sentence_segmentation(text)
+    self.display_results(segmented_text, text_buffer)
+
+  def display_results(self, text, results_buffer):
+    text_to_display = ""
+    for item in text:
+      text_to_display += item
+      text_to_display += "  "
+    results_buffer.set_text(text_to_display)
+    
 class main_window ():
   """ Class that defines the welcom screen, and gives access to other layers. """
-  def __init__(self, dictionary, cangjie5object, array30object, wubi86object):
+  def __init__(self, dictionary, cangjie5object, array30object, wubi86object,
+               segmentation_tools):
     self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
     self.window.set_default_size(800,494) # Gold number ratio
     self.window.set_title("Zhudi")
@@ -463,6 +544,7 @@ class main_window ():
     self.cangjie5object = cangjie5object
     self.array30object = array30object
     self.wubi86object = wubi86object
+    self.segmentation_tools = segmentation_tools
 
   def loop(self):
     Gtk.main()
@@ -471,6 +553,7 @@ class main_window ():
     # Items in the top drop down menu
     self.menu_store = Gtk.ListStore(int, str)
     self.menu_store.append([1, "Dictionary"])
+    self.menu_store.append([2, "Segmentation"])
     self.drop_menu = Gtk.ComboBox.new_with_model_and_entry(self.menu_store)
     self.drop_menu.set_entry_text_column(1)
     self.drop_menu.connect("changed", self.select_mode)
@@ -502,6 +585,8 @@ class main_window ():
       row_id, name = model[tree_iter][:2]
       if row_id == 1:
         self.run_dictionary()
+      elif row_id == 2:
+        self.run_segmentation()
 
   def default_mode(self):
     """ This is the default mode, i.e. when no mode is selected."""
@@ -527,6 +612,14 @@ class main_window ():
     self.main_widget.hanzi = self.hanzi
     self.main_widget.romanisation = self.romanisation
     self.main_widget.language = self.language
+    self.sub_gui = self.main_widget.build()    
+    self.vbox.pack_start(self.sub_gui, True, True, 0)
+    self.window.show_all()
+
+  def run_segmentation(self):
+    """ Start the segmentation widget. """
+    self.clean()
+    self.main_widget = segmentation_widget(self.segmentation_tools)
     self.sub_gui = self.main_widget.build()
     self.vbox.pack_start(self.sub_gui, True, True, 0)
     self.window.show_all()
