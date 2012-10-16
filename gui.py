@@ -536,7 +536,6 @@ class main_window ():
     self.window.set_title("Zhudi")
     self.window.set_position(Gtk.WindowPosition.CENTER)
 
-    self.lock = 0
     self.hanzi = ""
     self.romanisation = ""
     self.language = ""
@@ -550,43 +549,31 @@ class main_window ():
     Gtk.main()
 
   def build(self):
-    # Items in the top drop down menu
-    self.menu_store = Gtk.ListStore(int, str)
-    self.menu_store.append([1, "Dictionary"])
-    self.menu_store.append([2, "Segmentation"])
-    self.drop_menu = Gtk.ComboBox.new_with_model_and_entry(self.menu_store)
-    self.drop_menu.set_entry_text_column(1)
-    self.drop_menu.connect("changed", self.select_mode)
-
+    # Welcome tab
     self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-    self.top_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-    self.horizontal_separator = Gtk.Separator()
-    self.top_hbox.pack_start(self.horizontal_separator, False, False, 0)
-    self.top_hbox.pack_start(self.horizontal_separator, True, True, 0)
-    self.top_hbox.pack_start(self.drop_menu, True, False, 0)
-    self.vbox.pack_start(self.top_hbox, False, False, 0)
-    self.vertical_separator = Gtk.Separator()
-    self.vbox.pack_start(self.vertical_separator, False, False, 0)
 
-    if self.lock == 0:
-      self.default_mode()
-      self.vbox.pack_start(self.default_text, False, False, 0)
-      self.lock = 1
+    self.default_mode()
+    self.vbox.pack_start(self.default_text, False, False, 0)
+
+    # Dictionary tab
+    self.dict_gui = self.dictionary_gui()
+
+    # Segmentation tab
+    self.seg_gui = self.segmentation_gui()
     
-    self.window.add(self.vbox)
+    # Build the tab frame
+    self.tab_box = Gtk.Notebook()
+    self.tab_box.set_tab_pos(Gtk.PositionType.TOP)
+    self.tab_box.append_page(self.vbox, None)
+    self.tab_box.set_tab_label_text(self.vbox, "Welcome")
+    self.tab_box.append_page(self.dict_gui, None)
+    self.tab_box.set_tab_label_text(self.dict_gui, "Dictionary")
+    self.tab_box.append_page(self.seg_gui, None)
+    self.tab_box.set_tab_label_text(self.seg_gui, "Segmentation")
+
+    self.window.add(self.tab_box)
     self.window.connect("destroy",Gtk.main_quit)
     self.window.show_all()
-
-  def select_mode(self, drop_menu):
-    """ Change mode according to the selected item in the drop down menu. """
-    tree_iter = drop_menu.get_active_iter()
-    if tree_iter != None:
-      model = drop_menu.get_model()
-      row_id, name = model[tree_iter][:2]
-      if row_id == 1:
-        self.run_dictionary()
-      elif row_id == 2:
-        self.run_segmentation()
 
   def default_mode(self):
     """ This is the default mode, i.e. when no mode is selected."""
@@ -605,26 +592,18 @@ class main_window ():
                                 "\n"
                                 "This software is under the GNU GPLv3 licence.")
 
-  def run_dictionary(self):
+  def dictionary_gui(self):
     """ Start the dictionary widget. """
-    self.clean()
     self.main_widget = dictionary_widget_main(self.dictionary, self.cangjie5object,self.array30object, self.wubi86object)
     self.main_widget.hanzi = self.hanzi
     self.main_widget.romanisation = self.romanisation
     self.main_widget.language = self.language
     self.sub_gui = self.main_widget.build()    
-    self.vbox.pack_start(self.sub_gui, True, True, 0)
-    self.window.show_all()
+    return self.sub_gui
 
-  def run_segmentation(self):
+  def segmentation_gui(self):
     """ Start the segmentation widget. """
-    self.clean()
     self.main_widget = segmentation_widget(self.segmentation_tools)
     self.sub_gui = self.main_widget.build()
-    self.vbox.pack_start(self.sub_gui, True, True, 0)
-    self.window.show_all()
-
-  def clean(self):
-    self.vbox.destroy()
-    self.build()
+    return self.sub_gui
 # end of main_window
