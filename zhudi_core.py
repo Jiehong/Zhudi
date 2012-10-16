@@ -411,6 +411,17 @@ class ChineseProcessing ():
     dictionary. Retuns a list of words.
 
     """
+    chars = "abcdefghijklmnopqerstuvwxyz1234567890"
+    def isNotChinese(string):
+      cnt = 0
+      for char in string:
+        if char in chars or char in chars.upper():
+          cnt += 1
+      if cnt == len(string):
+        return True
+      else:
+        return False
+    
     def longest_word(string):
       traditional = self.trad_set
       simplified = self.simp_set
@@ -421,6 +432,8 @@ class ChineseProcessing ():
         upper = max
       for i in range(upper, 1, -1): # from max-1 to 1
         current_string = string[0:i]
+        if isNotChinese(current_string):
+          return current_string
         if current_string in traditional[i-1]:
           return current_string
         elif current_string in simplified[i-1]:
