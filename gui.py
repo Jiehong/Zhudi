@@ -18,7 +18,8 @@
     '''
   
 from gi.repository import Gtk, Pango
-import data
+
+import zhudi_core
 import os
 
 class dictionary_widget_main ():
@@ -135,7 +136,7 @@ class dictionary_widget_main ():
     left_vertical_box.add(frame_search)
     left_vertical_box.attach_next_to(language_box,
                                      frame_search,
-                                     Gtk.PositionType.BOTTOM,1,1)
+                                     Gtk.PositionType.BOTTOM, 1, 1)
     left_vertical_box.attach_next_to(frame_results,
                                      language_box,
                                      Gtk.PositionType.BOTTOM, 1, 7)
@@ -148,10 +149,10 @@ class dictionary_widget_main ():
     right_vertical_box.set_row_homogeneous(True)
 
     horizontal_box = Gtk.Grid()
-    horizontal_box.attach(left_vertical_box,0,0,1,1)
+    horizontal_box.attach(left_vertical_box, 0, 0, 1, 1)
     horizontal_box.attach_next_to(right_vertical_box,
                                   left_vertical_box,
-                                  Gtk.PositionType.RIGHT,1,1)
+                                  Gtk.PositionType.RIGHT, 1, 1)
     horizontal_box.set_column_homogeneous(True)
     horizontal_box.set_row_homogeneous(True)
     return horizontal_box
@@ -218,7 +219,8 @@ class dictionary_widget_main ():
     pronounciation_string = []
     for point in range(len(p_string)):
       if self.romanisation == "Pinyin":
-        pronounciation_string.append(self.dictionary.unicode_pinyin(p_string[point]))
+        pronounciation_string.append(self.dictionary.
+                                     unicode_pinyin(p_string[point]))
         pronounciation_string.append(" ")
       else:
         pronounciation_string.append("[")
@@ -333,9 +335,11 @@ class dictionary_widget_main ():
     overwritten if it already exists.
     """
     with open(os.environ["HOME"]+"/.zhudi/config", "w") as config_file:
-      config_file.write("# This file is the configuration file used by Zhudi in order to remember\n")
+      config_file.write("# This file is the configuration file used by Zhudi"
+                        +" in order to remember\n")
       config_file.write("# user's configuration choices.\n")
-      config_file.write("# This file has been created automatically by Zhudi.\n\n")
+      config_file.write("# This file has been created automatically by Zhudi."
+                        +"\n\n")
       config_file.write("romanisation:\n")
       config_file.write(romanisation+"\n\n")
       config_file.write("hanzi form:\n")
@@ -407,19 +411,19 @@ class dictionary_widget_main ():
       loption_vertical_box.add(hanzi_label)
       loption_vertical_box.attach_next_to(hanzi_box,
                                           hanzi_label,
-                                          Gtk.PositionType.BOTTOM,1,1)
+                                          Gtk.PositionType.BOTTOM, 1, 1)
       loption_vertical_box.attach_next_to(romanisation_label,
                                           hanzi_box,
-                                          Gtk.PositionType.BOTTOM,1,1)
+                                          Gtk.PositionType.BOTTOM, 1, 1)
       loption_vertical_box.attach_next_to(romanisation_box,
                                           romanisation_label,
-                                          Gtk.PositionType.BOTTOM,1,1)
+                                          Gtk.PositionType.BOTTOM, 1, 1)
       loption_vertical_box.attach_next_to(option_horizontal_separator,
                                           romanisation_box,
-                                          Gtk.PositionType.BOTTOM,1,1)
+                                          Gtk.PositionType.BOTTOM, 1, 1)
       loption_vertical_box.attach_next_to(ok_button,
                                           option_horizontal_separator,
-                                          Gtk.PositionType.BOTTOM,1,2)
+                                          Gtk.PositionType.BOTTOM, 1, 2)
       loption_vertical_box.set_column_homogeneous(True)
       loption_vertical_box.set_row_homogeneous(True)
 
@@ -482,7 +486,8 @@ class segmentation_widget ():
     self.scrolledwindow.add(self.text_field)
 
     # Mapping of window
-    self.left_vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+    self.left_vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                     spacing=2)
     self.left_vertical_box.pack_start(self.title_box, False, True, 0)
     self.left_vertical_box.pack_start(self.scrolledwindow, True, True, 0)
 
@@ -503,10 +508,12 @@ class segmentation_widget ():
     self.results_frame.set_label_widget(self.results_label)
     self.results_frame.add(self.results_scroll)
 
-    self.right_vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+    self.right_vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                      spacing=2)
     self.right_vertical_box.pack_start(self.results_frame, True, True, 0)
 
-    self.horizontal_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+    self.horizontal_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                                  spacing=2)
     self.horizontal_box.pack_start(self.left_vertical_box, False, True, 0)
     self.horizontal_box.pack_start(self.right_vertical_box, False, True, 0)
     self.horizontal_box.set_homogeneous(True)
@@ -528,7 +535,10 @@ class segmentation_widget ():
     results_buffer.set_text(text_to_display)
     
 class main_window ():
-  """ Class that defines the welcom screen, and gives access to other layers. """
+  """
+  Class that defines the welcome screen, and gives access to other layers.
+
+  """
   def __init__(self, dictionary, cangjie5object, array30object, wubi86object,
                segmentation_tools):
     self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
@@ -594,7 +604,10 @@ class main_window ():
 
   def dictionary_gui(self):
     """ Start the dictionary widget. """
-    self.main_widget = dictionary_widget_main(self.dictionary, self.cangjie5object,self.array30object, self.wubi86object)
+    self.main_widget = dictionary_widget_main(self.dictionary,
+                                              self.cangjie5object,
+                                              self.array30object,
+                                              self.wubi86object)
     self.main_widget.hanzi = self.hanzi
     self.main_widget.romanisation = self.romanisation
     self.main_widget.language = self.language

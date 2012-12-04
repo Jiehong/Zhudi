@@ -25,6 +25,7 @@ import argparse
 import zhudi_core
 import gui
 
+
 # Parse arguments/definitions
 parser = argparse.ArgumentParser(description='Provide a graphical interface'+
                                  ' for *.u8 dictionaries (CEDICT, CFDICT…)')
@@ -55,7 +56,7 @@ def get_data_path(path):
   return os.path.join(_ROOT, 'data', path)
 
 def main():
-  preproc_o = zhudi_core.preProcessing()
+  preproc_o = zhudi_core.PreProcessing()
   options = parser.parse_args()
   filename = options.filename
   pinyin_file_name=options.pinyin_file_name
@@ -104,18 +105,21 @@ def main():
       if os.path.isfile(r) is True:
         d += 1
     if d == len(default_files):
-      pinyin, zhuyin, traditional, simplified, translation = preproc_o.read_files(default_files[0],
-                                                                                   default_files[1],
-                                                                                   default_files[2],
-                                                                                   default_files[3],
-                                                                                   default_files[4])
+      (pinyin, zhuyin, traditional,
+       simplified, translation) = preproc_o.read_files(
+        default_files[0],
+        default_files[1],
+        default_files[2],
+        default_files[3],
+        default_files[4])
       passed = True
     else:
       print("### No input files have been given to me. Please, consider"+
             " giving me some. ###")
       quit()
   elif all(x is not None for x in files):
-    pinyin, zhuyin, traditional, simplified, translation = preproc_o.read_files(
+    (pinyin, zhuyin, traditional,
+     simplified, translation) = preproc_o.read_files(
       files[0],
       files[1],
       files[2],
@@ -135,7 +139,8 @@ def main():
     for item in saved_values:
       if item[0] == "romanisation":
         romanisation = item[1][0].upper()+item[1][1:]
-        if romanisation == "" or (romanisation != "Pinyin" and romanisation != "Zhuyin"):
+        if romanisation == "" or (romanisation != "Pinyin"
+                                  and romanisation != "Zhuyin"):
           print("It seems like the romanisation set by the  config file is"
                 "wrong. Default to Zhuyin")
           romanisation = "Zhuyin"
@@ -145,7 +150,8 @@ def main():
           print("It seems like the hanzi form set by the the config file is"
                 "wrong. Default to the Traditional.")
           hanzi = Traditional
-  myData = zhudi_core.Dictionary(simplified, traditional, translation, pinyin, zhuyin)
+  myData = zhudi_core.Dictionary(simplified, traditional, translation, pinyin,
+                                 zhuyin)
   # Load the cangjie infos
   cangjie5_object = zhudi_core.Cangjie5Table(get_data_path('cangjie5'))
   cangjie5_object.load()
@@ -159,7 +165,8 @@ def main():
   segmentation_tools = zhudi_core.ChineseProcessing(myData)
   global mw
   
-  mw = gui.main_window(myData, cangjie5_object, array30_object, wubi86_object, segmentation_tools)
+  mw = gui.main_window(myData, cangjie5_object, array30_object, wubi86_object,
+                       segmentation_tools)
   mw.hanzi = hanzi
   mw.romanisation = romanisation
   mw.language = language
