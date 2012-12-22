@@ -481,7 +481,9 @@ class ChineseProcessing ():
         string = string[1:] # the character is alone
       else:
         string = string[len(lw):]
-      output.append(lw)
+      if lw != " ":
+        output.append(lw)
+    print(output)
     return output
 # end of ChineseProcessing
 

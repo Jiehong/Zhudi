@@ -602,7 +602,7 @@ class main_window ():
                                 "\n\n"
                                 "Zhudi has been designed in order to help\n"
                                 "people learning Chinese thanks to free tools.\n"
-                                "It aimes at providing reliable, and useful\n"
+                                "It aims at providing reliable, and useful\n"
                                 "informations to the Chinese learner.\n"
                                 "The author is also a Chinese learner as well,\n"
                                 "and he uses Zhudi almost everyday.\n"
