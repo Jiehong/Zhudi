@@ -4,13 +4,14 @@
    - Now, the pinyin pronunciation is written with nice looking unicode tones.
    - Zhudi now saves and read a configuration file that contains the prefered
      values set in the option windows! (great improvement)
-   - Zhudi nows displays some table-based input methods for each entry:
-     - Array30 (行列)
+   - Zhudi now displays some table-based input methods for each entry:
+     - Array30 (行列30)
      - Cangjie5 (倉頡5)
      - Wubi86 (五筆86)
    - Fixed issue occuring when changing query.
    - Better separation between core/gui/starting functions.
    - GUI refactoring: tabs.
+   - Sentence segmentation tab!
 
 ** Version 1.2
    - Fixed issue when changing search query

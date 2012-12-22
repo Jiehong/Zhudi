@@ -16,7 +16,7 @@
     If not, see <http://www.gnu.org/licenses/>.
 
     '''
-import re, os
+import re, os, shutil
 
 import collections
 
@@ -35,6 +35,22 @@ class PreProcessing ():
     translation_list,
     pinyin_list)
     """
+
+    def unStick(pinyin):
+      """ Get rid of sticking pinyin like di4shang4 instead of di4 shang4
+      Input: astring containing a pinyin like "di4shang4"
+      Output: a string containing a pinyin like "di4 shang4"
+    
+      """
+      clean_pinyin = ""
+      for n in range(len(pinyin)):
+        clean_pinyin += pinyin[n]
+        if pinyin[n].isdigit() and (n < len(pinyin)-1):
+          if pinyin[n+1] != " ":
+            clean_pinyin += " "
+      return clean_pinyin
+    # end of unStick
+    
     dictionary = dictname
     # Open the dictionary in text mode, read only
     with open(dictionary, mode="r") as dic:
@@ -47,10 +63,20 @@ class PreProcessing ():
     pinyin_list = []
     translation_list = []
 
-    simplified_file = open("simplified", mode="w")
-    traditional_file = open("traditional", mode="w")
-    translation_file = open("translation", mode="w")
-    pinyin_file = open("pinyin", mode="w")
+    # Check if producted files already exist
+    # Delete them if needed
+    for fileName in ["simplified", "traditional",
+                     "translation", "pinyin"]:
+      try:
+        open(fileName, "r")
+      except:
+        pass
+      else:
+        shutil.move(fileName, fileName + "_saved")
+        print("Warning: " + fileName + " has been moved to "
+              + fileName + "_saved.\n"
+              + "Indeed, this file will be created by Zhudi.")   
+
     for i in liste: # for each line
       space_ind = []
       pinyin_delimiters = []
@@ -73,13 +99,8 @@ class PreProcessing ():
         for n in range(len(translation_delimiters)-1):
           translation.append(i[translation_delimiters[n]+1
                                :translation_delimiters[n+1]])
-        # Get rid of sticking pinyin like di4shang4 instead of di4 shang4
-        clean_pinyin = ""
-        for n in range(len(pinyin)):
-          clean_pinyin += pinyin[n]
-          if pinyin[n].isdigit() and (n < len(pinyin)-1):
-            if pinyin[n+1] != " ":
-              clean_pinyin += " "
+
+        clean_pinyin = unStick(pinyin)
         translation_clean = ""
         for i in range(len(translation)):
           if i != 0:
@@ -91,19 +112,20 @@ class PreProcessing ():
         simplified_list.append(simplified)
         translation_list.append(translation_clean)
 
-        simplified_file.write(simplified+"\n")
-        traditional_file.write(traditional+"\n")
-        translation_file.write(translation_clean+"\n")
-        pinyin_file.write(clean_pinyin+"\n")
-    simplified_file.close()
-    traditional_file.close()
-    translation_file.close()
-    pinyin_file.close()
+        with open("simplified", mode="a") as simplified_file:
+          simplified_file.write(simplified+"\n")
+        with open("traditional", mode="a") as traditional_file:
+          traditional_file.write(traditional+"\n")
+        with open("translation", mode="a") as translation_file:
+          translation_file.write(translation_clean+"\n")
+        with open("pinyin", mode="a") as pinyin_file:
+          pinyin_file.write(clean_pinyin+"\n")
+
     return (simplified_list,
             traditional_list,
             translation_list,
             pinyin_list)
-    # End of split()
+  # End of split()
 
   def read_files(self,
                  pinyin_file_name,
@@ -222,6 +244,7 @@ class Dictionary ():
     fourth_tone = "àèìòùǜ"
     fifth_tone = "aeiouü"
     tones = [first_tone, second_tone, third_tone, fourth_tone, fifth_tone]
+    
     def find_vowels(string):
       """Returns a list of the vowels found, in order, as a list."""
       vowels_list = "aeiouü"
@@ -231,6 +254,7 @@ class Dictionary ():
         if vowels_places[i] != -1:
           output[vowels_places[i]] = vowels_list[i]
       return output
+
     def is_there_iu(vowels_list):
       """Check if "iu" is in the pinyin string. Returns a boolean."""
       for i in range(len(vowels_list)):
@@ -238,11 +262,12 @@ class Dictionary ():
           if vowels_list[i] == "i" and vowels_list[i+1] == "u":
             return True
           return False
+
     vowels = find_vowels(syl)
     if is_there_iu(vowels) == True:
       syl = syl.replace("u", tones[tone-1][4])
       return syl
-    # To check, in order: 'a','o','e','i','u','ü' (cf. wiki)
+    # To check, in order: 'a','o','e','i','u','ü' (cf. Wikipedia)
     to_test = "aoeiuü"
     for case in to_test:
       if case in vowels:
@@ -250,7 +275,9 @@ class Dictionary ():
         return syl
 
   def write_attr(self, attr, thing):
-    """Writes "thing" into self.attr, given "attr" as a string."""
+    """Writes "thing" into self.attr, given "attr" as a string.
+
+    """
     if attr == "pinyin":
       self.pinyin = thing
     elif attr == "zhuyin":
@@ -269,9 +296,7 @@ class Dictionary ():
   def search(self, given_list, text):
     """ Search for a string in a list.
 
-    Arguments:
-     given_list: a list of words
-     text: a string
+    Arguments: given_list: a list of words text: a string
 
     Searchs for "string" in "given_list". Returns a list of indices in the
     index_list attribute of the Data class.
@@ -345,7 +370,8 @@ class Cangjie5Table (ChineseTable):
 
     # Set the keys and keys_faces
     self.keys_faces = "abcdefghijklmnopqrstuvwxyz"
-    self.keys_displayed_faces = "日月金木水火土竹戈十大中一弓人心手口尸廿山女田難卜重"
+    self.keys_displayed_faces = ("日月金木水火土竹戈十大中一弓人心手口尸廿山"
+                                 "女田難卜重")
 
 class Array30Table (ChineseTable):
   """Contains the full Array30 input method information."""
@@ -388,7 +414,9 @@ class ChineseProcessing ():
 
   """
   def __init__(self, dictionary):
-    """ The Dictionary class is necessary for our functions to work. """
+    """ The Dictionary class is necessary for our functions to work.
+
+    """
     self.dict = dictionary
     self.trad_set = []
     self.simp_set = []
@@ -444,6 +472,7 @@ class ChineseProcessing ():
         elif current_string in simplified[i-1]:
           return current_string
     # end of longest_word
+    
     output = []
     while len(string) >= 1:
       lw = longest_word(string)

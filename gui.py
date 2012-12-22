@@ -116,6 +116,7 @@ class dictionary_widget_main ():
     self.translation_box = Gtk.TextView(buffer=None)
     self.translation_box.set_editable(False)
     self.translation_box.set_cursor_visible(False)
+    
     # No horizontal bar, vertical bar if needed
     self.translation_box.set_wrap_mode(Gtk.WrapMode.WORD)
     tr = self.translation_box.get_buffer()
@@ -255,40 +256,46 @@ class dictionary_widget_main ():
                 "\n\n"+"Pronunciation\n"+''.join(pronounciation_string)+"\n\n"
                 "Meaning\n"+string+
                 "Input methods codes:\n"+
-                "Array30: "+array30_displayed+"\n"+
-                "Cangjie5: "+cangjie5_displayed+"\n"+
-                "Wubi86: "+wubi86_code)
+                "Array30 (行列30): \n"+array30_displayed+"\n\n"+
+                "Cangjie5 (倉頡5): \n"+cangjie5_displayed+"\n\n"+
+                "Wubi86 (五筆86): \n"+wubi86_code)
     bold = tr.create_tag(weight=Pango.Weight.BOLD)
     big = tr.create_tag(size=30*Pango.SCALE)
     medium = tr.create_tag(size=15*Pango.SCALE)
     blue = tr.create_tag(foreground="blue")
+    
     # "Chinese" in bold
     start_1 = tr.get_iter_at_line(0)
     end_1 = tr.get_iter_at_line(0)
     end_1.forward_to_line_end()
     tr.apply_tag(bold, start_1, end_1)
+    
     # Bigger Chinese
     start_c = tr.get_iter_at_line(1)
     end_c = tr.get_iter_at_line(1)
     end_c.forward_to_line_end()
     tr.apply_tag(big, start_c, end_c)
+    
     # "Pronunciation" in bold
     start_2 = tr.get_iter_at_line(4)
     end_2 = tr.get_iter_at_line(4)
     end_2.forward_to_line_end()
     tr.apply_tag(bold, start_2, end_2)
+    
     # "Pronunciation" in blue
     start_3 = tr.get_iter_at_line(5)
     end_3 = tr.get_iter_at_line(5)
     end_3.forward_to_line_end()
     tr.apply_tag(blue, start_3, end_3)
     tr.apply_tag(medium,start_3, end_3)
+    
     # "Meaning" in bold
     start_3 = tr.get_iter_at_line(7)
     end_3 = tr.get_iter_at_line(7)
     end_3.forward_to_line_end()
     tr.apply_tag(bold, start_3, end_3)
     guess = string.count("\n")
+    
     # "Input methods codes" in bold
     start_4 = tr.get_iter_at_line(guess+7)
     end_4 = tr.get_iter_at_line(guess+7)
