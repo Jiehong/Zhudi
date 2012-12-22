@@ -296,7 +296,9 @@ class Dictionary ():
   def search(self, given_list, text):
     """ Search for a string in a list.
 
-    Arguments: given_list: a list of words text: a string
+    Arguments:
+    given_list: a list of words
+    text: a string
 
     Searchs for "string" in "given_list". Returns a list of indices in the
     index_list attribute of the Data class.
@@ -439,21 +441,50 @@ class ChineseProcessing ():
           self.simp_set = out
   # end of load()
 
+
+  def isNotChinese(self, string):
+    chars = "abcdefghijklmnopqerstuvwxyz1234567890"
+    cnt = 0
+    for char in string:
+      if char in chars or char in chars.upper():
+        cnt += 1
+        if cnt == len(string):
+          return True
+        else:
+          return False
+
+  def searchUnique(self, word):
+    """ Search for a word in the dictionary.
+    Returns only 1 result (the index) or None if nothing found.
+
+    """
+    def findIt(word, givenList):
+      """ Returns the index of the found word.
+
+      """
+      cnt = 0
+      for case in givenList:
+        if word == case[:-1]:
+          return cnt
+        cnt += 1
+      return None
+        
+    if self.isNotChinese(word):
+      return None
+    else:
+      r1 = findIt(word, self.dict.traditional)
+      r2 = findIt(word, self.dict.simplified)
+      if r2 is None:
+        if r1 is None:
+          return None
+        return r1
+      return r2
+        
   def sentence_segmentation(self, string):
     """ Parse the string input for Chinese words based on words in our
     dictionary. Retuns a list of words.
 
     """
-    chars = "abcdefghijklmnopqerstuvwxyz1234567890"
-    def isNotChinese(string):
-      cnt = 0
-      for char in string:
-        if char in chars or char in chars.upper():
-          cnt += 1
-      if cnt == len(string):
-        return True
-      else:
-        return False
     
     def longest_word(string):
       traditional = self.trad_set
@@ -465,7 +496,7 @@ class ChineseProcessing ():
         upper = maxi
       for i in range(upper, 1, -1): # from max-1 to 1
         current_string = string[0:i]
-        if isNotChinese(current_string):
+        if self.isNotChinese(current_string):
           return current_string
         if current_string in traditional[i-1]:
           return current_string
@@ -483,7 +514,6 @@ class ChineseProcessing ():
         string = string[len(lw):]
       if lw != " ":
         output.append(lw)
-    print(output)
     return output
 # end of ChineseProcessing
 

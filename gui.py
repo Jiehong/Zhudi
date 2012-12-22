@@ -459,9 +459,17 @@ class dictionary_widget_main ():
   # End of Option_window
 
 class segmentation_widget ():
-  """ Class that defines the segmentation GUI layer. """
-  def __init__(self, ChineseProcessing_class):
+  """ Class that defines the segmentation GUI layer.
+
+  """
+  def __init__(self, ChineseProcessing_class, hanziForm,
+               romanisationForm, cangjie5, array30, wubi86):
     self.tools = ChineseProcessing_class
+    self.hanzi = hanziForm
+    self.romanisation = romanisationForm
+    self.cangjie5object = cangjie5
+    self.array30object = array30
+    self.wubi86object = wubi86
 
   def build(self):
     # Frame label
@@ -492,11 +500,40 @@ class segmentation_widget ():
     self.scrolledwindow.set_vexpand(True)
     self.scrolledwindow.add(self.text_field)
 
+    # Results part in a list
+    self.results_list = Gtk.ListStore(str)
+    results_tree = Gtk.TreeView(self.results_list)
+    renderer = Gtk.CellRendererText()
+    results_tree.tvcolumn = Gtk.TreeViewColumn("Results", renderer, text=0)
+    results_tree.append_column(results_tree.tvcolumn)
+    self.results_list.cell = Gtk.CellRendererText()
+    results_tree.tvcolumn.pack_start(self.results_list.cell, True)
+    results_tree.set_enable_search(False)
+    results_tree.tvcolumn.set_sort_column_id(False)
+    results_tree.set_reorderable(False)
+    select = results_tree.get_selection()
+    select.connect("changed", self.wordSelected)
+
+    results_scroll = Gtk.ScrolledWindow()
+    # No horizontal bar, automatic vertical bar
+    results_scroll.set_policy(Gtk.PolicyType.NEVER,
+                              Gtk.PolicyType.AUTOMATIC)
+    results_scroll.add_with_viewport(results_tree)
+
+    self.frame_results = Gtk.Frame()
+    self.frame_results.add(results_scroll)
+
     # Mapping of window
-    self.left_vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                                     spacing=2)
-    self.left_vertical_box.pack_start(self.title_box, False, True, 0)
-    self.left_vertical_box.pack_start(self.scrolledwindow, True, True, 0)
+    self.left_vertical_box = Gtk.Grid()
+    self.left_vertical_box.add(self.title_box)
+    self.left_vertical_box.attach_next_to(self.scrolledwindow,
+                                          self.title_box,
+                                          Gtk.PositionType.BOTTOM, 1, 2)
+    self.left_vertical_box.attach_next_to(self.frame_results,
+                                          self.scrolledwindow,
+                                          Gtk.PositionType.BOTTOM, 1, 8)
+    self.left_vertical_box.set_column_homogeneous(True)
+    self.left_vertical_box.set_row_homogeneous(True)
 
     # Results frame
     self.results_label = Gtk.Label()
@@ -530,17 +567,167 @@ class segmentation_widget ():
     beginning = text_buffer.get_start_iter()
     end = text_buffer.get_end_iter()
     text = text_buffer.get_text(beginning, end, True) # grab hidden characters
+    text = text.replace(" ", "")
     self.tools.load()
     segmented_text = self.tools.sentence_segmentation(text)
     self.display_results(segmented_text, text_buffer)
+    self.displaySelectableWords(segmented_text)
+
+  def displaySelectableWords(self, segmented_text):
+    widget = self.results_list
+    widget.clear()
+    for word in segmented_text:
+      widget.append([word])
 
   def display_results(self, text, results_buffer):
+    """ Display the segmentation result directly in the input area.
+    This has a nice side effect: allowing you to copy the result.
+
+    """
     text_to_display = ""
     for item in text:
       text_to_display += item
       text_to_display += "  "
     results_buffer.set_text(text_to_display)
+
+  def display_translation(self, index, byPass=False):
+    """ Display the given index [of a word] in a nicely formatted output.
+    If byPass is True, then the index variable is a string that has to
+    be displayed as it.
+
+    """
+    tr = self.results_field.get_buffer()
+
+    if byPass:
+      tr.set_text(index)
+      return
+
+    if self.hanzi == "Traditional":
+      hanzi_dic = self.tools.dict.traditional
+    else:
+      hanzi_dic = self.tools.dict.simplified
+      
+    if self.romanisation == "Zhuyin":
+      romanisation_dic = self.tools.dict.zhuyin
+    else:
+      romanisation_dic = self.tools.dict.pinyin
+
+    slash_list = []
+    t = self.tools.dict.translation[index]
+    for l in range(len(t)):
+      if t[l] == "/":
+        slash_list.append(l)
+    temp = 0
+    trans = []
+    for k in range(len(slash_list)):
+      trans.append(str(k+1)+". "+t[temp:slash_list[k]])
+      temp = slash_list[k]+1
+    trans.append(str(len(slash_list)+1)+". "+t[temp:len(t)])
+    string = ""
+    for i in range(len(slash_list)+1):
+      string = string + trans[i]+"\n"
+
+    # Add [] arround the pronounciation parts
+    p_string = romanisation_dic[index].split()
+    pronounciation_string = []
+    for point in range(len(p_string)):
+      if self.romanisation == "Pinyin":
+        pronounciation_string.append(self.tools.dict.
+                                     unicode_pinyin(p_string[point]))
+        pronounciation_string.append(" ")
+      else:
+        pronounciation_string.append("[")
+        pronounciation_string.append(p_string[point])
+        pronounciation_string.append("]")
+    # Display the cangjie of the entry
+    cangjie5_displayed = ""
+    for hanzi in hanzi_dic[index]:
+      if hanzi != "\n":
+        key_code, displayed_code = self.cangjie5object.proceed(hanzi)
+        cangjie5_displayed += "["
+        cangjie5_displayed += displayed_code
+        cangjie5_displayed += "]"
+    # Display the array30 of the entry
+    array30_displayed = ""
+    for hanzi in hanzi_dic[index]:
+      if hanzi != "\n":
+        key_code, displayed_code = self.array30object.proceed(hanzi)
+        array30_displayed += "["
+        array30_displayed += displayed_code
+        array30_displayed += "]"
+    # Display the array30 of the entry (here code = displayed)
+    wubi86_code = ""
+    for hanzi in hanzi_dic[index]:
+      if hanzi != "\n":
+        key_code, displayed_code = self.wubi86object.proceed(hanzi)
+        wubi86_code += "["
+        wubi86_code += key_code
+        wubi86_code += "]"
+    # Display in the Translation box
+    tr.set_text("Chinese\n"+hanzi_dic[index]+
+                "\n\n"+"Pronunciation\n"+''.join(pronounciation_string)+"\n\n"
+                "Meaning\n"+string+
+                "Input methods codes:\n"+
+                "Array30 (行列30): \n"+array30_displayed+"\n\n"+
+                "Cangjie5 (倉頡5): \n"+cangjie5_displayed+"\n\n"+
+                "Wubi86 (五筆86): \n"+wubi86_code)
+    bold = tr.create_tag(weight=Pango.Weight.BOLD)
+    big = tr.create_tag(size=30*Pango.SCALE)
+    medium = tr.create_tag(size=15*Pango.SCALE)
+    blue = tr.create_tag(foreground="blue")
     
+    # "Chinese" in bold
+    start_1 = tr.get_iter_at_line(0)
+    end_1 = tr.get_iter_at_line(0)
+    end_1.forward_to_line_end()
+    tr.apply_tag(bold, start_1, end_1)
+    
+    # Bigger Chinese
+    start_c = tr.get_iter_at_line(1)
+    end_c = tr.get_iter_at_line(1)
+    end_c.forward_to_line_end()
+    tr.apply_tag(big, start_c, end_c)
+    
+    # "Pronunciation" in bold
+    start_2 = tr.get_iter_at_line(4)
+    end_2 = tr.get_iter_at_line(4)
+    end_2.forward_to_line_end()
+    tr.apply_tag(bold, start_2, end_2)
+    
+    # "Pronunciation" in blue
+    start_3 = tr.get_iter_at_line(5)
+    end_3 = tr.get_iter_at_line(5)
+    end_3.forward_to_line_end()
+    tr.apply_tag(blue, start_3, end_3)
+    tr.apply_tag(medium,start_3, end_3)
+    
+    # "Meaning" in bold
+    start_3 = tr.get_iter_at_line(7)
+    end_3 = tr.get_iter_at_line(7)
+    end_3.forward_to_line_end()
+    tr.apply_tag(bold, start_3, end_3)
+    guess = string.count("\n")
+    
+    # "Input methods codes" in bold
+    start_4 = tr.get_iter_at_line(guess+7)
+    end_4 = tr.get_iter_at_line(guess+7)
+    end_4.forward_to_line_end()
+    tr.apply_tag(bold, start_4, end_4)
+    
+  def wordSelected(self, selection):
+    """ Display the selected word in the translation area.
+
+    """
+    model, treeiter = selection.get_selected()
+    if treeiter is not None:
+      word = model[treeiter][0]
+      if word is not None:
+        index = self.tools.searchUnique(word)
+        if index is None:
+          self.display_translation(word, True)
+        else:
+          self.display_translation(index)
+          
 class main_window ():
   """
   Class that defines the welcome screen, and gives access to other layers.
@@ -623,7 +810,12 @@ class main_window ():
 
   def segmentation_gui(self):
     """ Start the segmentation widget. """
-    self.main_widget = segmentation_widget(self.segmentation_tools)
+    self.main_widget = segmentation_widget(self.segmentation_tools,
+                                           self.hanzi,
+                                           self.romanisation,
+                                           self.cangjie5object,
+                                           self.array30object,
+                                           self.wubi86object)
     self.sub_gui = self.main_widget.build()
     return self.sub_gui
 # end of main_window
