@@ -53,9 +53,10 @@ parser.add_argument("-sd", "--simplified-file", dest="simplified_file_name",
                     " dictionary file.")
 
 # Function to locate the data folder
-_ROOT = os.path.abspath(os.path.dirname(__file__))
+#_ROOT = os.path.abspath(os.path.dirname(__file__))
+_ROOT="/usr/share/"
 def get_data_path(path):
-  return os.path.join(_ROOT, 'data', path)
+  return os.path.join(_ROOT, 'zhudi-data', path)
 
 def main():
   preproc_o = zhudi_processing.PreProcessing()

@@ -10,4 +10,7 @@ setup(name="zhudi",
       url="https://github.com/Jiehong/Zhudi",
       license="GPLv3",
       py_modules=["gui", "zhudi_data", "zhudi_processing", "zhudi_chinese_table"],
-      scripts=["zhudi"])
+      scripts=['zhudi'],
+      data_files=[('share/zhudi-data', ['zhudi-data/array30',
+                                        'zhudi-data/cangjie5',
+                                        'zhudi-data/wubi86'])])
