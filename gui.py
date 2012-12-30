@@ -18,20 +18,23 @@
     '''
   
 from gi.repository import Gtk, Pango
-
-import zhudi_core
 import os
 
+import zhudi_data
+import zhudi_processing
+import zhudi_chinese_table
+
+cangjie5Object = zhudi_chinese_table.Cangjie5Table()
+array30Object = zhudi_chinese_table.Array30Table()
+wubi86Object = zhudi_chinese_table.Wubi86Table()
+
 class dictionary_widget_main ():
-  def __init__(self, dictionary, cangjie5object, array30object, wubi86object):
+  def __init__(self):
     self.hanzi = ""
     self.romanisation = ""
     self.language = ""
-    self.dictionary = dictionary
+    self.results_list = []
     self.lock = False
-    self.cangjie5object = cangjie5object
-    self.array30object = array30object
-    self.wubi86object = wubi86object
 
   def build(self):
     # Search label
@@ -162,18 +165,18 @@ class dictionary_widget_main ():
     text = searchfield.get_text()
     if text == "":
       self.lock = True
-      self.dictionary.index_list = []
+      dictionaryToolsObject.index = []
       self.results_list.clear()
       self.display_translation(0)
     else:
       self.lock = False
       if self.language == "Latin":
-        given_list = self.dictionary.translation
+        given_list = dataObject.translation
       elif self.hanzi == "Traditional":
-        given_list = self.dictionary.traditional
+        given_list = dataObject.traditional
       else:
-        given_list = self.dictionary.simplified
-      self.dictionary.search(given_list, text)
+        given_list = dataObject.simplified
+      dictionaryToolsObject.search(given_list, text)
       self.update_results()
       self.display_translation(0)
   # end of search_asked
@@ -183,25 +186,25 @@ class dictionary_widget_main ():
 
   def display_translation(self, which):
     tr = self.translation_box.get_buffer()
-    if len(self.dictionary.index_list) == 0:
+    if len(dictionaryToolsObject.index) == 0:
       tr.set_text("Nothing found.")
       if len(self.results_list) == 0:
         self.results_list.append(["Nothing found."])
       return
     else:
-      index = self.dictionary.index_list[which]
+      index = dictionaryToolsObject.index[which]
 
     if self.hanzi == "Traditional":
-      hanzi_dic = self.dictionary.traditional
+      hanzi_dic = dataObject.traditional
     else:
-      hanzi_dic = self.dictionary.simplified
+      hanzi_dic = dataObject.simplified
     if self.romanisation == "Zhuyin":
-      romanisation_dic = self.dictionary.zhuyin
+      romanisation_dic = dataObject.zhuyin
     else:
-      romanisation_dic = self.dictionary.pinyin
+      romanisation_dic = dataObject.pinyin
 
     slash_list = []
-    t = self.dictionary.translation[index]
+    t = dataObject.translation[index]
     for l in range(len(t)):
       if t[l] == "/":
         slash_list.append(l)
@@ -220,7 +223,7 @@ class dictionary_widget_main ():
     pronounciation_string = []
     for point in range(len(p_string)):
       if self.romanisation == "Pinyin":
-        pronounciation_string.append(self.dictionary.
+        pronounciation_string.append(dictionaryToolsObject.
                                      unicode_pinyin(p_string[point]))
         pronounciation_string.append(" ")
       else:
@@ -231,7 +234,8 @@ class dictionary_widget_main ():
     cangjie5_displayed = ""
     for hanzi in hanzi_dic[index]:
       if hanzi != "\n":
-        key_code, displayed_code = self.cangjie5object.proceed(hanzi)
+        key_code, displayed_code = cangjie5Object.proceed(hanzi,
+                                                          dataObject.cangjie5)
         cangjie5_displayed += "["
         cangjie5_displayed += displayed_code
         cangjie5_displayed += "]"
@@ -239,7 +243,8 @@ class dictionary_widget_main ():
     array30_displayed = ""
     for hanzi in hanzi_dic[index]:
       if hanzi != "\n":
-        key_code, displayed_code = self.array30object.proceed(hanzi)
+        key_code, displayed_code = array30Object.proceed(hanzi,
+                                                         dataObject.array30)
         array30_displayed += "["
         array30_displayed += displayed_code
         array30_displayed += "]"
@@ -247,7 +252,8 @@ class dictionary_widget_main ():
     wubi86_code = ""
     for hanzi in hanzi_dic[index]:
       if hanzi != "\n":
-        key_code, displayed_code = self.wubi86object.proceed(hanzi)
+        key_code, displayed_code = wubi86Object.proceed(hanzi,
+                                                        dataObject.wubi86)
         wubi86_code += "["
         wubi86_code += key_code
         wubi86_code += "]"
@@ -306,13 +312,13 @@ class dictionary_widget_main ():
     self.results_list.clear()
     displayed_index = 1
     t = 40 # threshold for line wrap
-    for k in self.dictionary.index_list:
+    for k in dictionaryToolsObject.index:
       if self.language == "Latin":
-        string = self.dictionary.translation[k]
+        string = dataObject.translation[k]
       elif self.hanzi == "Traditional":
-        string = self.dictionary.traditional[k]
+        string = dataObject.traditional[k]
       else:
-        string = self.dictionary.simplified[k]
+        string = dataObject.simplified[k]
       if len(string) > t:
         string = str(displayed_index)+". "+string[0:t]+"…"
       else:
@@ -331,12 +337,12 @@ class dictionary_widget_main ():
           while row[t] != ".":
             t += 1
           figure = int(row[0:t])
-          if figure > len(self.dictionary.index_list):
+          if figure > len(dictionaryToolsObject.index):
             self.display_translation(0)
           else:
             self.display_translation(figure-1)
   
-  def set_config(self,romanisation, hanzi):
+  def set_config(self, romanisation, hanzi):
     """
     This function saves values to the config file. The config file is
     overwritten if it already exists.
@@ -363,8 +369,8 @@ class dictionary_widget_main ():
       self.window.hide()
 
     def __init__(self, main_window):
-      self.hanzi = ''
-      self.romanisation = ''
+      self.hanzi = ""
+      self.romanisation = ""
       self.mw = main_window
       # Definition of the options window
       self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
@@ -462,14 +468,9 @@ class segmentation_widget ():
   """ Class that defines the segmentation GUI layer.
 
   """
-  def __init__(self, ChineseProcessing_class, hanziForm,
-               romanisationForm, cangjie5, array30, wubi86):
-    self.tools = ChineseProcessing_class
+  def __init__(self, hanziForm, romanisationForm):
     self.hanzi = hanziForm
     self.romanisation = romanisationForm
-    self.cangjie5object = cangjie5
-    self.array30object = array30
-    self.wubi86object = wubi86
 
   def build(self):
     # Frame label
@@ -568,8 +569,7 @@ class segmentation_widget ():
     end = text_buffer.get_end_iter()
     text = text_buffer.get_text(beginning, end, True) # grab hidden characters
     text = text.replace(" ", "")
-    self.tools.load()
-    segmented_text = self.tools.sentence_segmentation(text)
+    segmented_text = segmentationToolsObject.sentence_segmentation(text)
     self.display_results(segmented_text, text_buffer)
     self.displaySelectableWords(segmented_text)
 
@@ -603,17 +603,17 @@ class segmentation_widget ():
       return
 
     if self.hanzi == "Traditional":
-      hanzi_dic = self.tools.dict.traditional
+      hanzi_dic = dataObject.traditional
     else:
-      hanzi_dic = self.tools.dict.simplified
+      hanzi_dic = dataObject.simplified
       
     if self.romanisation == "Zhuyin":
-      romanisation_dic = self.tools.dict.zhuyin
+      romanisation_dic = dataObject.zhuyin
     else:
-      romanisation_dic = self.tools.dict.pinyin
+      romanisation_dic = dataObject.pinyin
 
     slash_list = []
-    t = self.tools.dict.translation[index]
+    t = dataObject.translation[index]
     for l in range(len(t)):
       if t[l] == "/":
         slash_list.append(l)
@@ -632,7 +632,7 @@ class segmentation_widget ():
     pronounciation_string = []
     for point in range(len(p_string)):
       if self.romanisation == "Pinyin":
-        pronounciation_string.append(self.tools.dict.
+        pronounciation_string.append(dictionaryToolsObject.
                                      unicode_pinyin(p_string[point]))
         pronounciation_string.append(" ")
       else:
@@ -643,7 +643,8 @@ class segmentation_widget ():
     cangjie5_displayed = ""
     for hanzi in hanzi_dic[index]:
       if hanzi != "\n":
-        key_code, displayed_code = self.cangjie5object.proceed(hanzi)
+        key_code, displayed_code = cangjie5Object.proceed(hanzi,
+                                                          dataObject.cangjie5)
         cangjie5_displayed += "["
         cangjie5_displayed += displayed_code
         cangjie5_displayed += "]"
@@ -651,7 +652,8 @@ class segmentation_widget ():
     array30_displayed = ""
     for hanzi in hanzi_dic[index]:
       if hanzi != "\n":
-        key_code, displayed_code = self.array30object.proceed(hanzi)
+        key_code, displayed_code = array30Object.proceed(hanzi,
+                                                         dataObject.array30)
         array30_displayed += "["
         array30_displayed += displayed_code
         array30_displayed += "]"
@@ -659,7 +661,8 @@ class segmentation_widget ():
     wubi86_code = ""
     for hanzi in hanzi_dic[index]:
       if hanzi != "\n":
-        key_code, displayed_code = self.wubi86object.proceed(hanzi)
+        key_code, displayed_code = wubi86Object.proceed(hanzi,
+                                                        dataObject.wubi86)
         wubi86_code += "["
         wubi86_code += key_code
         wubi86_code += "]"
@@ -722,7 +725,7 @@ class segmentation_widget ():
     if treeiter is not None:
       word = model[treeiter][0]
       if word is not None:
-        index = self.tools.searchUnique(word)
+        index = segmentationToolsObject.searchUnique(word, dataObject)
         if index is None:
           self.display_translation(word, True)
         else:
@@ -733,26 +736,27 @@ class main_window ():
   Class that defines the welcome screen, and gives access to other layers.
 
   """
-  def __init__(self, dictionary, cangjie5object, array30object, wubi86object,
-               segmentation_tools):
+  def __init__(self, dataObject):
     self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
     self.window.set_default_size(800,494) # Gold number ratio
     self.window.set_title("Zhudi")
     self.window.set_position(Gtk.WindowPosition.CENTER)
-
+    self.dataObject = dataObject
     self.hanzi = ""
     self.romanisation = ""
     self.language = ""
-    self.dictionary = dictionary
-    self.cangjie5object = cangjie5object
-    self.array30object = array30object
-    self.wubi86object = wubi86object
-    self.segmentation_tools = segmentation_tools
 
   def loop(self):
     Gtk.main()
 
   def build(self):
+    global dataObject
+    dataObject = self.dataObject
+    global dictionaryToolsObject
+    dictionaryToolsObject = zhudi_processing.DictionaryTools()
+    global segmentationToolsObject
+    segmentationToolsObject = zhudi_processing.SegmentationTools()
+    segmentationToolsObject.load(dataObject)
     # Welcome tab
     self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
 
@@ -785,7 +789,7 @@ class main_window ():
     self.default_text.set_label("\n\n\n\n"
                                 "          Zhudi"
                                 "\n\n"
-                                "                                     Jiehong Ma, 2011–2012"
+                                "                                     Jiehong Ma, 2011–2013"
                                 "\n\n"
                                 "Zhudi has been designed in order to help\n"
                                 "people learning Chinese thanks to free tools.\n"
@@ -798,10 +802,7 @@ class main_window ():
 
   def dictionary_gui(self):
     """ Start the dictionary widget. """
-    self.main_widget = dictionary_widget_main(self.dictionary,
-                                              self.cangjie5object,
-                                              self.array30object,
-                                              self.wubi86object)
+    self.main_widget = dictionary_widget_main()
     self.main_widget.hanzi = self.hanzi
     self.main_widget.romanisation = self.romanisation
     self.main_widget.language = self.language
@@ -810,12 +811,7 @@ class main_window ():
 
   def segmentation_gui(self):
     """ Start the segmentation widget. """
-    self.main_widget = segmentation_widget(self.segmentation_tools,
-                                           self.hanzi,
-                                           self.romanisation,
-                                           self.cangjie5object,
-                                           self.array30object,
-                                           self.wubi86object)
+    self.main_widget = segmentation_widget(self.hanzi, self.romanisation)
     self.sub_gui = self.main_widget.build()
     return self.sub_gui
 # end of main_window

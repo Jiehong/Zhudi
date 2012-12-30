@@ -12,6 +12,8 @@
    - Better separation between core/gui/starting functions.
    - GUI refactoring: tabs.
    - Sentence segmentation tab!
+   - Code refactoring: memory conssumption greatly reduced (and clarity of the
+     code improved).
 
 ** Version 1.2
    - Fixed issue when changing search query
