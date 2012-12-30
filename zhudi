@@ -93,10 +93,11 @@ def main():
                              [],
                              [],
                              pinyin_list)
-    print(" Pinyin to Zhuyin conversion in progress…")
-    zhuyin = myData.pinyin_to_zhuyin(pinyin_list)
+    print("\nPinyin to Zhuyin conversion in progress…")
+    dicoToolsObject = zhudi_processing.DictionaryTools()
+    zhuyin = dicoToolsObject.pinyin_to_zhuyin(pinyin_list,myData)
     myData.zhuyin = zhuyin
-    
+
     # Saves the Zhuyin list into a file
     with open("zhuyin", mode="w") as zhuyin_file:
       for line in zhuyin:
@@ -172,7 +173,6 @@ def main():
   dataObject= zhudi_data.Data(simplified, traditional, translation,
                               wubi_dic, array_dic, cangjie_dic,
                               pinyin, zhuyin)
-
 
   mw = gui.main_window(dataObject)
   mw.hanzi = hanzi

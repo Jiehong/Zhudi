@@ -298,9 +298,9 @@ class DictionaryTools ():
   def __init__(self):
     self.index = []
 
-  def pinyin_to_zhuyin(self, pinyin):
+  def pinyin_to_zhuyin(self, pinyin, dataObject):
     """Converts the given pinyin list into zhuyin. Returns a list."""
-    pinyin_zhuyin_dict = pinyin_to_zhuyin
+    pinyin_zhuyin_dict = dataObject.pinyin_to_zhuyin
 
     # for speed issue, transforme the list of pinyin in one long string
     to_convert = " " + " # ".join(pinyin)
