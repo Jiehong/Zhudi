@@ -142,16 +142,26 @@ class TestZhudiProcessing(unittest.TestCase):
     """
     Test searchUnique function.
     This function returns and index (exact matches) or None if nothing found.
-
+    (It only works for Chinese!)
+    
     """
     class fdo():
-      self.traditional = ["hello", "hello John", "goodbye", "salut"]
-      self.simplified = self.traditional
+      def __init__(self):
+        self.traditional = ["我", "你", "我你", "再見"]
+        self.simplified = self.traditional
+        
     fakeDataObject = fdo()
-    given_good_word = "hello"
-    expected_good_result = [0]
+    given_good_word = "我"
+    expected_good_result = 0
     actual_good_result = self.segTools.searchUnique(given_good_word,
                                                     fakeDataObject)
+    self.assertEqual(actual_good_result, expected_good_result)
+    
+    given_bad_word = "以為"
+    expected_bad_result = None
+    actual_bad_result = self.segTools.searchUnique(given_bad_word,
+                                                   fakeDataObject)
+    self.assertEqual(actual_bad_result, expected_bad_result)
 
 if __name__ == '__main__':
   unittest.main()

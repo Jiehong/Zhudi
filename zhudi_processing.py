@@ -238,7 +238,9 @@ class SegmentationTools ():
       """
       cnt = 0
       for case in givenList:
-        if word == case[:-1]:
+        if case[-1] == "\n":
+          case = case[:-1]
+        if word == case:
           return cnt
         cnt += 1
       return None
