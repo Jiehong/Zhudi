@@ -163,5 +163,22 @@ class TestZhudiProcessing(unittest.TestCase):
                                                    fakeDataObject)
     self.assertEqual(actual_bad_result, expected_bad_result)
 
+  def test_isNotChinese(self):
+    """
+    Test isNotChinese, which purpose is to test if the given string is Chinese
+    or not.
+    returns True (if not chines) or False (if chinese)
+
+    """
+    given_string = "以為"
+    expected_result = False
+    actual_result = self.segTools.isNotChinese(given_string)
+    self.assertEqual(actual_result, expected_result)
+
+    given_string = "hello"
+    expected_result = True
+    actual_result = self.segTools.isNotChinese(given_string)
+    self.assertEqual(actual_result, expected_result)
+
 if __name__ == '__main__':
   unittest.main()

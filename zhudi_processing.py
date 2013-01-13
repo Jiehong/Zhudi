@@ -222,10 +222,10 @@ class SegmentationTools ():
     for char in string:
       if char in chars or char in chars.upper():
         cnt += 1
-        if cnt == len(string):
-          return True
-        else:
-          return False
+    if cnt == len(string):
+      return True
+    else:
+      return False
 
   def searchUnique(self, word, dataObject):
     """ Search for a word in the dictionary.
