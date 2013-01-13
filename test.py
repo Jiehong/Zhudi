@@ -167,7 +167,7 @@ class TestZhudiProcessing(unittest.TestCase):
     """
     Test isNotChinese, which purpose is to test if the given string is Chinese
     or not.
-    returns True (if not chines) or False (if chinese)
+    returns True (if not chinese) or False (if chinese)
 
     """
     given_string = "以為"
@@ -180,5 +180,13 @@ class TestZhudiProcessing(unittest.TestCase):
     actual_result = self.segTools.isNotChinese(given_string)
     self.assertEqual(actual_result, expected_result)
 
+class TestZhudiChineseTable(unittest.TestCase):
+
+  def test_proceed(self):
+    pass
+
+  def test_load(self):
+    pass
+    
 if __name__ == '__main__':
   unittest.main()
