@@ -27,26 +27,42 @@ If not, see <http://www.gnu.org/licenses/>.
 import unittest
 
 # Add here the part you want to test if it is a new one
-import zhudi_core
+import zhudi_chinese_table
+import zhudi_data
+import zhudi_processing
 
-class TestDataDictionaryFunctions(unittest.TestCase):
-  """ TestDataFunctions aims to test functions defined in zhudi_core.py,
-   and especially the ones in the Dictionary class. """
+def setUp():
+  """ Initialisation needed by functions of Dictionary class. """
+  with open("simplified", mode="r") as simp_file:
+    simp = simp_file.readlines()
+  with open("traditional", mode="r") as trad_file:
+    trad = trad_file.readlines()
+  with open("translation", mode="r") as trans_file:
+    trans = trans_file.readlines()
+  with open("pinyin", mode="r") as pin_file:
+    pin = pin_file.readlines()
+  with open("zhuyin", mode="r") as zhu_file:
+    zhu = zhu_file.readlines()
+  array30Object = zhudi_chinese_table.Array30Table()
+  array30_dic = array30Object.load("zhudi-data/array30")
+  cangjie5Object = zhudi_chinese_table.Cangjie5Table()
+  cangjie5_dic = cangjie5Object.load("zhudi-data/cangjie5")
+  wubi86Object = zhudi_chinese_table.Wubi86Table()
+  wubi86_dic = wubi86Object.load("zhudi-data/wubi86")
+  dataObject = zhudi_data.Data(simp,trad,trans,
+                               wubi86_dic, array30_dic, cangjie5_dic,
+                               pin,zhu)
+  return dataObject
+global dataObject
+dataObject =  setUp()
 
+class TestZhudiProcessing(unittest.TestCase):
+  
   def setUp(self):
-    """ Initialisation needed by functions of Dictionary class. """
-    with open("simplified", mode="r") as simp_file:
-      simp = simp_file.readlines()
-    with open("traditional", mode="r") as trad_file:
-      trad = trad_file.readlines()
-    with open("translation", mode="r") as trans_file:
-      trans = trans_file.readlines()
-    with open("pinyin", mode="r") as pin_file:
-      pin = pin_file.readlines()
-    with open("zhuyin", mode="r") as zhu_file:
-      zhu = zhu_file.readlines()
-    self.dictionary = zhudi_core.Dictionary(simp,trad,trans,pin,zhu)
-
+    self.dicTools = zhudi_processing.DictionaryTools()
+    self.segTools = zhudi_processing.SegmentationTools()
+    self.segTools.load(dataObject)
+    
   def test_pinyin_to_zhuyin(self):
     """ Test pinyin_to_zhuyin conversion function. """
     pinyin = ["fei1",
@@ -61,20 +77,8 @@ class TestDataDictionaryFunctions(unittest.TestCase):
                   "ㄈㄟˋ",
                   "ㄈㄟ˙",
                   "ㄈㄟ ㄔㄤˊ"]
-    zhuyin_test = self.dictionary.pinyin_to_zhuyin(pinyin)
+    zhuyin_test = self.dicTools.pinyin_to_zhuyin(pinyin, dataObject)
     self.assertEqual(zhuyin_ref, zhuyin_test)
-
-  def test_write_attr(self):
-    """
-    Test write_attr function. This function saves a list in an existing
-    attribute of the Dictionary class.
-    
-    """
-    # Good case
-    list_ref = [1, 2, 3, 4]
-    attr = "pinyin"
-    self.dictionary.write_attr(attr, list_ref)
-    self.assertEqual(list_ref, self.dictionary.pinyin)
   
   def test_search(self):
     """ Test search function. This function returns the list of index
@@ -96,12 +100,12 @@ class TestDataDictionaryFunctions(unittest.TestCase):
 
     given_list = ["Hello", "Bye", "Hello Fred", "Python"]
     text = "Hello"
-    self.dictionary.search(given_list,text)
-    self.assertEqual(self.dictionary.index_list,[0, 2])
+    self.dicTools.search(given_list,text)
+    self.assertEqual(self.dicTools.index,[0, 2])
 
     text = "bye"
-    self.dictionary.search(given_list,text)
-    self.assertEqual(self.dictionary.index_list,[1])
+    self.dicTools.search(given_list,text)
+    self.assertEqual(self.dicTools.index,[1])
 
   def test_unicode_pinyin(self):
     """
@@ -116,9 +120,9 @@ class TestDataDictionaryFunctions(unittest.TestCase):
     expected_list = ["pīn", "jiǎ", "jiù", "huì", "biáo", "ma"]
     resulting_list = []
     for k in given_list:
-      resulting_list.append(self.dictionary.unicode_pinyin(k))
+      resulting_list.append(self.dicTools.unicode_pinyin(k))
     self.assertEqual(resulting_list, expected_list)
-      
+
   def test_sentence_segmentation(self):
     """
     Test sentence_segmentation function (in ChineseProcessing class).
@@ -131,9 +135,7 @@ class TestDataDictionaryFunctions(unittest.TestCase):
     """
     given_sentence = "我以為你不想再見我了"
     expected_result = ['我', '以為', '你', '不想', '再見', '我', '了']
-    Test = zhudi_core.ChineseProcessing(self.dictionary)
-    Test.load()
-    actual_result = Test.sentence_segmentation(given_sentence)
+    actual_result = self.segTools.sentence_segmentation(given_sentence)
     self.assertEqual(actual_result, expected_result)
 
 if __name__ == '__main__':
