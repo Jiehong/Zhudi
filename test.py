@@ -138,5 +138,20 @@ class TestZhudiProcessing(unittest.TestCase):
     actual_result = self.segTools.sentence_segmentation(given_sentence)
     self.assertEqual(actual_result, expected_result)
 
+  def test_searchUnique(self):
+    """
+    Test searchUnique function.
+    This function returns and index (exact matches) or None if nothing found.
+
+    """
+    class fdo():
+      self.traditional = ["hello", "hello John", "goodbye", "salut"]
+      self.simplified = self.traditional
+    fakeDataObject = fdo()
+    given_good_word = "hello"
+    expected_good_result = [0]
+    actual_good_result = self.segTools.searchUnique(given_good_word,
+                                                    fakeDataObject)
+
 if __name__ == '__main__':
   unittest.main()
