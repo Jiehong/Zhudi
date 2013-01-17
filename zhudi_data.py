@@ -23,17 +23,22 @@ class Data ():
 
   """
   def __init__(self, simp, trad, trans,
-               wubi86, array30, cangjie5,
+               wubi86, wubi86_short,
+               array30, array30_short,
+               cangjie5, cangjie5_short,
                pinyin, zhuyin=[]):
     """
-    simp     : a list of simplified forms
-    trad     : a list of traditional forms
-    trans    : a list of translations
-    wubi86   : a dictionary of wubi86 codes
-    array30  : a dictionary of array30 codes
-    cangjie5 : a dictionary of cangjie5 codes
-    pinyin   : a list of pinyin
-    zhuyin   : a list of zhuyin (default = [])
+    simp           : a list of simplified forms
+    trad           : a list of traditional forms
+    trans          : a list of translations
+    wubi86         : a dictionary of wubi86 codes
+    wubi86_short   : a dictionary of short wubi86 codes
+    array30        : a dictionary of array30 codes
+    array30_short  : a dictionary of short array30 codes
+    cangjie5       : a dictionary of cangjie5 codes
+    cangjie5_short : a dictionary of short cangjie5 codes
+    pinyin         : a list of pinyin
+    zhuyin         : a list of zhuyin (default = [])
       
     """
     self.simplified = simp
@@ -42,8 +47,11 @@ class Data ():
     self.pinyin = pinyin
     self.zhuyin = zhuyin
     self.wubi86 = wubi86
+    self.wubi86_short = wubi86_short
     self.array30 = array30
+    self.array30_short = array30_short
     self.cangjie5 = cangjie5
+    self.cangjie5_short = cangjie5_short
     self.pinyin_to_zhuyin = [('zhuang', 'ㄓㄨㄤ'),
                              ('shuang', 'ㄕㄨㄤ'),
                              ('chuang', 'ㄔㄨㄤ'),

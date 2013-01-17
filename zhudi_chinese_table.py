@@ -47,18 +47,26 @@ class ChineseTable ():
     return output
 
   def load(self, file_name):
-    """ Read codes from a file, and return a dictionary.
+    """ Read codes from a file, and return a dictionary of codes
+    and a dictionary of short codes
     
     """
     output = collections.defaultdict()
+    output_short = collections.defaultdict()
     with open(file_name, "r") as aFile:
       lines = aFile.readlines()
       for line in lines:
         space_pos = line.rfind(" ")
         keys = line[0:space_pos]
         char = line[space_pos+1:-1]
-        output[char] = keys
-    return output
+        if char in output and len(keys) >= len(output[char]):
+          output_short[char] = output[char]
+          output[char] =  keys
+        elif char in output and len(keys) < len(output[char]):
+          output_short[char] = keys
+        elif char not in output:
+          output[char] = keys
+    return output, output_short
 
 class Cangjie5Table (ChineseTable):
   """ Contains the full cangjie5 input method information.

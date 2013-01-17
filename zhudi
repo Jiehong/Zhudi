@@ -162,17 +162,19 @@ def main():
 
   # Load the cangjie infos
   cangjie5Object = zhudi_chinese_table.Cangjie5Table()
-  cangjie_dic = cangjie5Object.load(get_data_path('cangjie5'))
+  cangjie_dic, cangjie_short_dic = cangjie5Object.load(get_data_path('cangjie5'))
   # Load array30 infos
   array30Object = zhudi_chinese_table.Array30Table()
-  array_dic = array30Object.load(get_data_path('array30'))
+  array_dic, array_short_dic = array30Object.load(get_data_path('array30'))
   # Load wubi86 infos
   wubi86Object = zhudi_chinese_table.Wubi86Table()
-  wubi_dic = wubi86Object.load(get_data_path('wubi86'))
+  wubi_dic, wubi_short_dic = wubi86Object.load(get_data_path('wubi86'))
   
   #  Data object
   dataObject= zhudi_data.Data(simplified, traditional, translation,
-                              wubi_dic, array_dic, cangjie_dic,
+                              wubi_dic, wubi_short_dic,
+                              array_dic, array_short_dic,
+                              cangjie_dic, cangjie_short_dic,
                               pinyin, zhuyin)
 
   mw = gui.main_window(dataObject)
