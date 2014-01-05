@@ -32,22 +32,24 @@ def main():
         if len(sentence) > 2:
             query = sentence
             exact = True
+            search_order = (data.simplified, )
 
     for word in query:
         for dict in search_order:
             if exact:
-                if dict is not data.simplified:
-                    continue
-                index = [st.searchUnique(word, data)]
+                _print_result(st.searchUnique(word, data))
             else:
                 dt.search(dict, word)
-                index = dt.index
-            for result in index:
-                chinese = data.simplified[result].strip()
-                pronunciation = ' '.join([dt.unicode_pinyin(p) for p in data.pinyin[result].strip().split()])
-                translation_variations = data.translation[result].strip().split('/')
-                translations = '\n — — ⇾ '.join(translation_variations)
-                print('{} — {} — {} '.format(chinese, pronunciation, translations))
+                for result in dt.index:
+                    _print_result(result, data, dt)
+
+
+def _print_result(result, data, dt):
+    chinese = data.simplified[result].strip()
+    pronunciation = ' '.join([dt.unicode_pinyin(p) for p in data.pinyin[result].strip().split()])
+    translation_variations = data.translation[result].strip().split('/')
+    translations = '\n — — ⇾ '.join(translation_variations)
+    print('{} — {} — {} '.format(chinese, pronunciation, translations))
 
 
 if __name__ == '__main__':
