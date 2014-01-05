@@ -326,13 +326,19 @@ class DictionaryTools(object):
         zhuyin[0] = zhuyin[0][1:]  # get rid of the first space
         return zhuyin
 
+    def is_pinyin(self, pin1yin1):
+        return re.match(r'^(?i)[a-z]+[0-4]', pin1yin1)
+
     def unicode_pinyin(self, pin1yin1):
-        """ Convert a string representing a pinyin syllable with tone. Returns a
-        string.
+        """ Convert a string representing a pinyin syllable with tone.
+        Returns a string.
 
         Argument:
         A string like "ni3".
         """
+
+        if not self.is_pinyin(pin1yin1):
+            return pin1yin1
 
         syl = pin1yin1[:-1]
         tone = int(pin1yin1[-1])
@@ -357,7 +363,7 @@ class DictionaryTools(object):
             """Check if "iu" is in the pinyin string. Returns a boolean."""
             for i in range(len(vowels_list)):
                 if vowels_list[i] != vowels_list[-1]:
-                    if vowels_list[i] == "i" and vowels_list[i+1] == "u":
+                    if vowels_list[i] == "i" and vowels_list[i + 1] == "u":
                         return True
                     return False
 
@@ -369,7 +375,7 @@ class DictionaryTools(object):
         to_test = "aoeiuü"
         for case in to_test:
             if case in vowels:
-                syl = syl.replace(case, tones[tone-1][fifth_tone.find(case)])
+                syl = syl.replace(case, tones[tone - 1][fifth_tone.find(case)])
                 return syl
 
     def search(self, given_list, text):
