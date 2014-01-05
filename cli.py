@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from zhudi import prepare_data, get_argument_parser
-from zhudi_processing import DictionaryTools, SegmentationTools
+from zhudi_processing import DictionaryTools, SegmentationTools, PreProcessing
 
 
 def get_arguments():
@@ -19,19 +19,23 @@ def main():
     data, hanzi, romanisation, language = prepare_data(args)
     dt = DictionaryTools()
     st = SegmentationTools()
+    pp = PreProcessing()
     st.load(data)
+    config = pp.get_config()
+    romanisation = _get_config_value('romanisation', config)
+    hanzi = _get_config_value('hanzi', config)
 
     search_order = (
         data.translation,
-        data.pinyin,
-        data.simplified,
+        getattr(data, romanisation),
+        getattr(data, hanzi),
     )
 
     if len(query) == 1:
         sentence = st.sentence_segmentation(' '.join(query))
-        if len(sentence) > 2:
+        if len(sentence) > 1:
             query = sentence
-            search_order = (data.simplified, )
+            search_order = (getattr(data, hanzi), )
 
     for word in query:
         results = set()
@@ -39,21 +43,26 @@ def main():
             if expand:
                 dt.search(dict, word)
                 for result in dt.index:
-                    _print_result(result, data, dt)
+                    _print_result(result, data, dt, hanzi, romanisation)
             else:
                 result = st.searchUnique(word, data)
                 if result and result not in results:
                     results.add(result)
-                    _print_result(result, data, dt)
+                    _print_result(result, data, dt, hanzi, romanisation)
 
 
-def _print_result(result, data, dt):
-    chinese = data.simplified[result].strip()
-    pronunciation = ' '.join([dt.unicode_pinyin(p) for p in data.pinyin[result].strip().split()])
+def _print_result(result, data, dt, hanzi, romanisation):
+    chinese = getattr(data, hanzi)[result].strip()
+    pronunciation = ' '.join([dt.unicode_pinyin(p) for p in
+                              getattr(data, romanisation)[result]
+                              .strip().split()])
     translation_variations = data.translation[result].strip().split('/')
     translations = '\n — — ⇾ '.join(translation_variations)
     print('{} — {} — {} '.format(chinese, pronunciation, translations))
 
+
+def _get_config_value(key, config):
+    return next(v for k, v in config if k == key)
 
 if __name__ == '__main__':
     main()
