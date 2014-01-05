@@ -37,7 +37,7 @@ def main():
     for word in query:
         for dict in search_order:
             if exact:
-                _print_result(st.searchUnique(word, data))
+                _print_result(st.searchUnique(word, data), data, dt)
             else:
                 dt.search(dict, word)
                 for result in dt.index:
