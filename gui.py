@@ -788,5 +788,5 @@ class main_window(object):
         return self.sub_gui
 
     def on_key_release(self, widget, event, data=None):
-        if event.keyval == Gdk.ModifierType.CONTROL_MASK | Gdk.KEY_w:
+        if event.keyval == Gdk.KEY_w and event.state & Gdk.ModifierType.CONTROL_MASK:
             Gtk.main_quit()
