@@ -31,11 +31,10 @@ def main():
         getattr(data, hanzi),
     )
 
-    if len(query) == 1:
-        sentence = st.sentence_segmentation(' '.join(query))
-        if len(sentence) > 1:
-            query = sentence
-            search_order = (getattr(data, hanzi), )
+    potential_sentence = st.sentence_segmentation(' '.join(query))
+    if len(potential_sentence) > 1:
+        query = potential_sentence
+        search_order = (getattr(data, hanzi), )
 
     for word in query:
         results = set()
