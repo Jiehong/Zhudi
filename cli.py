@@ -6,7 +6,7 @@ from zhudi_processing import DictionaryTools, SegmentationTools
 
 def get_arguments():
     parser = get_argument_parser()
-    parser.add_argument('--exact', action='store_true')
+    parser.add_argument('--expand', action='store_true')
     parser.add_argument('query', nargs='+')
     return parser.parse_args()
 
@@ -14,7 +14,7 @@ def get_arguments():
 def main():
     args = get_arguments()
     query = args.query
-    exact = args.exact
+    expand = args.expand
 
     data, hanzi, romanisation, language = prepare_data(args)
     dt = DictionaryTools()
@@ -31,18 +31,19 @@ def main():
         sentence = st.sentence_segmentation(' '.join(query))
         if len(sentence) > 2:
             query = sentence
-            exact = True
             search_order = (data.simplified, )
 
     for word in query:
+        results = set()
         for dict in search_order:
-            if exact:
-                result = st.searchUnique(word, data)
-                if result:
-                    _print_result(result, data, dt)
-            else:
+            if expand:
                 dt.search(dict, word)
                 for result in dt.index:
+                    _print_result(result, data, dt)
+            else:
+                result = st.searchUnique(word, data)
+                if result and result not in results:
+                    results.add(result)
                     _print_result(result, data, dt)
 
 
