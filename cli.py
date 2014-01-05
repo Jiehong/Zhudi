@@ -6,13 +6,15 @@ from zhudi_processing import DictionaryTools, SegmentationTools
 
 def get_arguments():
     parser = get_argument_parser()
+    parser.add_argument('--exact', action='store_true')
     parser.add_argument('query', nargs='+')
     return parser.parse_args()
 
 
 def main():
     args = get_arguments()
-    query = ' '.join(args.query)
+    query = args.query
+    exact = args.exact
 
     data, hanzi, romanisation, language = prepare_data(args)
     dt = DictionaryTools()
@@ -23,16 +25,24 @@ def main():
         data.translation,
         data.pinyin,
         data.simplified,
-        data.traditional,
     )
 
-    sentence = st.sentence_segmentation(query)
-    print(sentence)
+    if len(query) == 1:
+        sentence = st.sentence_segmentation(' '.join(query))
+        if len(sentence) > 2:
+            query = sentence
+            exact = True
 
-    for dict in search_order:
-        dt.search(dict, query)
-        if dt.index:
-            for result in dt.index:
+    for word in query:
+        for dict in search_order:
+            if exact:
+                if dict is not data.simplified:
+                    continue
+                index = [st.searchUnique(word, data)]
+            else:
+                dt.search(dict, word)
+                index = dt.index
+            for result in index:
                 chinese = data.simplified[result].strip()
                 pronunciation = ' '.join([dt.unicode_pinyin(p) for p in data.pinyin[result].strip().split()])
                 translation_variations = data.translation[result].strip().split('/')
