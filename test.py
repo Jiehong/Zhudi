@@ -45,13 +45,15 @@ def setUp():
     with open("zhuyin", mode="r") as zhu_file:
         zhu = zhu_file.readlines()
     array30Object = zhudi_chinese_table.Array30Table()
-    array30_dic = array30Object.load("zhudi-data/array30")
+    array30_dic, array30_short = array30Object.load("zhudi-data/array30")
     cangjie5Object = zhudi_chinese_table.Cangjie5Table()
-    cangjie5_dic = cangjie5Object.load("zhudi-data/cangjie5")
+    cangjie5_dic, cangjie5_short = cangjie5Object.load("zhudi-data/cangjie5")
     wubi86Object = zhudi_chinese_table.Wubi86Table()
-    wubi86_dic = wubi86Object.load("zhudi-data/wubi86")
+    wubi86_dic, wubi86_short = wubi86Object.load("zhudi-data/wubi86")
     dataObject = zhudi_data.Data(simp, trad, trans,
-                                 wubi86_dic, array30_dic, cangjie5_dic,
+                                 wubi86_dic, wubi86_short,
+                                 array30_dic, array30_short,
+                                 cangjie5_dic, cangjie5_short,
                                  pin, zhu)
     return dataObject
 
