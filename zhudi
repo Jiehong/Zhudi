@@ -60,7 +60,7 @@ def get_data_path(path):
     return os.path.join(_ROOT, 'zhudi-data', path)
 
 
-def main():
+def prepare_data():
     preproc_o = zhudi_processing.PreProcessing()
     options = parser.parse_args()
     filename = options.filename
@@ -179,6 +179,11 @@ def main():
                                  cangjie_dic, cangjie_short_dic,
                                  pinyin, zhuyin)
 
+    return dataObject, hanzi, romanisation, language
+
+
+def main():
+    dataObject, hanzi, romanisation, language = prepare_data()
     mw = gui.main_window(dataObject)
     mw.hanzi = hanzi
     mw.romanisation = romanisation
