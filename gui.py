@@ -17,7 +17,7 @@
 
 '''
 
-from gi.repository import Gtk, Pango
+from gi.repository import Gtk, Pango, Gdk
 import os
 
 import zhudi_processing
@@ -712,6 +712,7 @@ class main_window(object):
         self.window.set_default_size(800, 494)  # Gold number ratio
         self.window.set_title("Zhudi")
         self.window.set_position(Gtk.WindowPosition.CENTER)
+        self.window.connect("key-release-event", self.on_key_release)
         self.dataObject = dataObject
         self.hanzi = ""
         self.romanisation = ""
@@ -785,4 +786,7 @@ class main_window(object):
         self.main_widget = segmentation_widget(self.hanzi, self.romanisation)
         self.sub_gui = self.main_widget.build()
         return self.sub_gui
-# end of main_window
+
+    def on_key_release(self, widget, event, data=None):
+        if event.keyval == Gdk.ModifierType.CONTROL_MASK | Gdk.KEY_w:
+            Gtk.main_quit()
