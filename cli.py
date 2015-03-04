@@ -17,6 +17,7 @@ def main():
     data, hanzi, romanisation, language = prepare_data(args)
     dt = DictionaryTools()
     st = SegmentationTools()
+    st.load(data)
 
     search_order = (
         data.translation,
@@ -25,21 +26,19 @@ def main():
         data.traditional,
     )
 
+    sentence = st.sentence_segmentation(query)
+    print(sentence)
+
     for dict in search_order:
         dt.search(dict, query)
         if dt.index:
-            max_width = lambda d: max([len(d[w].strip()) for w in dt.index]) + 2
-            widths = list(map(max_width, [data.simplified, data.pinyin, data.translation]))
-            line_format = '{{: <{}}} — {{: <{}}} — {{: <{}}}'.format(*widths)
             for result in dt.index:
-                translations = data.translation[result].strip().split('/')
-                translations_result = '\n — — ⇾ '.join(translations)
-                print('{} — {} — {} '.format(
-                    data.simplified[result].strip(),
-                    data.pinyin[result].strip(),
-                    translations_result
-                ))
-                #print('------------------8<--------------8<-------------------')
+                chinese = data.simplified[result].strip()
+                pronunciation = ' '.join([dt.unicode_pinyin(p) for p in data.pinyin[result].strip().split()])
+                translation_variations = data.translation[result].strip().split('/')
+                translations = '\n — — ⇾ '.join(translation_variations)
+                print('{} — {} — {} '.format(chinese, pronunciation, translations))
+
 
 if __name__ == '__main__':
     main()
