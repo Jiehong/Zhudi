@@ -32,7 +32,7 @@ def main():
                     data.simplified[result].strip(),
                     data.pinyin[result].strip(),
                     data.translation[result].strip()))
-        break
+            break
 
 if __name__ == '__main__':
     main()
