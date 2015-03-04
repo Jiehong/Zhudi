@@ -22,7 +22,7 @@ import os
 import shutil
 
 
-class PreProcessing():
+class PreProcessing(object):
     """ This class is in charge of the pre-processing needed to lauch Zhudi.
     It loads config files, split dictionaries, etc.
     """
@@ -182,7 +182,7 @@ class PreProcessing():
         return saved_values
 
 
-class SegmentationTools ():
+class SegmentationTools(object):
     """ This class is intended to contains any functions dealing with Chinese.
     In other words, any functions treating a sentence, a word, etc.
     """
@@ -293,7 +293,7 @@ class SegmentationTools ():
 # end of ChineseProcessing
 
 
-class DictionaryTools ():
+class DictionaryTools(object):
     """ Contains all functions needed for the dictionary part.
     """
 

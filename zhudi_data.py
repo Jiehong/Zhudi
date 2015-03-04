@@ -18,7 +18,7 @@
 '''
 
 
-class Data():
+class Data(object):
     """ Data contains all the data used by Zhudi.
     """
 

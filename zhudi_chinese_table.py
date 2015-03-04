@@ -20,7 +20,7 @@
 import collections
 
 
-class ChineseTable ():
+class ChineseTable(object):
     """ Abstract class aimed at providing common methods for each tables.
     """
 
@@ -69,7 +69,7 @@ class ChineseTable ():
         return output, output_short
 
 
-class Cangjie5Table (ChineseTable):
+class Cangjie5Table(ChineseTable):
     """ Contains the full cangjie5 input method information.
     """
 
@@ -80,7 +80,7 @@ class Cangjie5Table (ChineseTable):
                                      "山女田難卜重")
 
 
-class Array30Table (ChineseTable):
+class Array30Table(ChineseTable):
     """ Contains the full Array30 input method information.
     """
 
@@ -94,7 +94,7 @@ class Array30Table (ChineseTable):
                                      "9↓", "0↓"]
 
 
-class Wubi86Table (ChineseTable):
+class Wubi86Table(ChineseTable):
     """ Contains the full Wubi86 input table information.
     """
 

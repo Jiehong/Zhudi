@@ -29,7 +29,7 @@ array30Object = zhudi_chinese_table.Array30Table()
 wubi86Object = zhudi_chinese_table.Wubi86Table()
 
 
-class dictionary_widget_main():
+class dictionary_widget_main(object):
     def __init__(self):
         self.hanzi = ""
         self.romanisation = ""
@@ -354,7 +354,7 @@ class dictionary_widget_main():
         opt.romanisation = self.romanisation
         opt.build()
 
-    class dictionary_widget_option():
+    class dictionary_widget_option(object):
         def kill_ok(self):
             self.window.hide()
 
@@ -441,7 +441,7 @@ class dictionary_widget_main():
     # End of Option_window
 
 
-class segmentation_widget():
+class segmentation_widget(object):
     """ Class that defines the segmentation GUI layer.
     """
 
@@ -703,7 +703,7 @@ class segmentation_widget():
                     self.display_translation(index)
 
 
-class main_window():
+class main_window(object):
     """ Class that defines the welcome screen, and gives access to other layers.
     """
 

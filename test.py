@@ -154,12 +154,12 @@ class TestZhudiProcessing(unittest.TestCase):
         (It only works for Chinese!)
         """
 
-        class fdo():
+        class Fdo(object):
             def __init__(self):
                 self.traditional = ["我", "你", "我你", "再見"]
                 self.simplified = self.traditional
 
-        fakeDataObject = fdo()
+        fakeDataObject = Fdo()
         given_good_word = "我"
         expected_good_result = 0
         actual_good_result = self.segTools.searchUnique(given_good_word, fakeDataObject)
