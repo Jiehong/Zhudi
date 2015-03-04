@@ -22,17 +22,24 @@ def main():
         data.translation,
         data.pinyin,
         data.simplified,
-        data.traditional)
+        data.traditional,
+    )
 
     for dict in search_order:
         dt.search(dict, query)
         if dt.index:
+            max_width = lambda d: max([len(d[w].strip()) for w in dt.index]) + 2
+            widths = list(map(max_width, [data.simplified, data.pinyin, data.translation]))
+            line_format = '{{: <{}}} — {{: <{}}} — {{: <{}}}'.format(*widths)
             for result in dt.index:
-                print('{}    ({})    —    {}'.format(
+                translations = data.translation[result].strip().split('/')
+                translations_result = '\n — — ⇾ '.join(translations)
+                print('{} — {} — {} '.format(
                     data.simplified[result].strip(),
                     data.pinyin[result].strip(),
-                    data.translation[result].strip()))
-            break
+                    translations_result
+                ))
+                #print('------------------8<--------------8<-------------------')
 
 if __name__ == '__main__':
     main()
