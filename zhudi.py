@@ -26,49 +26,28 @@ import zhudi_data
 import zhudi_processing
 import gui
 
-
-# Parse arguments/definitions
-parser = argparse.ArgumentParser(description='Provide a graphical interface' +
-                                 ' for *.u8 dictionaries (CEDICT, CFDICT…)')
-parser.add_argument("-s", "--split", dest="filename", help="The *.u8" +
-                    " dictionary file to be split. This operation will be" +
-                    " done in the current directory.")
-parser.add_argument("-p", "--pinyin-file", dest="pinyin_file_name",
-                    help="The file that contains the pinyin. This file comes" +
-                    "from the split of the *.u8 dictionary file.")
-parser.add_argument("-z", "--zhuyin-file", dest="zhuyin_file_name",
-                    help="The file that contains the zhuyin. This file comes" +
-                    "from the split of the *.u8 dictionary file.")
-parser.add_argument("-tr", "--translation-file", dest="translation_file_name",
-                    help="The file that contains the translation. This file" +
-                    " comes from the split of the *.u8 dictionary file.")
-parser.add_argument("-td", "--traditional-file", dest="traditional_file_name",
-                    help="The file that contains the traditional form of the" +
-                    " Chinese. This file comes from the split of the *.u8" +
-                    " dictionary file.")
-parser.add_argument("-sd", "--simplified-file", dest="simplified_file_name",
-                    help="The file that contains the simplified form of the" +
-                    " Chinese. This file comes from the split of the *.u8" +
-                    " dictionary file.")
-
 # Function to locate the data folder
-#_ROOT = os.path.abspath(os.path.dirname(__file__))
-_ROOT = "/usr/share/"
+_ROOT = os.path.abspath(os.path.dirname(__file__))
+#_ROOT = "/usr/share/"
+
+
+class WrongInputException(Exception):
+    pass
 
 
 def get_data_path(path):
     return os.path.join(_ROOT, 'zhudi-data', path)
 
 
-def prepare_data():
-    preproc_o = zhudi_processing.PreProcessing()
-    options = parser.parse_args()
+def prepare_data(options):
     filename = options.filename
     pinyin_file_name=options.pinyin_file_name
     zhuyin_file_name=options.zhuyin_file_name
     simplified_file_name=options.simplified_file_name
     translation_file_name=options.translation_file_name
     traditional_file_name=options.traditional_file_name
+
+    preproc_o = zhudi_processing.PreProcessing()
     files = [pinyin_file_name,
              zhuyin_file_name,
              traditional_file_name,
@@ -138,7 +117,7 @@ def prepare_data():
         passed = True
     # No input -> help
     elif (filename is None) and all(x is None for x in files) and not passed:
-        parser.print_help()
+        raise WrongInputException
 
     # Default values
     language = "Chinese"
@@ -175,15 +154,49 @@ def prepare_data():
     # Data object
     dataObject = zhudi_data.Data(simplified, traditional, translation,
                                  wubi_dic, wubi_short_dic,
-                                 array_dic, array_short_dic,
+                               array_dic, array_short_dic,
                                  cangjie_dic, cangjie_short_dic,
                                  pinyin, zhuyin)
 
     return dataObject, hanzi, romanisation, language
 
 
+def get_argument_parser():
+    parser = argparse.ArgumentParser(description='Provide a graphical interface'
+                                    ' for *.u8 dictionaries (CEDICT, CFDICT…)')
+    parser.add_argument("-s", "--split", dest="filename", help="The *.u8"
+                        " dictionary file to be split. This operation will be"
+                        " done in the current directory.")
+    parser.add_argument("-p", "--pinyin-file", dest="pinyin_file_name",
+                        help="The file that contains the pinyin. This file comes"
+                        "from the split of the *.u8 dictionary file.")
+    parser.add_argument("-z", "--zhuyin-file", dest="zhuyin_file_name",
+                        help="The file that contains the zhuyin. This file comes"
+                        "from the split of the *.u8 dictionary file.")
+    parser.add_argument("-tr", "--translation-file", dest="translation_file_name",
+                        help="The file that contains the translation. This file"
+                        " comes from the split of the *.u8 dictionary file.")
+    parser.add_argument("-td", "--traditional-file", dest="traditional_file_name",
+                        help="The file that contains the traditional form of the"
+                        " Chinese. This file comes from the split of the *.u8"
+                        " dictionary file.")
+    parser.add_argument("-sd", "--simplified-file", dest="simplified_file_name",
+                        help="The file that contains the simplified form of the"
+                        " Chinese. This file comes from the split of the *.u8"
+                        " dictionary file.")
+    return parser
+
+
 def main():
-    dataObject, hanzi, romanisation, language = prepare_data()
+    parser = get_argument_parser()
+    options = parser.parse_args()
+
+    try:
+        dataObject, hanzi, romanisation, language = prepare_data(options)
+    except WrongInputException:
+        parser.print_help()
+
+
     mw = gui.main_window(dataObject)
     mw.hanzi = hanzi
     mw.romanisation = romanisation
