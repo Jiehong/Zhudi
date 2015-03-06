@@ -39,13 +39,17 @@ def main():
     for word in query:
         results = set()
         for dict in search_order:
-            if expand:
-                dt.search(dict, word)
-                for result in dt.index:
-                    _print_result(result, data, dt, hanzi, romanisation)
-            else:
+            # TODO searchUnique seems to work only on chinese
+            # implementation for pinyin/zhuyin and english/french/etc is needed
+            if not expand:
                 result = st.searchUnique(word, data)
                 if result and result not in results:
+                    results.add(result)
+                    _print_result(result, data, dt, hanzi, romanisation)
+
+            if expand or not results:
+                dt.search(dict, word)
+                for result in dt.index:
                     results.add(result)
                     _print_result(result, data, dt, hanzi, romanisation)
 
