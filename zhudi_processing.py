@@ -1,4 +1,4 @@
-# coding=utf8
+# coding: utf-8
 ''' Zhudi provides a Chinese - language dictionnary based on the
     C[E|F]DICT project Copyright - 2011 - Ma Jiehong
 

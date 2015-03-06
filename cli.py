@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding: utf-8
 
 from zhudi import prepare_data, get_argument_parser
 from zhudi_processing import DictionaryTools, SegmentationTools, PreProcessing

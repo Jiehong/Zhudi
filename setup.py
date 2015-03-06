@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from distutils.core import setup
+# coding: utf-8
 
 setup(
     name="zhudi",
