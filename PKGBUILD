@@ -14,6 +14,7 @@ md5sums=('SKIP')
 
 package() {
     cd "$srcdir/$pkgname"
+    git checkout $pkgver
     msg "Installation in progress…"
     python setup.py install --prefix=/usr --root="$pkgdir/" --optimize=1
 }
