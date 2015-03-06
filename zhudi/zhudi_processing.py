@@ -327,7 +327,7 @@ class DictionaryTools(object):
         return zhuyin
 
     def is_pinyin(self, pin1yin1):
-        return re.match(r'^(?i)[a-z]+[0-4]', pin1yin1)
+        return re.match(r'^(?i)[a-z]+[0-5]', pin1yin1)
 
     def unicode_pinyin(self, pin1yin1):
         """ Convert a string representing a pinyin syllable with tone.

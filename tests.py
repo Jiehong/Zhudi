@@ -27,9 +27,9 @@
 import unittest
 
 # Add here the part you want to test if it is a new one
-import zhudi_chinese_table
-import zhudi_data
-import zhudi_processing
+from zhudi import zhudi_chinese_table
+from zhudi import zhudi_data
+from zhudi import zhudi_processing
 
 
 def setUp():

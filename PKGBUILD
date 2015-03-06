@@ -1,7 +1,7 @@
 # Maintainer: Ma Jiehong <ma dot jiehong on gmail>
 pkgname=Zhudi
 pkgver=1.4
-pkgrel=6
+pkgrel=7
 pkgdesc="A Python/GTK3+ GUI and CLO to Chinese -English-French-German dictionnaries (CEDICT, CFDICT, HanDeDict, ChE-Dicc…). It also provides pinyin and zhuyin pronunciaton as well as a sentence segmentation utility."
 arch=('any')
 url="https://github.com/Jiehong/Zhudi"
