@@ -61,8 +61,8 @@ def _print_result(result, data, dt, hanzi, romanisation):
                               getattr(data, romanisation)[result]
                               .strip().split()])
     translation_variations = data.translation[result].strip().split('/')
-    translations = '\n — — ⇾ '.join(translation_variations)
-    print('{} — {} — {} '.format(chinese, pronunciation, translations))
+    translations = '\n _ _ ⇾ '.join(translation_variations)
+    print('{} _ {} _ {} '.format(chinese, pronunciation, translations))
 
 
 def _get_config_value(key, config):
