@@ -27,9 +27,7 @@
 import unittest
 
 # Add here the part you want to test if it is a new one
-from zhudi import zhudi_chinese_table
-from zhudi import zhudi_data
-from zhudi import zhudi_processing
+import zhudi
 
 
 def setUp():
@@ -44,13 +42,13 @@ def setUp():
         pin = pin_file.readlines()
     with open("zhuyin", mode="r") as zhu_file:
         zhu = zhu_file.readlines()
-    array30Object = zhudi_chinese_table.Array30Table()
+    array30Object = zhudi.chinese_table.Array30Table()
     array30_dic, array30_short = array30Object.load("zhudi-data/array30")
-    cangjie5Object = zhudi_chinese_table.Cangjie5Table()
+    cangjie5Object = zhudi.chinese_table.Cangjie5Table()
     cangjie5_dic, cangjie5_short = cangjie5Object.load("zhudi-data/cangjie5")
-    wubi86Object = zhudi_chinese_table.Wubi86Table()
+    wubi86Object = zhudi.chinese_table.Wubi86Table()
     wubi86_dic, wubi86_short = wubi86Object.load("zhudi-data/wubi86")
-    dataObject = zhudi_data.Data(simp, trad, trans,
+    dataObject = zhudi.data.Data(simp, trad, trans,
                                  wubi86_dic, wubi86_short,
                                  array30_dic, array30_short,
                                  cangjie5_dic, cangjie5_short,
@@ -65,8 +63,8 @@ dataObject = setUp()
 class TestZhudiProcessing(unittest.TestCase):
 
     def setUp(self):
-        self.dicTools = zhudi_processing.DictionaryTools()
-        self.segTools = zhudi_processing.SegmentationTools()
+        self.dicTools = zhudi.processing.DictionaryTools()
+        self.segTools = zhudi.processing.SegmentationTools()
         self.segTools.load(dataObject)
 
     def test_pinyin_to_zhuyin(self):

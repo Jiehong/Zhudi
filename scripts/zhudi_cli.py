@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from zhudi import processing
 from zhudi import prepare_data, get_argument_parser
-from zhudi.zhudi_processing import DictionaryTools, SegmentationTools, PreProcessing
 
 
 def get_arguments():
@@ -18,9 +18,9 @@ def main():
     expand = args.expand
 
     data, hanzi, romanisation, language = prepare_data(args)
-    dt = DictionaryTools()
-    st = SegmentationTools()
-    pp = PreProcessing()
+    dt = processing.DictionaryTools()
+    st = processing.SegmentationTools()
+    pp = processing.PreProcessing()
     st.load(data)
     config = pp.get_config()
     romanisation = _get_config_value('romanisation', config)

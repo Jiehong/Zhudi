@@ -20,13 +20,12 @@
 from gi.repository import Gtk, Pango, Gdk
 import os
 
-from zhudi import zhudi_processing
-from zhudi import zhudi_chinese_table
+import zhudi
 
 
-cangjie5Object = zhudi_chinese_table.Cangjie5Table()
-array30Object = zhudi_chinese_table.Array30Table()
-wubi86Object = zhudi_chinese_table.Wubi86Table()
+cangjie5Object = zhudi.chinese_table.Cangjie5Table()
+array30Object = zhudi.chinese_table.Array30Table()
+wubi86Object = zhudi.chinese_table.Wubi86Table()
 
 
 class dictionary_widget_main(object):
@@ -725,9 +724,9 @@ class main_window(object):
         global dataObject
         dataObject = self.dataObject
         global dictionaryToolsObject
-        dictionaryToolsObject = zhudi_processing.DictionaryTools()
+        dictionaryToolsObject = zhudi.processing.DictionaryTools()
         global segmentationToolsObject
-        segmentationToolsObject = zhudi_processing.SegmentationTools()
+        segmentationToolsObject = zhudi.processing.SegmentationTools()
         segmentationToolsObject.load(dataObject)
         # Welcome tab
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)

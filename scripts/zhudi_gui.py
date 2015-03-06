@@ -19,11 +19,7 @@
 '''
 
 
-from zhudi import gui, prepare_data, get_argument_parser
-
-
-class WrongInputException(Exception):
-    pass
+from zhudi import gui, prepare_data, get_argument_parser, WrongInputException
 
 
 def main():

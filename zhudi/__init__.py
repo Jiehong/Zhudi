@@ -21,10 +21,11 @@
 import os
 import argparse
 
-from zhudi import zhudi_chinese_table
-from zhudi import zhudi_data
-from zhudi import zhudi_processing
-from zhudi import gui
+from zhudi import data, processing, chinese_table
+
+
+class WrongInputException(Exception):
+    pass
 
 # Function to locate the data folder
 #_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -43,7 +44,7 @@ def prepare_data(options):
     translation_file_name=options.translation_file_name
     traditional_file_name=options.traditional_file_name
 
-    preproc_o = zhudi_processing.PreProcessing()
+    preproc_o = processing.PreProcessing()
     files = [pinyin_file_name,
              zhuyin_file_name,
              traditional_file_name,
@@ -64,7 +65,7 @@ def prepare_data(options):
         translation_list = files[2]
         pinyin_list = files[3]
 
-        myData = zhudi_data.Data(simplified_list,
+        myData = data.Data(simplified_list,
                                  traditional_list,
                                  translation_list,
                                  [],
@@ -72,7 +73,7 @@ def prepare_data(options):
                                  [],
                                  pinyin_list)
         print("\nPinyin to Zhuyin conversion in progress…")
-        dicoToolsObject = zhudi_processing.DictionaryTools()
+        dicoToolsObject = processing.DictionaryTools()
         zhuyin = dicoToolsObject.pinyin_to_zhuyin(pinyin_list, myData)
         myData.zhuyin = zhuyin
 
@@ -138,17 +139,17 @@ def prepare_data(options):
                     hanzi = "Traditional"
 
     # Load the cangjie infos
-    cangjie5Object = zhudi_chinese_table.Cangjie5Table()
+    cangjie5Object = chinese_table.Cangjie5Table()
     cangjie_dic, cangjie_short_dic = cangjie5Object.load(get_data_path('cangjie5'))
     # Load array30 infos
-    array30Object = zhudi_chinese_table.Array30Table()
+    array30Object = chinese_table.Array30Table()
     array_dic, array_short_dic = array30Object.load(get_data_path('array30'))
     # Load wubi86 infos
-    wubi86Object = zhudi_chinese_table.Wubi86Table()
+    wubi86Object = chinese_table.Wubi86Table()
     wubi_dic, wubi_short_dic = wubi86Object.load(get_data_path('wubi86'))
 
     # Data object
-    dataObject = zhudi_data.Data(simplified, traditional, translation,
+    dataObject = data.Data(simplified, traditional, translation,
                                  wubi_dic, wubi_short_dic,
                                array_dic, array_short_dic,
                                  cangjie_dic, cangjie_short_dic,
@@ -181,25 +182,3 @@ def get_argument_parser():
                         " Chinese. This file comes from the split of the *.u8"
                         " dictionary file.")
     return parser
-
-
-def main():
-    parser = get_argument_parser()
-    options = parser.parse_args()
-
-    try:
-        dataObject, hanzi, romanisation, language = prepare_data(options)
-    except WrongInputException:
-        parser.print_help()
-
-
-    mw = gui.main_window(dataObject)
-    mw.hanzi = hanzi
-    mw.romanisation = romanisation
-    mw.language = language
-    mw.build()
-    mw.loop()
-# end of main
-
-if __name__ == "__main__":
-    main()
