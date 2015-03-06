@@ -21,18 +21,14 @@
 import os
 import argparse
 
-import zhudi_chinese_table
-import zhudi_data
-import zhudi_processing
-import gui
+from zhudi import zhudi_chinese_table
+from zhudi import zhudi_data
+from zhudi import zhudi_processing
+from zhudi import gui
 
 # Function to locate the data folder
-_ROOT = os.path.abspath(os.path.dirname(__file__))
-#_ROOT = "/usr/share/"
-
-
-class WrongInputException(Exception):
-    pass
+#_ROOT = os.path.abspath(os.path.dirname(__file__))
+_ROOT = "/usr/share/"
 
 
 def get_data_path(path):

@@ -1,3 +1,0 @@
-#!/bin/sh
-
-./cli.py "$@" | column -t -s '_'

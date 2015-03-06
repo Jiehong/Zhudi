@@ -20,8 +20,8 @@
 from gi.repository import Gtk, Pango, Gdk
 import os
 
-import zhudi_processing
-import zhudi_chinese_table
+from zhudi import zhudi_processing
+from zhudi import zhudi_chinese_table
 
 
 cangjie5Object = zhudi_chinese_table.Cangjie5Table()

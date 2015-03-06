@@ -1,0 +1,3 @@
+#!/bin/sh
+
+$(dirname $0)/zhudi_cli.py $@ | column -t -s '_'
