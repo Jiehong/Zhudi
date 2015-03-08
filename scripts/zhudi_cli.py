@@ -57,12 +57,17 @@ def main():
 
 def _print_result(result, data, dt, hanzi, romanisation):
     chinese = getattr(data, hanzi)[result].strip()
-    pronunciation = ' '.join([dt.unicode_pinyin(p) for p in
-                              getattr(data, romanisation)[result]
-                              .strip().split()])
+    pronunciation = _unicode_pronunciation(result, romanisation, data, dt)
     translation_variations = data.translation[result].strip().split('/')
     translations = '\n _ _ ⇾ '.join(translation_variations)
     print('{} _ {} _ {} '.format(chinese, pronunciation, translations))
+
+
+def _unicode_pronunciation(text, romanisation, data, dt):
+    if romanisation == 'Pinyin':
+        return ' '.join([dt.unicode_pinyin(p.lower()) for p in
+                         getattr(data, romanisation)[text].strip().split()])
+    return ' '.join([p for p in getattr(data, romanisation)[text].strip().split()])
 
 
 def _get_config_value(key, config):
