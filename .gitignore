@@ -1,2 +1,15 @@
+# Text editors temporary files
 *.sw[op]
+
+# Python byte-code artifacts
 *.py[cod]
+
+# Dictionary artifacts
+pinyin
+zhuyin
+simplified
+traditional
+translation
+
+# AUR packages
+[Zz]hudi*.src.tar.gz
