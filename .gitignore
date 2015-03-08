@@ -5,11 +5,14 @@
 *.py[cod]
 
 # Dictionary artifacts
-pinyin
-zhuyin
-simplified
-traditional
-translation
+/pinyin
+/zhuyin
+/simplified
+/traditional
+/translation
 
 # AUR packages
-[Zz]hudi*.src.tar.gz
+/[Zz]hudi*.src.tar.gz
+
+# Documentation artifacts
+/doc/_build
