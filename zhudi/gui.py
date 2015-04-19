@@ -760,7 +760,7 @@ class main_window(object):
         self.default_text.set_label("\n\n\n\n"
                                     "              Zhudi"
                                     "\n\n"
-                                    "       Jiehong Ma, 2011–2013"
+                                    "       Jiehong Ma, 2011–2015"
                                     "\n\n"
                                     "Zhudi has been designed in order to help\n"
                                     "people learning Chinese thanks to free tools.\n"
