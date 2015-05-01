@@ -1,3 +1,7 @@
+** Version 1.5
+   #1: initial dictionary splitting didn't work (new tests for that)
+   #2: initial tab is now the dictionary tab (new tab: About)
+
 ** Version 1.4
    Mainly thanks to moorchegue:
    - New CLI interface (called zhu).

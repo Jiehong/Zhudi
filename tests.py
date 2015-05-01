@@ -29,7 +29,6 @@ import unittest
 # Add here the part you want to test if it is a new one
 import zhudi
 
-
 def setUp():
     """ Initialisation needed by functions of Dictionary class. """
     with open("simplified", mode="r") as simp_file:
@@ -55,10 +54,8 @@ def setUp():
                                  pin, zhu)
     return dataObject
 
-
 global dataObject
 dataObject = setUp()
-
 
 class TestZhudiProcessing(unittest.TestCase):
 
@@ -192,7 +189,6 @@ class TestZhudiChineseTable(unittest.TestCase):
 
     def test_load(self):
         pass
-
 
 if __name__ == '__main__':
     unittest.main()
