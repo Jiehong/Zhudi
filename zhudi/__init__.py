@@ -35,7 +35,6 @@ _ROOT = "/usr/share/"
 def get_data_path(path):
     return os.path.join(_ROOT, 'zhudi-data', path)
 
-
 def prepare_data(options):
     filename = options.filename
     pinyin_file_name=options.pinyin_file_name
@@ -66,12 +65,15 @@ def prepare_data(options):
         pinyin_list = files[3]
 
         myData = data.Data(simplified_list,
-                                 traditional_list,
-                                 translation_list,
-                                 [],
-                                 [],
-                                 [],
-                                 pinyin_list)
+                           traditional_list,
+                           translation_list,
+                           [],
+                           [],
+                           [],
+                           [],
+                           [],
+                           [],
+                           pinyin_list)
         print("\nPinyin to Zhuyin conversion in progress…")
         dicoToolsObject = processing.DictionaryTools()
         zhuyin = dicoToolsObject.pinyin_to_zhuyin(pinyin_list, myData)
