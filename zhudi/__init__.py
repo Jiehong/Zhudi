@@ -105,6 +105,7 @@ def prepare_data(options):
             print("### No input files have been given to me. Please, consider" +
                   " giving me some. ###")
             quit()
+    # Second scenario: all files passed as arguments, load them
     elif all(x is not None for x in files):
         (pinyin, zhuyin, traditional,
          simplified, translation) = preproc_o.read_files(
@@ -114,7 +115,13 @@ def prepare_data(options):
             files[3],
             files[4])
         passed = True
-    # No input -> help
+    # Third scenario: some input files are missing
+    elif None in files:
+        print("You must pass all generated files if launched manually")
+        print("Try with:\n")
+        print("\t-p pinyin -tr translation -sd simplified -z zhuyin -td traditional")
+        quit()
+    # Last scenario: No input -> help
     elif (filename is None) and all(x is None for x in files) and not passed:
         raise WrongInputException
 
@@ -151,11 +158,14 @@ def prepare_data(options):
     wubi_dic, wubi_short_dic = wubi86Object.load(get_data_path('wubi86'))
 
     # Data object
-    dataObject = data.Data(simplified, traditional, translation,
-                                 wubi_dic, wubi_short_dic,
-                               array_dic, array_short_dic,
-                                 cangjie_dic, cangjie_short_dic,
-                                 pinyin, zhuyin)
+    dataObject = data.Data(simplified,
+                           traditional,
+                           translation,
+                           wubi_dic, wubi_short_dic,
+                           array_dic, array_short_dic,
+                           cangjie_dic, cangjie_short_dic,
+                           pinyin,
+                           zhuyin)
 
     return dataObject, hanzi, romanisation, language
 
