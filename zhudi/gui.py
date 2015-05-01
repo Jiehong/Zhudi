@@ -701,6 +701,28 @@ class segmentation_widget(object):
                 else:
                     self.display_translation(index)
 
+class about_widget(object):
+    """ Class defining the About tab layout """
+
+    def __init__(self):
+        pass
+
+    def build(self):
+        self.about_text = Gtk.Frame(label_yalign=0.5, label_xalign=0.5)
+        self.about_text.set_label("\n\n\n\n"
+                                    "              Zhudi"
+                                    "\n\n"
+                                    "       Jiehong Ma, 2011–2015"
+                                    "\n\n"
+                                    "Zhudi has been designed in order to help\n"
+                                    "people learning Chinese thanks to free tools.\n"
+                                    "It aims at providing reliable, and useful\n"
+                                    "informations to the Chinese learner.\n"
+                                    "The author is also a Chinese learner as well,\n"
+                                    "and he uses Zhudi almost everyday.\n"
+                                    "\n"
+                                    "This software is under the GNU GPLv3 licence.")
+        return self.about_text
 
 class main_window(object):
     """ Class that defines the welcome screen, and gives access to other layers.
@@ -731,45 +753,34 @@ class main_window(object):
         # Welcome tab
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
 
-        self.default_mode()
-        self.vbox.pack_start(self.default_text, False, False, 0)
-
         # Dictionary tab
         self.dict_gui = self.dictionary_gui()
 
         # Segmentation tab
         self.seg_gui = self.segmentation_gui()
 
+        # About tab
+        self.about_gui = self.about_gui()
+
         # Build the tab frame
         self.tab_box = Gtk.Notebook()
         self.tab_box.set_tab_pos(Gtk.PositionType.TOP)
-        self.tab_box.append_page(self.vbox, None)
-        self.tab_box.set_tab_label_text(self.vbox, "Welcome")
         self.tab_box.append_page(self.dict_gui, None)
         self.tab_box.set_tab_label_text(self.dict_gui, "Dictionary")
         self.tab_box.append_page(self.seg_gui, None)
         self.tab_box.set_tab_label_text(self.seg_gui, "Segmentation")
+        self.tab_box.append_page(self.about_gui, None)
+        self.tab_box.set_tab_label_text(self.about_gui, "About")
 
         self.window.add(self.tab_box)
         self.window.connect("destroy", Gtk.main_quit)
         self.window.show_all()
 
-    def default_mode(self):
-        """ This is the default mode, i.e. when no mode is selected."""
-        self.default_text = Gtk.Frame(label_yalign=0.5, label_xalign=0.5)
-        self.default_text.set_label("\n\n\n\n"
-                                    "              Zhudi"
-                                    "\n\n"
-                                    "       Jiehong Ma, 2011–2015"
-                                    "\n\n"
-                                    "Zhudi has been designed in order to help\n"
-                                    "people learning Chinese thanks to free tools.\n"
-                                    "It aims at providing reliable, and useful\n"
-                                    "informations to the Chinese learner.\n"
-                                    "The author is also a Chinese learner as well,\n"
-                                    "and he uses Zhudi almost everyday.\n"
-                                    "\n"
-                                    "This software is under the GNU GPLv3 licence.")
+    def about_gui(self):
+        """ This is the about mode, i.e. when no mode is selected."""
+        self.main_widget = about_widget()
+        self.sub_gui = self.main_widget.build()
+        return self.sub_gui
 
     def dictionary_gui(self):
         """ Start the dictionary widget. """
