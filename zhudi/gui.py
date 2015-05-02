@@ -33,21 +33,27 @@ class dictionary_widget_main(object):
         self.hanzi = ""
         self.romanisation = ""
         self.language = ""
+        self.language_idx = 0
         self.results_list = []
         self.lock = False
+        self.search_field = None
 
     def build(self):
+        # Language button
+        language_toogle = Gtk.Button.new_with_label("中>X") # X>中
+        language_toogle.connect("clicked", lambda x: self.toogle_language(x))
+        self.language = "Chinese"
+
         # Search label
         search_label = Gtk.Label()
-        search_label.set_text("<big>Searching area</big>")
-        search_label.set_use_markup(True)
 
         # Search field
         search_field = Gtk.Entry()
         search_field.set_visible(True)
         search_field.connect("activate",
                              lambda x: self.search_asked(search_field))
-        search_field.set_placeholder_text("Type your query here…")
+        search_field.set_placeholder_text("← toogle me")
+        self.search_field = search_field
 
         # Go, search! button
         go_button = Gtk.Button("Search")
@@ -60,26 +66,22 @@ class dictionary_widget_main(object):
 
         # Search + button box
         SB_box = Gtk.Grid()
-        SB_box.attach(search_field, 0, 0, 4, 1)
-        SB_box.attach_next_to(go_button, search_field, Gtk.PositionType.RIGHT, 1, 1)
-        SB_box.attach_next_to(option_button, go_button, Gtk.PositionType.RIGHT, 1, 1)
+        SB_box.attach(language_toogle, 0, 0, 1, 1)
+        SB_box.attach_next_to(search_field,
+                              language_toogle,
+                              Gtk.PositionType.RIGHT, 4, 1)
+        SB_box.attach_next_to(go_button,
+                              search_field,
+                              Gtk.PositionType.RIGHT, 1, 1)
+        SB_box.attach_next_to(option_button,
+                              go_button,
+                              Gtk.PositionType.RIGHT, 1, 1)
         SB_box.set_column_homogeneous(True)
 
         # Search label zone
         frame_search = Gtk.Frame()
         frame_search.set_label_widget(search_label)
         frame_search.add(SB_box)
-
-        # Language box
-        language_box = Gtk.Grid()
-        Chinese = Gtk.RadioButton.new_with_label_from_widget(None, "From Chinese")
-        Chinese.connect("clicked", lambda x: self.set_language("Chinese"))
-        language_box.add(Chinese)
-        Latin = Gtk.RadioButton.new_with_label_from_widget(Chinese, "To Chinese")
-        Latin.connect("clicked", lambda x: self.set_language("Latin"))
-        language_box.attach_next_to(Latin, Chinese, Gtk.PositionType.RIGHT, 1, 1)
-        language_box.set_column_homogeneous(True)
-        Chinese.set_active(True)
 
         # Results part in a list
         self.results_list = Gtk.ListStore(str)
@@ -131,12 +133,9 @@ class dictionary_widget_main(object):
         # Mapping of the main window
         left_vertical_box = Gtk.Grid()
         left_vertical_box.add(frame_search)
-        left_vertical_box.attach_next_to(language_box,
-                                         frame_search,
-                                         Gtk.PositionType.BOTTOM, 1, 1)
         left_vertical_box.attach_next_to(frame_results,
-                                         language_box,
-                                         Gtk.PositionType.BOTTOM, 1, 7)
+                                         frame_search,
+                                         Gtk.PositionType.BOTTOM, 1, 8)
         left_vertical_box.set_row_homogeneous(True)
         left_vertical_box.set_column_homogeneous(True)
 
@@ -174,8 +173,15 @@ class dictionary_widget_main(object):
             self.display_translation(0)
     # end of search_asked
 
-    def set_language(self, string):
-        self.language = string
+    def toogle_language(self, button):
+        languages = ["Chinese", "Latin"]
+        labels = ["中>X", "X>中"]
+        self.language_idx = (self.language_idx + 1) % 2
+        self.language = languages[self.language_idx]
+        button.set_label(labels[self.language_idx])
+
+        # relaunch the search option, to save 1 click
+        self.search_asked(self.search_field)
 
     def display_translation(self, which):
         tr = self.translation_box.get_buffer()
