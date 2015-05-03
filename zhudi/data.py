@@ -42,7 +42,7 @@ class Data(object):
 
         """
 
-        self.set_of_chinese_chars = []
+        self.set_of_chinese_chars = set()
         self.simplified = simp
         self.traditional = trad
         self.translation = trans
