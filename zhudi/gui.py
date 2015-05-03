@@ -33,7 +33,6 @@ class dictionary_widget_main(object):
         self.hanzi = ""
         self.romanisation = ""
         self.language = ""
-        self.language_idx = 0
         self.results_list = []
         self.lock = False
         self.search_field = None
