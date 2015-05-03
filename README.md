@@ -53,3 +53,15 @@ Once installed, simply launch:
 Then, you can simply invoke it as a normal programme:
 
     zhudi
+
+# Testing
+
+dict_test.u8 is used to test the splitting of the dictionary, and then for the rest of the unittests.
+
+First, test that splitting the dictionary is working well:
+
+    python test_cli.py
+
+Then, test the rest of the units:
+
+    python tests.py

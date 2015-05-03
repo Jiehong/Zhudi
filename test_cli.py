@@ -29,7 +29,7 @@ class TestCommandLineProcessing(unittest.TestCase):
         with Popen(["sh",
                     "scripts/zhudi",
                     "-s",
-                    "cfdict.u8"], stdout=PIPE, stderr=PIPE) as proc:
+                    "dict_test.u8"], stdout=PIPE, stderr=PIPE) as proc:
             return_code = proc.returncode
         self.assertEqual(return_code, None)
 
@@ -38,7 +38,7 @@ class TestCommandLineProcessing(unittest.TestCase):
         with Popen(["sh",
                     "scripts/zhu",
                     "-s",
-                    "cfdict.u8",
+                    "dict_test.u8",
                     "''"], stdout=PIPE, stderr=PIPE) as proc:
             return_code = proc.returncode
         self.assertEqual(return_code, None)
