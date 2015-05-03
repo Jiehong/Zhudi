@@ -26,7 +26,7 @@ class Data(object):
                  wubi86, wubi86_short,
                  array30, array30_short,
                  cangjie5, cangjie5_short,
-                 pinyin, zhuyin=[]):
+                 pinyin, zhuyin=None):
         """
         simp           : a list of simplified forms
         trad           : a list of traditional forms
@@ -47,7 +47,10 @@ class Data(object):
         self.traditional = trad
         self.translation = trans
         self.pinyin = pinyin
-        self.zhuyin = zhuyin
+        if zhuyin is None:
+            self.zhuyin = []
+        else:
+            self.zhuyin = zhuyin
         self.wubi86 = wubi86
         self.wubi86_short = wubi86_short
         self.array30 = array30

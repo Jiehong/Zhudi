@@ -23,20 +23,25 @@ from zhudi import gui, prepare_data, get_argument_parser, WrongInputException
 
 
 def main():
+    """
+    Preparing, and launching the main window
+
+    """
+
     parser = get_argument_parser()
     options = parser.parse_args()
 
     try:
-        dataObject, hanzi, romanisation, language = prepare_data(options)
+        data_object, hanzi, romanisation, language = prepare_data(options)
     except WrongInputException:
         parser.print_help()
 
-    mw = gui.main_window(dataObject)
-    mw.hanzi = hanzi
-    mw.romanisation = romanisation
-    mw.language = language
-    mw.build()
-    mw.loop()
+    main_window = gui.MainWindow(data_object)
+    main_window.hanzi = hanzi
+    main_window.romanisation = romanisation
+    main_window.language = language
+    main_window.build()
+    main_window.loop()
 
 
 if __name__ == "__main__":

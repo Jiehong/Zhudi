@@ -30,7 +30,8 @@ class PreProcessing(object):
     def __init__(self):
         pass
 
-    def split(self, dictname):
+    @staticmethod
+    def split(dictname):
         """ Loads the *.u8 file and split it. Return a tuple of 4 lists:
         (simplified_list,
         traditional_list,
@@ -38,7 +39,7 @@ class PreProcessing(object):
         pinyin_list)
         """
 
-        def unStick(pinyin):
+        def unstick(pinyin):
             """ Get rid of sticking pinyin like di4shang4 instead of di4 shang4
             Input: astring containing a pinyin like "di4shang4"
             Output: a string containing a pinyin like "di4 shang4"
@@ -51,7 +52,7 @@ class PreProcessing(object):
                     if pinyin[n+1] != " ":
                         clean_pinyin += " "
             return clean_pinyin
-        # end of unStick
+        # end of unstick
 
         dictionary = dictname
         # Open the dictionary in text mode, read only
@@ -67,15 +68,15 @@ class PreProcessing(object):
 
         # Check if producted files already exist
         # Delete them if needed
-        for fileName in ["simplified", "traditional", "translation", "pinyin"]:
+        for filename in ["simplified", "traditional", "translation", "pinyin"]:
             try:
-                open(fileName, "r")
+                open(filename, "r")
             except:
                 pass
             else:
-                shutil.move(fileName, fileName + "_saved")
-                print("Warning: " + fileName + " has been moved to "
-                      + fileName + "_saved.\n"
+                shutil.move(filename, filename + "_saved")
+                print("Warning: " + filename + " has been moved to "
+                      + filename + "_saved.\n"
                       + "Indeed, this file will be created by Zhudi.")
 
         for i in liste:  # for each line
@@ -100,7 +101,7 @@ class PreProcessing(object):
                 for n in range(len(translation_delimiters) - 1):
                     translation.append(i[translation_delimiters[n] + 1:translation_delimiters[n + 1]])
 
-                clean_pinyin = unStick(pinyin)
+                clean_pinyin = unstick(pinyin)
                 translation_clean = ""
                 for i in range(len(translation)):
                     if i != 0:
@@ -124,8 +125,8 @@ class PreProcessing(object):
         return (simplified_list, traditional_list, translation_list, pinyin_list)
     # End of split()
 
-    def read_files(self,
-                   pinyin_file_name,
+    @staticmethod
+    def read_files(pinyin_file_name,
                    zhuyin_file_name,
                    traditional_file_name,
                    simplified_file_name,
@@ -138,19 +139,19 @@ class PreProcessing(object):
         try:
             pinyin_file = open(pinyin_file_name, "r")
             pinyin = pinyin_file.readlines()
-            pinyin_file.closed
+            pinyin_file.close()
             zhuyin_file = open(zhuyin_file_name, "r")
             zhuyin = zhuyin_file.readlines()
-            zhuyin_file.closed
+            zhuyin_file.close()
             traditional_file = open(traditional_file_name, "r")
             traditional = traditional_file.readlines()
-            traditional_file.closed
+            traditional_file.close()
             simplified_file = open(simplified_file_name, "r")
             simplified = simplified_file.readlines()
-            simplified_file.closed
+            simplified_file.close()
             translation_file = open(translation_file_name, "r")
             translation = translation_file.readlines()
-            translation_file.closed
+            translation_file.close()
             return pinyin, zhuyin, traditional, simplified, translation
         except IOError:
             print("### The dictionary files couldn't be read. Make sure you have"
@@ -158,7 +159,8 @@ class PreProcessing(object):
             quit()
         # End of read_files()
 
-    def get_config(self):
+    @staticmethod
+    def get_config():
         """ Reads the config file, if it exists, and returns a list of variables
         related to that file (of the form [var, value]).
 
@@ -195,11 +197,11 @@ class SegmentationTools(object):
         self.simp_set = []
         self.set_of_chinese_chars = []
 
-    def load(self, dataObject):
+    def load(self, data_obj):
         """ Load and prepare needed data.
         """
 
-        for style in [dataObject.traditional, dataObject.simplified]:
+        for style in [data_obj.traditional, data_obj.simplified]:
             temp = [[], [], [], [], [], [], [], [], [], [],
                     [], [], [], [], [], [], [], [], [], []]  # 20
             out = []
@@ -211,15 +213,15 @@ class SegmentationTools(object):
             for nested_list in temp:
                 # transform in set for performance issue
                 out.append(set(nested_list))
-                if style == dataObject.traditional:
+                if style == data_obj.traditional:
                     self.trad_set = out
                 else:
                     self.simp_set = out
-        dataObject.create_set_chinese_characters()
-        self.set_of_chinese_chars = dataObject.set_of_chinese_chars
+        data_obj.create_set_chinese_characters()
+        self.set_of_chinese_chars = data_obj.set_of_chinese_chars
     # end of load()
 
-    def isNotChinese(self, string):
+    def is_not_chinese(self, string):
         """
         Returns True is the given string does not contain any Chinese Character
 
@@ -229,17 +231,17 @@ class SegmentationTools(object):
                 return False
         return True
 
-    def searchUnique(self, word, dataObject):
+    def search_unique(self, word, data_obj):
         """ Search for a word in the dictionary.
         Returns only 1 result (the index) or None if nothing found.
 
         """
-        def findIt(word, givenList):
+        def find_it(word, given_list):
             """ Returns the index of the found word.
             """
 
             cnt = 0
-            for case in givenList:
+            for case in given_list:
                 if case[-1] == "\n":
                     case = case[:-1]
                 if word == case:
@@ -247,11 +249,11 @@ class SegmentationTools(object):
                 cnt += 1
             return None
 
-        if self.isNotChinese(word):
+        if self.is_not_chinese(word):
             return None
         else:
-            r1 = findIt(word, dataObject.traditional)
-            r2 = findIt(word, dataObject.simplified)
+            r1 = find_it(word, data_obj.traditional)
+            r2 = find_it(word, data_obj.simplified)
             if r2 is None:
                 if r1 is None:
                     return None
@@ -264,6 +266,10 @@ class SegmentationTools(object):
         """
 
         def longest_word(string):
+            """
+            Returns the longest word from a given string.
+
+            """
             traditional = self.trad_set
             simplified = self.simp_set
             maxi = 20
@@ -273,7 +279,7 @@ class SegmentationTools(object):
                 upper = maxi
             for i in range(upper, 1, -1):  # from max-1 to 1
                 current_string = string[0:i]
-                if self.isNotChinese(current_string):
+                if self.is_not_chinese(current_string):
                     return current_string
                 if current_string in traditional[i-1]:
                     return current_string
@@ -283,14 +289,14 @@ class SegmentationTools(object):
 
         output = []
         while len(string) >= 1:
-            lw = longest_word(string)
-            if lw is None:
-                lw = string[0]
+            long_word = longest_word(string)
+            if long_word is None:
+                long_word = string[0]
                 string = string[1:]  # the character is alone
             else:
-                string = string[len(lw):]
-            if lw != " ":
-                output.append(lw)
+                string = string[len(long_word):]
+            if long_word != " ":
+                output.append(long_word)
         return output
 # end of ChineseProcessing
 
@@ -303,9 +309,10 @@ class DictionaryTools(object):
         self.index = []
         self.set_of_chinese_chars = []
 
-    def pinyin_to_zhuyin(self, pinyin, dataObject):
+    @staticmethod
+    def pinyin_to_zhuyin(pinyin, data_obj):
         """Converts the given pinyin list into zhuyin. Returns a list."""
-        pinyin_zhuyin_dict = dataObject.pinyin_to_zhuyin
+        pinyin_zhuyin_dict = data_obj.pinyin_to_zhuyin
 
         # for speed issue, transforme the list of pinyin in one long string
         to_convert = " " + " # ".join(pinyin)
@@ -329,7 +336,12 @@ class DictionaryTools(object):
         zhuyin[0] = zhuyin[0][1:]  # get rid of the first space
         return zhuyin
 
-    def is_pinyin(self, pin1yin1):
+    @staticmethod
+    def is_pinyin(pin1yin1):
+        """
+        Returns True if the input looks like a pinyin string. False otherwise.
+
+        """
         return re.match(r'^(?i)[a-z]+[0-5]', pin1yin1)
 
     def unicode_pinyin(self, pin1yin1):
@@ -396,20 +408,16 @@ class DictionaryTools(object):
         index = []
         total = []
         # try in each line of the dic
-        for k in range(len(given_list)):
+        for line in range(len(given_list)):
             counter = 0
-            for s in range(len(words)):
+            for word_token in range(len(words)):
                 # for each word of the request (case insensitive)
-                if (given_list[k].lower()).count(words[s]) != 0:
+                if (given_list[line].lower()).count(words[word_token]) != 0:
                     counter += 1
                 if counter == len(words):
                     # only accepts lines containing every words
-                    index.append(k)
-                    total.append(len(given_list[k]))
-        d = dict(zip(index, total))
-        dl = sorted(d.items(), key=lambda x: x[1])
-        index = []
-        # Keep the sorted results
-        for i in range(len(dl)):
-            index.append(dl[i][0])
-        self.index = index
+                    index.append(line)
+                    total.append(len(given_list[line]))
+        dico = dict(zip(index, total))
+        dico_sorted = sorted(dico.items(), key=lambda x: x[1])
+        self.index = [value[0] for value in dico_sorted[:]]

@@ -24,8 +24,8 @@ class ChineseTable(object):
     """ Abstract class aimed at providing common methods for each tables.
     """
 
-    def __init__(self, table_path):
-        self.keys_faces = []
+    def __init__(self):
+        self.keys_faces = ""
         self.keys_displayed_faces = []
 
     def proceed(self, character, dictionary):
@@ -46,15 +46,16 @@ class ChineseTable(object):
         output.append(displayed_code)
         return output
 
-    def load(self, file_name):
+    @staticmethod
+    def load(file_name):
         """ Read codes from a file, and return a dictionary of codes
         and a dictionary of short codes
 
         """
         output = collections.defaultdict()
         output_short = collections.defaultdict()
-        with open(file_name, "r") as aFile:
-            lines = aFile.readlines()
+        with open(file_name, "r") as a_file:
+            lines = a_file.readlines()
             for line in lines:
                 space_pos = line.rfind(" ")
                 keys = line[0:space_pos]
@@ -74,6 +75,7 @@ class Cangjie5Table(ChineseTable):
     """
 
     def __init__(self):
+        super(Cangjie5Table, self).__init__()
         # Set the keys and keys_faces
         self.keys_faces = "abcdefghijklmnopqrstuvwxyz"
         self.keys_displayed_faces = ("日月金木水火土竹戈十大中一弓人心手口尸廿"
@@ -85,6 +87,7 @@ class Array30Table(ChineseTable):
     """
 
     def __init__(self):
+        super(Array30Table, self).__init__()
         # Set the keys and keys_faces
         self.keys_faces = "qwertyuiopasdfghjkl;zxcvbnm,./"
         self.keys_displayed_faces = ["1↑", "2↑", "3↑", "4↑", "5↑", "6↑", "7↑",
@@ -99,6 +102,7 @@ class Wubi86Table(ChineseTable):
     """
 
     def __init__(self):
+        super(Wubi86Table, self).__init__()
         # Set the keys and keys_faces
         self.keys_faces = "abcdefghijklmnopqrstuvwxyz"
         self.keys_displayed_faces = "abcdefghijklmnopqrstuvwxyz"

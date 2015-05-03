@@ -1,5 +1,6 @@
 ** Version 1.6 (not released yet)
    #4: input language is now auto-detected
+   - Code cleanup (pylint results vastly improved)
 
 ** Version 1.5
    #1: initial dictionary splitting didn't work (new tests for that)

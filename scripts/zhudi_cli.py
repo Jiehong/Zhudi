@@ -17,7 +17,7 @@ def main():
     query = args.query
     expand = args.expand
 
-    data, hanzi, romanisation, language = prepare_data(args)
+    data, hanzi, romanisation, _ = prepare_data(args)
     dt = processing.DictionaryTools()
     st = processing.SegmentationTools()
     pp = processing.PreProcessing()
@@ -39,7 +39,7 @@ def main():
 
     for word in query:
         results = set()
-        for dict in search_order:
+        for dic in search_order:
             # TODO searchUnique seems to work only on chinese
             # implementation for pinyin/zhuyin and english/french/etc is needed
             if not expand:
@@ -49,7 +49,7 @@ def main():
                     _print_result(result, data, dt, hanzi, romanisation)
 
             if expand or not results:
-                dt.search(dict, word)
+                dt.search(dic, word)
                 for result in dt.index:
                     results.add(result)
                     _print_result(result, data, dt, hanzi, romanisation)
