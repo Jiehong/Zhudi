@@ -1,3 +1,6 @@
+** Version 1.6 (not released yet)
+   #4: input language is now auto-detected
+
 ** Version 1.5
    #1: initial dictionary splitting didn't work (new tests for that)
    #2: initial tab is now the dictionary tab (new tab: About)
