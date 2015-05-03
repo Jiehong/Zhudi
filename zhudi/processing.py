@@ -193,6 +193,7 @@ class SegmentationTools(object):
 
         self.trad_set = []
         self.simp_set = []
+        self.set_of_chinese_chars = []
 
     def load(self, dataObject):
         """ Load and prepare needed data.
@@ -214,18 +215,19 @@ class SegmentationTools(object):
                     self.trad_set = out
                 else:
                     self.simp_set = out
+        dataObject.create_set_chinese_characters()
+        self.set_of_chinese_chars = dataObject.set_of_chinese_chars
     # end of load()
 
     def isNotChinese(self, string):
-        chars = "abcdefghijklmnopqerstuvwxyz1234567890"
-        cnt = 0
-        for char in string:
-            if char in chars or char in chars.upper():
-                cnt += 1
-        if cnt == len(string):
-            return True
-        else:
-            return False
+        """
+        Returns True is the given string does not contain any Chinese Character
+
+        """
+        for car in string:
+            if ord(car) in self.set_of_chinese_chars:
+                return False
+        return True
 
     def searchUnique(self, word, dataObject):
         """ Search for a word in the dictionary.
@@ -299,6 +301,7 @@ class DictionaryTools(object):
 
     def __init__(self):
         self.index = []
+        self.set_of_chinese_chars = []
 
     def pinyin_to_zhuyin(self, pinyin, dataObject):
         """Converts the given pinyin list into zhuyin. Returns a list."""

@@ -181,7 +181,6 @@ class TestZhudiProcessing(unittest.TestCase):
         actual_result = self.segTools.isNotChinese(given_string)
         self.assertEqual(actual_result, expected_result)
 
-
 class TestZhudiChineseTable(unittest.TestCase):
 
     def test_proceed(self):

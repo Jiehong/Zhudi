@@ -35,19 +35,19 @@ class dictionary_widget_main(object):
         self.language = ""
         self.results_list = []
         self.lock = False
+        self.search_field = None
 
     def build(self):
         # Search label
         search_label = Gtk.Label()
-        search_label.set_text("<big>Searching area</big>")
-        search_label.set_use_markup(True)
 
         # Search field
         search_field = Gtk.Entry()
         search_field.set_visible(True)
         search_field.connect("activate",
                              lambda x: self.search_asked(search_field))
-        search_field.set_placeholder_text("Type your query here…")
+        search_field.set_placeholder_text("Looking for something?")
+        self.search_field = search_field
 
         # Go, search! button
         go_button = Gtk.Button("Search")
@@ -60,26 +60,19 @@ class dictionary_widget_main(object):
 
         # Search + button box
         SB_box = Gtk.Grid()
-        SB_box.attach(search_field, 0, 0, 4, 1)
-        SB_box.attach_next_to(go_button, search_field, Gtk.PositionType.RIGHT, 1, 1)
-        SB_box.attach_next_to(option_button, go_button, Gtk.PositionType.RIGHT, 1, 1)
+        SB_box.attach(search_field, 0, 0, 5, 1)
+        SB_box.attach_next_to(go_button,
+                              search_field,
+                              Gtk.PositionType.RIGHT, 1, 1)
+        SB_box.attach_next_to(option_button,
+                              go_button,
+                              Gtk.PositionType.RIGHT, 1, 1)
         SB_box.set_column_homogeneous(True)
 
         # Search label zone
         frame_search = Gtk.Frame()
         frame_search.set_label_widget(search_label)
         frame_search.add(SB_box)
-
-        # Language box
-        language_box = Gtk.Grid()
-        Chinese = Gtk.RadioButton.new_with_label_from_widget(None, "From Chinese")
-        Chinese.connect("clicked", lambda x: self.set_language("Chinese"))
-        language_box.add(Chinese)
-        Latin = Gtk.RadioButton.new_with_label_from_widget(Chinese, "To Chinese")
-        Latin.connect("clicked", lambda x: self.set_language("Latin"))
-        language_box.attach_next_to(Latin, Chinese, Gtk.PositionType.RIGHT, 1, 1)
-        language_box.set_column_homogeneous(True)
-        Chinese.set_active(True)
 
         # Results part in a list
         self.results_list = Gtk.ListStore(str)
@@ -131,12 +124,9 @@ class dictionary_widget_main(object):
         # Mapping of the main window
         left_vertical_box = Gtk.Grid()
         left_vertical_box.add(frame_search)
-        left_vertical_box.attach_next_to(language_box,
-                                         frame_search,
-                                         Gtk.PositionType.BOTTOM, 1, 1)
         left_vertical_box.attach_next_to(frame_results,
-                                         language_box,
-                                         Gtk.PositionType.BOTTOM, 1, 7)
+                                         frame_search,
+                                         Gtk.PositionType.BOTTOM, 1, 9)
         left_vertical_box.set_row_homogeneous(True)
         left_vertical_box.set_column_homogeneous(True)
 
@@ -163,6 +153,7 @@ class dictionary_widget_main(object):
             self.display_translation(0)
         else:
             self.lock = False
+            self.language = self.determine_language(text)
             if self.language == "Latin":
                 given_list = dataObject.translation
             elif self.hanzi == "Traditional":
@@ -174,8 +165,16 @@ class dictionary_widget_main(object):
             self.display_translation(0)
     # end of search_asked
 
-    def set_language(self, string):
-        self.language = string
+    def determine_language(self, input_text):
+        """
+        Determine the language of the input text, according to its content
+
+        """
+
+        if segmentationToolsObject.isNotChinese(input_text):
+            return "Latin"
+        else:
+            return "Chinese"
 
     def display_translation(self, which):
         tr = self.translation_box.get_buffer()
@@ -730,7 +729,7 @@ class main_window(object):
 
     def __init__(self, dataObject):
         self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
-        self.window.set_default_size(800, 494)  # Gold number ratio
+        self.window.set_default_size(700, 500)
         self.window.set_title("Zhudi")
         self.window.set_position(Gtk.WindowPosition.CENTER)
         self.window.connect("key-release-event", self.on_key_release)
@@ -745,6 +744,7 @@ class main_window(object):
     def build(self):
         global dataObject
         dataObject = self.dataObject
+        dataObject.create_set_chinese_characters()
         global dictionaryToolsObject
         dictionaryToolsObject = zhudi.processing.DictionaryTools()
         global segmentationToolsObject
