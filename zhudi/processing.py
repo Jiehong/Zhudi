@@ -21,7 +21,6 @@ import re
 import os
 import shutil
 
-
 class PreProcessing(object):
     """ This class is in charge of the pre-processing needed to lauch Zhudi.
     It loads config files, split dictionaries, etc.
@@ -157,29 +156,6 @@ class PreProcessing(object):
                   " split the dictonary file first. ###")
             quit()
         # End of read_files()
-
-    def get_config(self):
-        """ Reads the config file, if it exists, and returns a list of variables
-        related to that file (of the form [var, value]).
-
-        """
-        try:
-            open(os.environ["HOME"] + "/.zhudi/config", "r")
-        except IOError:
-            # If no config file found
-            print("No config file found. Use defaults")
-            return []
-        saved_values = []
-        with open(os.environ["HOME"]+"/.zhudi/config", "r") as config_file:
-            lines = config_file.readlines()
-            for n_line in range(len(lines)):
-                if (lines[n_line][0] != "#") or (lines[n_line][0] != ""):
-                    if lines[n_line][:-1].lower() == "romanisation:":
-                        saved_values.append(["romanisation", lines[n_line+1][:-1].lower()])
-                    if lines[n_line][:-1].lower() == "hanzi form:":
-                        saved_values.append(["hanzi", lines[n_line+1][:-1].lower()])
-        config_file.close()
-        return saved_values
 
 
 class SegmentationTools(object):

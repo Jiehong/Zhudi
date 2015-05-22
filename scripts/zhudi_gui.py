@@ -27,14 +27,11 @@ def main():
     options = parser.parse_args()
 
     try:
-        dataObject, hanzi, romanisation, language = prepare_data(options)
+        dataObject = prepare_data(options)
     except WrongInputException:
         parser.print_help()
 
-    mw = gui.main_window(dataObject)
-    mw.hanzi = hanzi
-    mw.romanisation = romanisation
-    mw.language = language
+    mw = gui.main_window(dataObject, language="Chinese")
     mw.build()
     mw.loop()
 
