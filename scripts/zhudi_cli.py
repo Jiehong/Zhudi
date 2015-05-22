@@ -17,14 +17,15 @@ def main():
     query = args.query
     expand = args.expand
 
-    data, hanzi, romanisation, _ = prepare_data(args)
+    data = prepare_data(args)
+    data.load_config()
+
     dt = processing.DictionaryTools()
     st = processing.SegmentationTools()
     pp = processing.PreProcessing()
     st.load(data)
-    config = pp.get_config()
-    romanisation = _get_config_value('romanisation', config)
-    hanzi = _get_config_value('hanzi', config)
+    romanisation = data.romanisation
+    hanzi = data.hanzi
 
     search_order = (
         data.translation,
@@ -68,10 +69,6 @@ def _unicode_pronunciation(text, romanisation, data, dt):
         return ' '.join([dt.unicode_pinyin(p.lower()) for p in
                          getattr(data, romanisation)[text].strip().split()])
     return ' '.join([p for p in getattr(data, romanisation)[text].strip().split()])
-
-
-def _get_config_value(key, config):
-    return next(v for k, v in config if k == key)
 
 if __name__ == '__main__':
     main()

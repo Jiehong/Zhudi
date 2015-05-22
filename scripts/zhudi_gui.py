@@ -32,16 +32,13 @@ def main():
     options = parser.parse_args()
 
     try:
-        data_object, hanzi, romanisation, language = prepare_data(options)
+        data_object = prepare_data(options)
     except WrongInputException:
         parser.print_help()
 
-    main_window = gui.MainWindow(data_object)
-    main_window.hanzi = hanzi
-    main_window.romanisation = romanisation
-    main_window.language = language
-    main_window.build()
-    main_window.loop()
+    mw = gui.MainWindow(data_object, language="Chinese")
+    mw.build()
+    mw.loop()
 
 
 if __name__ == "__main__":

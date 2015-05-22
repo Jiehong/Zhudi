@@ -137,28 +137,6 @@ def prepare_data(options):
     elif (filename is None) and all(x is None for x in files) and not passed:
         raise WrongInputException
 
-    # Default values
-    language = "Chinese"
-    saved_values = preproc_o.get_config()
-    if saved_values == []:
-        romanisation = "Zhuyin"
-        hanzi = "Traditional"
-    else:
-        for item in saved_values:
-            if item[0] == "romanisation":
-                romanisation = item[1][0].upper() + item[1][1:]
-                if romanisation == "" or (romanisation != "Pinyin"
-                                          and romanisation != "Zhuyin"):
-                    print("It seems like the romanisation "
-                          "set by the config file is wrong. Default to Zhuyin")
-                    romanisation = "Zhuyin"
-            if item[0] == "hanzi":
-                hanzi = item[1][0].upper() + item[1][1:]
-                if hanzi == "" or (hanzi != "Simplified" and hanzi != "Traditional"):
-                    print("It seems like the hanzi form set by the config file "
-                          "is wrong. Default to the Traditional.")
-                    hanzi = "Traditional"
-
     # Load the cangjie infos
     cangjie5_obj = chinese_table.Cangjie5Table()
     cangjie_dic, cangjie_short_dic = cangjie5_obj.load(get_data_path('cangjie5'))
@@ -170,17 +148,16 @@ def prepare_data(options):
     wubi_dic, wubi_short_dic = wubi86_obj.load(get_data_path('wubi86'))
 
     # Data object
-    data_obj = data.Data(simplified,
-                         traditional,
-                         translation,
-                         wubi_dic, wubi_short_dic,
-                         array_dic, array_short_dic,
-                         cangjie_dic, cangjie_short_dic,
-                         pinyin,
-                         zhuyin)
-
-    return data_obj, hanzi, romanisation, language
-
+    data_object = data.Data(simplified,
+                            traditional,
+                            translation,
+                            wubi_dic, wubi_short_dic,
+                            array_dic, array_short_dic,
+                            cangjie_dic, cangjie_short_dic,
+                            pinyin,
+                            zhuyin)
+    data_object.load_config()
+    return data_object
 
 def get_argument_parser():
     """

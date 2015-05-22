@@ -18,9 +18,7 @@
 '''
 
 import re
-import os
 import shutil
-
 
 class PreProcessing(object):
     """ This class is in charge of the pre-processing needed to lauch Zhudi.
@@ -46,10 +44,10 @@ class PreProcessing(object):
             """
 
             clean_pinyin = ""
-            for n in range(len(pinyin)):
-                clean_pinyin += pinyin[n]
-                if pinyin[n].isdigit() and (n < len(pinyin)-1):
-                    if pinyin[n+1] != " ":
+            for index in range(len(pinyin)):
+                clean_pinyin += pinyin[index]
+                if pinyin[index].isdigit() and (index < len(pinyin)-1):
+                    if pinyin[index + 1] != " ":
                         clean_pinyin += " "
             return clean_pinyin
         # end of unstick
@@ -98,8 +96,8 @@ class PreProcessing(object):
                 traditional = i[0:space_ind[0]]
                 simplified = i[space_ind[0]+1:space_ind[1]]
                 pinyin = i[pinyin_delimiters[0]+1:pinyin_delimiters[1]]
-                for n in range(len(translation_delimiters) - 1):
-                    translation.append(i[translation_delimiters[n] + 1:translation_delimiters[n + 1]])
+                for index in range(len(translation_delimiters) - 1):
+                    translation.append(i[translation_delimiters[index] + 1:translation_delimiters[index + 1]])
 
                 clean_pinyin = unstick(pinyin)
                 translation_clean = ""
@@ -158,31 +156,6 @@ class PreProcessing(object):
                   " split the dictonary file first. ###")
             quit()
         # End of read_files()
-
-    @staticmethod
-    def get_config():
-        """ Reads the config file, if it exists, and returns a list of variables
-        related to that file (of the form [var, value]).
-
-        """
-        try:
-            open(os.environ["HOME"] + "/.zhudi/config", "r")
-        except IOError:
-            # If no config file found
-            print("No config file found. Use defaults")
-            return []
-        saved_values = []
-        with open(os.environ["HOME"]+"/.zhudi/config", "r") as config_file:
-            lines = config_file.readlines()
-            for n_line in range(len(lines)):
-                if (lines[n_line][0] != "#") or (lines[n_line][0] != ""):
-                    if lines[n_line][:-1].lower() == "romanisation:":
-                        saved_values.append(["romanisation", lines[n_line+1][:-1].lower()])
-                    if lines[n_line][:-1].lower() == "hanzi form:":
-                        saved_values.append(["hanzi", lines[n_line+1][:-1].lower()])
-        config_file.close()
-        return saved_values
-
 
 class SegmentationTools(object):
     """ This class is intended to contains any functions dealing with Chinese.

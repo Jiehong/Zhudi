@@ -18,8 +18,6 @@
 '''
 
 from gi.repository import Gtk, Pango, Gdk
-import os
-
 import zhudi
 
 
@@ -29,13 +27,9 @@ WUBI86_OBJ = zhudi.chinese_table.Wubi86Table()
 
 
 class DictionaryWidgetMain(object):
-    """
-    Dictionary GUI widget.
-
-    """
-    def __init__(self):
-        self.hanzi = ""
-        self.romanisation = ""
+    """ Dictionary tab gui. """
+    def __init__(self, data_object):
+        self.data_object = data_object
         self.language = ""
         self.results_list = []
         self.lock = False
@@ -60,18 +54,11 @@ class DictionaryWidgetMain(object):
         go_button.connect("clicked",
                           lambda x: self.search_asked(search_field))
 
-        # Options button
-        option_button = Gtk.Button("Options")
-        option_button.connect("clicked", lambda x: self.open_option())
-
         # Search + button box
         sb_box = Gtk.Grid()
         sb_box.attach(search_field, 0, 0, 5, 1)
         sb_box.attach_next_to(go_button,
                               search_field,
-                              Gtk.PositionType.RIGHT, 1, 1)
-        sb_box.attach_next_to(option_button,
-                              go_button,
                               Gtk.PositionType.RIGHT, 1, 1)
         sb_box.set_column_homogeneous(True)
 
@@ -157,11 +144,11 @@ class DictionaryWidgetMain(object):
             self.lock = False
             self.language = self.determine_language(text)
             if self.language == "Latin":
-                given_list = DATA_OBJECT.translation
-            elif self.hanzi == "Traditional":
-                given_list = DATA_OBJECT.traditional
+                given_list = self.data_object.translation
+            elif self.data_object.hanzi == "Traditional":
+                given_list = self.data_object.traditional
             else:
-                given_list = DATA_OBJECT.simplified
+                given_list = self.data_object.simplified
             DICTIONARY_TOOLS_OBJECT.search(given_list, text)
             self.update_results()
             self.display_translation(0)
@@ -191,26 +178,26 @@ class DictionaryWidgetMain(object):
         else:
             index = DICTIONARY_TOOLS_OBJECT.index[which]
 
-        if self.hanzi == "Traditional":
-            hanzi_dic = DATA_OBJECT.traditional
+        if self.data_object.hanzi == "traditional":
+            hanzi_dic = self.data_object.traditional
         else:
-            hanzi_dic = DATA_OBJECT.simplified
-        if self.romanisation == "Zhuyin":
-            romanisation_dic = DATA_OBJECT.zhuyin
+            hanzi_dic = self.data_object.simplified
+        if self.data_object.romanisation == "zhuyin":
+            romanisation_dic = self.data_object.zhuyin
         else:
-            romanisation_dic = DATA_OBJECT.pinyin
+            romanisation_dic = self.data_object.pinyin
 
         slash_list = []
-        translation = DATA_OBJECT.translation[index]
-        for local_index in range(len(translation)):
-            if translation[local_index] == "/":
-                slash_list.append(local_index)
+        trans_index = self.data_object.translation[index]
+        for l in range(len(trans_index)):
+            if trans_index[l] == "/":
+                slash_list.append(l)
         temp = 0
         trans = []
         for local_index in range(len(slash_list)):
-            trans.append(str(local_index + 1) + ". " + translation[temp:slash_list[local_index]])
+            trans.append(str(local_index + 1) + ". " + trans_index[temp:slash_list[local_index]])
             temp = slash_list[local_index] + 1
-        trans.append(str(len(slash_list) + 1) + ". " + translation[temp:len(translation)])
+        trans.append(str(len(slash_list) + 1) + ". " + trans_index[temp:len(trans_index)])
         string = ""
         for i in range(len(slash_list) + 1):
             string = string + trans[i] + "\n"
@@ -219,7 +206,7 @@ class DictionaryWidgetMain(object):
         p_string = romanisation_dic[index].split()
         pronounciation_string = []
         for point in range(len(p_string)):
-            if self.romanisation == "Pinyin":
+            if self.data_object.romanisation == "pinyin":
                 pronounciation_string.append(DICTIONARY_TOOLS_OBJECT.unicode_pinyin(p_string[point]))
                 pronounciation_string.append(" ")
             else:
@@ -230,7 +217,7 @@ class DictionaryWidgetMain(object):
         cangjie5_displayed = ""
         for hanzi in hanzi_dic[index]:
             if hanzi != "\n":
-                key_code, displayed_code = CANGJIE5_OBJ.proceed(hanzi, DATA_OBJECT.cangjie5)
+                key_code, displayed_code = CANGJIE5_OBJ.proceed(hanzi, self.data_object.cangjie5)
                 cangjie5_displayed += "["
                 cangjie5_displayed += displayed_code
                 cangjie5_displayed += "]"
@@ -238,7 +225,7 @@ class DictionaryWidgetMain(object):
         array30_displayed = ""
         for hanzi in hanzi_dic[index]:
             if hanzi != "\n":
-                key_code, displayed_code = ARRAY30_OBJ.proceed(hanzi, DATA_OBJECT.array30)
+                key_code, displayed_code = ARRAY30_OBJ.proceed(hanzi, self.data_object.array30)
                 array30_displayed += "["
                 array30_displayed += displayed_code
                 array30_displayed += "]"
@@ -246,7 +233,7 @@ class DictionaryWidgetMain(object):
         wubi86_code = ""
         for hanzi in hanzi_dic[index]:
             if hanzi != "\n":
-                key_code, displayed_code = WUBI86_OBJ.proceed(hanzi, DATA_OBJECT.wubi86)
+                key_code, displayed_code = WUBI86_OBJ.proceed(hanzi, self.data_object.wubi86)
                 wubi86_code += "["
                 wubi86_code += key_code
                 wubi86_code += "]"
@@ -305,16 +292,16 @@ class DictionaryWidgetMain(object):
         """ Clear, and refill the result list. """
         self.results_list.clear()
         displayed_index = 1
-        threshold = 40  # threshold for line wrap
-        for key in DICTIONARY_TOOLS_OBJECT.index:
-            if self.language == "Latin":
-                string = DATA_OBJECT.translation[key]
-            elif self.hanzi == "Traditional":
-                string = DATA_OBJECT.traditional[key]
+        threashold = 40  # threshold for line wrap
+        for k in DICTIONARY_TOOLS_OBJECT.index:
+            if self.language == "latin":
+                string = self.data_object.translation[k]
+            elif self.data_object.hanzi == "traditional":
+                string = self.data_object.traditional[k]
             else:
-                string = DATA_OBJECT.simplified[key]
-            if len(string) > threshold:
-                string = str(displayed_index) + ". " + string[0:threshold] + "…"
+                string = self.data_object.simplified[k]
+            if len(string) > threashold:
+                string = str(displayed_index) + ". " + string[0:threashold] + "…"
             else:
                 string = str(displayed_index) + ". " + string
             string = string[:-1]  # no \n
@@ -337,131 +324,12 @@ class DictionaryWidgetMain(object):
                     else:
                         self.display_translation(figure-1)
 
-    @staticmethod
-    def set_config(romanisation, hanzi):
-        """
-        This function saves values to the config file. The config file is
-        overwritten if it already exists.
-        """
-        with open(os.environ["HOME"] + "/.zhudi/config", "w") as config_file:
-            config_file.write("# This file is the configuration file" +
-                              " used by Zhudi in order to remember\n")
-            config_file.write("# user's configuration choices.\n")
-            config_file.write("# This file has been created automatically" +
-                              "by Zhudi.\n\n")
-            config_file.write("romanisation:\n")
-            config_file.write(romanisation+"\n\n")
-            config_file.write("hanzi form:\n")
-            config_file.write(hanzi+"\n\n")
-
-    def open_option(self):
-        """ Call and create the option pop-up. """
-        option = self.DictionaryWidgetOption(self)
-        option.hanzi = self.hanzi
-        option.romanisation = self.romanisation
-        option.build()
-
-    class DictionaryWidgetOption(object):
-
-        """ Option pop-up inside the dictionary tab. """
-
-        def __init__(self, main_window):
-            self.hanzi = ""
-            self.romanisation = ""
-            self.main_window = main_window
-            # Definition of the options window
-            self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
-            self.window.set_size_request(300, 180)
-            self.window.set_title("Options")
-            self.window.set_position(Gtk.WindowPosition.CENTER)
-            self.window.connect("destroy", lambda x: self.window.destroy)
-
-        def kill_ok(self):
-            """ Killing function for the Option window. """
-            self.window.hide()
-
-        def build(self):
-            """ Mandatory GUI build method. """
-            # Hanzi label
-            hanzi_label = Gtk.Label()
-            hanzi_label.set_text("<big>Chinese characters form:</big>")
-            hanzi_label.set_justify(Gtk.Justification.LEFT)
-            hanzi_label.set_use_markup(True)
-            # hanzi box
-            hanzi_box = Gtk.Grid()
-            traditional = Gtk.RadioButton.new_with_label_from_widget(None, "Traditional")
-            traditional.connect("clicked", lambda x: self.set_hanzi("Traditional"))
-            hanzi_box.add(traditional)
-            simplified = Gtk.RadioButton.new_with_label_from_widget(traditional, "Simplified")
-            simplified.connect("clicked", lambda x: self.set_hanzi("Simplified"))
-            hanzi_box.attach_next_to(simplified, traditional, Gtk.PositionType.RIGHT, 1, 1)
-            hanzi_box.set_column_homogeneous(True)
-
-            # Romanisation label
-            romanisation_label = Gtk.Label()
-            romanisation_label.set_text("<big>Pronunciation system:</big>")
-            romanisation_label.set_justify(Gtk.Justification.LEFT)
-            romanisation_label.set_use_markup(True)
-
-            # romanisation box
-            romanisation_box = Gtk.Grid()
-            zhuyin = Gtk.RadioButton.new_with_label_from_widget(None, "Zhuyin Fuhao")
-            zhuyin.connect("clicked", lambda x: self.set_romanisation("Zhuyin"))
-            romanisation_box.add(zhuyin)
-            pinyin = Gtk.RadioButton.new_with_label_from_widget(zhuyin, "Hanyu Pinyin")
-            pinyin.connect("clicked", lambda x: self.set_romanisation("Pinyin"))
-            romanisation_box.attach_next_to(pinyin, zhuyin, Gtk.PositionType.RIGHT, 1, 1)
-            romanisation_box.set_column_homogeneous(True)
-            # Horizontal separator
-            option_horizontal_separator = Gtk.Separator()
-            # Ok button
-            ok_button = Gtk.Button("Ok")
-            ok_button.connect("clicked", lambda x: self.kill_ok())
-            # Mapping of the option window
-            loption_vertical_box = Gtk.Grid()
-            loption_vertical_box.add(hanzi_label)
-            loption_vertical_box.attach_next_to(hanzi_box, hanzi_label, Gtk.PositionType.BOTTOM, 1, 1)
-            loption_vertical_box.attach_next_to(romanisation_label, hanzi_box, Gtk.PositionType.BOTTOM, 1, 1)
-            loption_vertical_box.attach_next_to(romanisation_box, romanisation_label, Gtk.PositionType.BOTTOM, 1, 1)
-            loption_vertical_box.attach_next_to(option_horizontal_separator, romanisation_box, Gtk.PositionType.BOTTOM, 1, 1)
-            loption_vertical_box.attach_next_to(ok_button, option_horizontal_separator, Gtk.PositionType.BOTTOM, 1, 2)
-            loption_vertical_box.set_column_homogeneous(True)
-            loption_vertical_box.set_row_homogeneous(True)
-
-            # Adding them in the main window
-            self.window.add(loption_vertical_box)
-
-            # Eventually, show the option window and the widgetss
-            self.window.show_all()
-
-            if self.hanzi == "Traditional":
-                traditional.set_active(True)
-            else:
-                simplified.set_active(True)
-            if self.romanisation == "Zhuyin":
-                zhuyin.set_active(True)
-            else:
-                pinyin.set_active(True)
-
-        def set_romanisation(self, string):
-            """ Change the romanisation value. """
-            self.main_window.romanisation = string
-            self.main_window.set_config(self.main_window.romanisation, self.main_window.hanzi)
-
-        def set_hanzi(self, string):
-            """ Change the hanzi value. """
-            self.main_window.hanzi = string
-            self.main_window.set_config(self.main_window.romanisation, self.main_window.hanzi)
-    # End of Option_window
-
 
 class SegmentationWidget(object):
     """ Class that defines the segmentation GUI layer.
     """
 
-    def __init__(self, hanziForm, romanisationForm):
-        self.hanzi = hanziForm
-        self.romanisation = romanisationForm
+    def __init__(self, data_object):
         self.frame_label = None
         self.horizontal_separator = None
         self.go_button = None
@@ -477,6 +345,7 @@ class SegmentationWidget(object):
         self.results_scroll = None
         self.results_frame = None
         self.horizontal_box = None
+        self.data_object = data_object
 
     def build(self):
         """ Mandatory GUI build method. """
@@ -610,21 +479,21 @@ class SegmentationWidget(object):
             translation_buffer.set_text(index)
             return
 
-        if self.hanzi == "Traditional":
-            hanzi_dic = DATA_OBJECT.traditional
+        if self.data_object.hanzi == "traditional":
+            hanzi_dic = self.data_object.traditional
         else:
-            hanzi_dic = DATA_OBJECT.simplified
+            hanzi_dic = self.data_object.simplified
 
-        if self.romanisation == "Zhuyin":
-            romanisation_dic = DATA_OBJECT.zhuyin
+        if self.data_object.romanisation == "zhuyin":
+            romanisation_dic = self.data_object.zhuyin
         else:
-            romanisation_dic = DATA_OBJECT.pinyin
+            romanisation_dic = self.data_object.pinyin
 
         slash_list = []
-        trans_index = DATA_OBJECT.translation[index]
-        for key in range(len(trans_index)):
-            if trans_index[key] == "/":
-                slash_list.append(key)
+        trans_index = self.data_object.translation[index]
+        for line in range(len(trans_index)):
+            if trans_index[line] == "/":
+                slash_list.append(line)
         temp = 0
         trans = []
         for key in range(len(slash_list)):
@@ -639,7 +508,7 @@ class SegmentationWidget(object):
         p_string = romanisation_dic[index].split()
         pronounciation_string = []
         for point in range(len(p_string)):
-            if self.romanisation == "Pinyin":
+            if self.data_object.romanisation == "pinyin":
                 pronounciation_string.append(DICTIONARY_TOOLS_OBJECT.unicode_pinyin(p_string[point]))
                 pronounciation_string.append(" ")
             else:
@@ -650,7 +519,7 @@ class SegmentationWidget(object):
         cangjie5_displayed = ""
         for hanzi in hanzi_dic[index]:
             if hanzi != "\n":
-                key_code, displayed_code = CANGJIE5_OBJ.proceed(hanzi, DATA_OBJECT.cangjie5)
+                key_code, displayed_code = CANGJIE5_OBJ.proceed(hanzi, self.data_object.cangjie5)
                 cangjie5_displayed += "["
                 cangjie5_displayed += displayed_code
                 cangjie5_displayed += "]"
@@ -658,7 +527,7 @@ class SegmentationWidget(object):
         array30_displayed = ""
         for hanzi in hanzi_dic[index]:
             if hanzi != "\n":
-                key_code, displayed_code = ARRAY30_OBJ.proceed(hanzi, DATA_OBJECT.array30)
+                key_code, displayed_code = ARRAY30_OBJ.proceed(hanzi, self.data_object.array30)
                 array30_displayed += "["
                 array30_displayed += displayed_code
                 array30_displayed += "]"
@@ -666,7 +535,7 @@ class SegmentationWidget(object):
         wubi86_code = ""
         for hanzi in hanzi_dic[index]:
             if hanzi != "\n":
-                key_code, displayed_code = WUBI86_OBJ.proceed(hanzi, DATA_OBJECT.wubi86)
+                key_code, displayed_code = WUBI86_OBJ.proceed(hanzi, self.data_object.wubi86)
                 wubi86_code += "["
                 wubi86_code += key_code
                 wubi86_code += "]"
@@ -729,83 +598,139 @@ class SegmentationWidget(object):
         if treeiter is not None:
             word = model[treeiter][0]
             if word is not None:
-                index = SEGMENTATION_TOOLS_OBJECT.search_unique(word, DATA_OBJECT)
+                index = SEGMENTATION_TOOLS_OBJECT.search_unique(word, self.data_object)
                 if index is None:
                     self.display_translation(word, True)
                 else:
                     self.display_translation(index)
 
-class AboutWidget(object):
-    """ Class defining the About tab layout """
+class OptionsWidget(object):
+    """ Class defining the Options/About tab layout """
 
-    def __init__(self):
-        self.about_text = None
+    def __init__(self, data_object):
+        self.data_object = data_object
 
     def build(self):
-        """ Mandatory GUI build method. """
-        self.about_text = Gtk.Frame(label_yalign=0.5, label_xalign=0.5)
-        self.about_text.set_label("\n\n\n\n"
-                                  "              Zhudi"
-                                  "\n\n"
-                                  "       Jiehong Ma, 2011–2015"
-                                  "\n\n"
-                                  "Zhudi has been designed in order to help\n"
-                                  "people learning Chinese thanks to free tools.\n"
-                                  "It aims at providing reliable, and useful\n"
-                                  "informations to the Chinese learner.\n"
-                                  "The author is also a Chinese learner as well,\n"
-                                  "and he uses Zhudi almost everyday.\n"
-                                  "\n"
-                                  "This software is under the GNU GPLv3 licence.")
-        return self.about_text
+        vertical_box = Gtk.Box()
+        vertical_box.set_orientation(Gtk.Orientation.VERTICAL)
+        vertical_box.set_homogeneous(False)
+
+        title = Gtk.Label("")
+        vertical_box.pack_start(title, False, True, 20)
+
+        horizontal_box = Gtk.Box()
+        label = Gtk.Label("Romanisation:")
+        horizontal_box.pack_start(label, True, True, 0)
+        # List of romanisation available
+        name_store = Gtk.ListStore(str)
+        rom = ["Pinyin", "Zhuyin"]
+        for value in rom:
+            name_store.append([value])
+        combo = Gtk.ComboBox.new_with_model(name_store)
+        renderer_text = Gtk.CellRendererText()
+        combo.pack_start(renderer_text, True)
+        combo.add_attribute(renderer_text, "text", 0)
+        # Set active the saved value
+        if self.data_object.romanisation == 'zhuyin':
+            combo.set_active(1)
+        else:
+            combo.set_active(0)
+        combo.connect("changed", self.on_rom_combo)
+        horizontal_box.pack_start(combo, True, True, 0)
+        # Empty space
+        space = Gtk.Label("")
+        horizontal_box.pack_start(space, True, True, 20)
+        horizontal_box.set_homogeneous(True)
+        vertical_box.pack_start(horizontal_box, False, True, 5)
+
+        horizontal_box = Gtk.Box()
+        label = Gtk.Label("Character set:")
+        horizontal_box.pack_start(label, True, True, 0)
+                # List of romanisation available
+        name_store = Gtk.ListStore(str)
+        rom = ["Simplified", "Traditional"]
+        for value in rom:
+            name_store.append([value])
+        combo = Gtk.ComboBox.new_with_model(name_store)
+        renderer_text = Gtk.CellRendererText()
+        combo.pack_start(renderer_text, True)
+        combo.add_attribute(renderer_text, "text", 0)
+        if self.data_object.hanzi == 'traditional':
+            combo.set_active(1)
+        else:
+            combo.set_active(0)
+        combo.connect("changed", self.on_char_combo)
+        horizontal_box.pack_start(combo, True, True, 0)
+
+        space = Gtk.Label("")
+        horizontal_box.pack_start(space, True, True, 20)
+        horizontal_box.set_homogeneous(True)
+        vertical_box.pack_start(horizontal_box, False, True, 5)
+
+        about_text = Gtk.Frame(label_yalign=1, label_xalign=1)
+        about_text.set_label("\n\n\n\n"
+                             "Zhudi, 2011-2015")
+        vertical_box.pack_start(about_text, True, True, 5)
+        return vertical_box
+
+    def on_rom_combo(self, combo):
+        """ Action when the romanisation is changed. """
+        tree_iter = combo.get_active_iter()
+        if tree_iter != None:
+            model = combo.get_model()
+            value = model[tree_iter][0]
+            self.data_object.romanisation = value.lower()
+            self.data_object.save_config()
+
+    def on_char_combo(self, combo):
+        """ Action when the set is changed. """
+        tree_iter = combo.get_active_iter()
+        if tree_iter != None:
+            model = combo.get_model()
+            value = model[tree_iter][0]
+            self.data_object.hanzi = value.lower()
+            self.data_object.save_config()
+
 
 class MainWindow(object):
     """ Class that defines the welcome screen, and gives access to other layers.
     """
 
-    def __init__(self, data_obj):
+    def __init__(self, data_object, language):
         self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
         self.window.set_default_size(700, 500)
         self.window.set_title("Zhudi")
         self.window.set_position(Gtk.WindowPosition.CENTER)
         self.window.connect("key-release-event", self.on_key_release)
-        self.data_object = data_obj
-        self.hanzi = ""
-        self.romanisation = ""
-        self.language = ""
-        self.tab_box = None
-        self.seg_gui = None
+        self.data_object = data_object
+        self.language = language
         self.sub_gui = None
         self.dict_gui = None
+        self.seg_gui = None
         self.main_widget = None
+        self.tab_box = None
         self.vbox = None
 
     @staticmethod
     def loop():
-        """ Start main GUI loop. """
+        """ Starting things! """
         Gtk.main()
 
     def build(self):
-        """ Mandatory GUI build function. """
-        global DATA_OBJECT
-        DATA_OBJECT = self.data_object
-        DATA_OBJECT.create_set_chinese_characters()
+        """ Mandatory build function. """
+        self.data_object.create_set_chinese_characters()
         global DICTIONARY_TOOLS_OBJECT
         DICTIONARY_TOOLS_OBJECT = zhudi.processing.DictionaryTools()
         global SEGMENTATION_TOOLS_OBJECT
         SEGMENTATION_TOOLS_OBJECT = zhudi.processing.SegmentationTools()
-        SEGMENTATION_TOOLS_OBJECT.load(DATA_OBJECT)
+        SEGMENTATION_TOOLS_OBJECT.load(self.data_object)
         # Welcome tab
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
 
-        # Dictionary tab
+        # Tabs
         self.dict_gui = self.dictionary_gui()
-
-        # Segmentation tab
         self.seg_gui = self.segmentation_gui()
-
-        # About tab
-        self.about_gui = self.about_gui()
+        self.options_gui = self.options_gui()
 
         # Build the tab frame
         self.tab_box = Gtk.Notebook()
@@ -814,31 +739,29 @@ class MainWindow(object):
         self.tab_box.set_tab_label_text(self.dict_gui, "Dictionary")
         self.tab_box.append_page(self.seg_gui, None)
         self.tab_box.set_tab_label_text(self.seg_gui, "Segmentation")
-        self.tab_box.append_page(self.about_gui, None)
-        self.tab_box.set_tab_label_text(self.about_gui, "About")
+        self.tab_box.append_page(self.options_gui, None)
+        self.tab_box.set_tab_label_text(self.options_gui, "Options")
 
         self.window.add(self.tab_box)
         self.window.connect("destroy", Gtk.main_quit)
         self.window.show_all()
 
-    def about_gui(self):
-        """ This is the about mode, i.e. when no mode is selected."""
-        self.main_widget = AboutWidget()
+    def options_gui(self):
+        """ Options tab. """
+        self.main_widget = OptionsWidget(self.data_object)
         self.sub_gui = self.main_widget.build()
         return self.sub_gui
 
     def dictionary_gui(self):
         """ Start the dictionary widget. """
-        self.main_widget = DictionaryWidgetMain()
-        self.main_widget.hanzi = self.hanzi
-        self.main_widget.romanisation = self.romanisation
+        self.main_widget = DictionaryWidgetMain(self.data_object)
         self.main_widget.language = self.language
         self.sub_gui = self.main_widget.build()
         return self.sub_gui
 
     def segmentation_gui(self):
         """ Start the segmentation widget. """
-        self.main_widget = SegmentationWidget(self.hanzi, self.romanisation)
+        self.main_widget = SegmentationWidget(self.data_object)
         self.sub_gui = self.main_widget.build()
         return self.sub_gui
 
