@@ -18,6 +18,16 @@ In order to run Zhudi, you need the following packages:
 # Versions
 Version 0.9 is made to work with python2 and is now obsolete. You should use version 1.0 and later instead.
 
+# Installation
+
+## Archlinux
+Zhudi is available in AUR.
+
+## Others
+You may install it thanks to Python setup tools:
+
+    python setup.py install
+
 # Launching
 Zhudi can be launched from the command line by providing it proper files.
 
@@ -30,32 +40,27 @@ When you first launch Zhudi, you need to provide a dictionary file. You are free
 
 You have to download the *.u8 version of the dictionary for using with Zhudi. Once you have downloaded it, simply run Zhudi to prepare the dictionary for future uses. Here is an example with the CEDICT dictionary (cedict.u8):
 
-    python scripts/zhudi -s cedict.u8
+    zhudi -s cedict.u8
 
 When Zhudi is finished, it would have created 5 files: pinyin, zhuyin, simplified, traditional and translation.
 
 ## Normal usage
 When the previous 5 files are created, you can simply launch Zhudi:
 
-    python scripts/zhudi -p pinyin -z zhuyin -tr translation -td traditional -sd simplified
+    zhudi -p pinyin -z zhuyin -tr translation -td traditional -sd simplified
 
 However, you can just copy these files in your ~/.zhudi/ directory and launch Zhudi without arguments:
-
-    python scripts/zhudi
-
-# Archlinux
-You can find zhudi in AUR, and install it as usual.
-
-Once installed, simply launch:
-
-    zhudi -s cedict.u8
-
-Then, you can simply invoke it as a normal programme:
 
     zhudi
 
 # Testing
+As zhudi is using Python's setup tools, you can always "install" the developpment version as follow:
 
+    python setup.py develop
+
+From now on, zhudi of your system is actually a link to the developpment directory, so you can modify things, and test them on the fly, without re-installing.
+
+## Unit tests
 dict_test.u8 is used to test the splitting of the dictionary, and then for the rest of the unittests.
 
 First, test that splitting the dictionary is working well:
