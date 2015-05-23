@@ -1,4 +1,4 @@
-** Version 1.6 (not released yet)
+** Version 1.6
    #4: input language is now auto-detected
    - Code cleanup (pylint results vastly improved, and some refactoring)
    #5: options are now in their own tab (since they are global).

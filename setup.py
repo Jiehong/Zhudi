@@ -10,7 +10,7 @@ README = open(os.path.join(here, 'README.md')).read()
 
 setup(
     name="zhudi",
-    version="1.5",
+    version="1.6",
     description="Zhudi is a graphical interface to xDICT dictionaries",
     long_description=README,
     author="Jiehong Ma",
