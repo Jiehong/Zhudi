@@ -168,13 +168,14 @@ class SegmentationTools(object):
 
         self.trad_set = []
         self.simp_set = []
-        self.set_of_chinese_chars = []
+        self.data_proxy = None
 
-    def load(self, data_obj):
+    def load(self, data_proxy):
         """ Load and prepare needed data.
         """
 
-        for style in [data_obj.traditional, data_obj.simplified]:
+        self.data_proxy = data_proxy
+        for style in [self.data_proxy.traditional.get(), self.data_proxy.simplified.get()]:
             temp = [[], [], [], [], [], [], [], [], [], [],
                     [], [], [], [], [], [], [], [], [], []]  # 20
             out = []
@@ -186,25 +187,13 @@ class SegmentationTools(object):
             for nested_list in temp:
                 # transform in set for performance issue
                 out.append(set(nested_list))
-                if style == data_obj.traditional:
+                if style == data_proxy.traditional.get():
                     self.trad_set = out
                 else:
                     self.simp_set = out
-        data_obj.create_set_chinese_characters()
-        self.set_of_chinese_chars = data_obj.set_of_chinese_chars
     # end of load()
 
-    def is_not_chinese(self, string):
-        """
-        Returns True is the given string does not contain any Chinese Character
-
-        """
-        for car in string:
-            if ord(car) in self.set_of_chinese_chars:
-                return False
-        return True
-
-    def search_unique(self, word, data_obj):
+    def search_unique(self, word):
         """ Search for a word in the dictionary.
         Returns only 1 result (the index) or None if nothing found.
 
@@ -222,11 +211,11 @@ class SegmentationTools(object):
                 cnt += 1
             return None
 
-        if self.is_not_chinese(word):
+        if self.data_proxy.is_not_chinese(word).get():
             return None
         else:
-            r1 = find_it(word, data_obj.traditional)
-            r2 = find_it(word, data_obj.simplified)
+            r1 = find_it(word, self.data_proxy.traditional.get())
+            r2 = find_it(word, self.data_proxy.simplified.get())
             if r2 is None:
                 if r1 is None:
                     return None
@@ -252,7 +241,7 @@ class SegmentationTools(object):
                 upper = maxi
             for i in range(upper, 1, -1):  # from max-1 to 1
                 current_string = string[0:i]
-                if self.is_not_chinese(current_string):
+                if self.data_proxy.is_not_chinese(current_string).get():
                     return current_string
                 if current_string in traditional[i-1]:
                     return current_string
@@ -280,12 +269,11 @@ class DictionaryTools(object):
 
     def __init__(self):
         self.index = []
-        self.set_of_chinese_chars = []
 
     @staticmethod
-    def pinyin_to_zhuyin(pinyin, data_obj):
+    def pinyin_to_zhuyin(pinyin, data_proxy):
         """Converts the given pinyin list into zhuyin. Returns a list."""
-        pinyin_zhuyin_dict = data_obj.pinyin_to_zhuyin
+        pinyin_zhuyin_dict = data_proxy.pinyin_to_zhuyin.get()
 
         # for speed issue, transforme the list of pinyin in one long string
         to_convert = " " + " # ".join(pinyin)

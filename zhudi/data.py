@@ -18,50 +18,28 @@
 '''
 
 import os
+import pykka
 
-class Data(object):
-    """ Data contains all the data used by Zhudi.
-    """
+class Data(pykka.ThreadingActor):
+    """ Data contains all the data used by Zhudi. """
 
-    def __init__(self, simp, trad, trans,
-                 wubi86, wubi86_short,
-                 array30, array30_short,
-                 cangjie5, cangjie5_short,
-                 pinyin, zhuyin=None):
-        """
-        hanzi          : set of characters to use ("" by default)
-        romanisation   : romanisation to use ("" by default)
-        simp           : a list of simplified forms
-        trad           : a list of traditional forms
-        trans          : a list of translations
-        wubi86         : a dictionary of wubi86 codes
-        wubi86_short   : a dictionary of short wubi86 codes
-        array30        : a dictionary of array30 codes
-        array30_short  : a dictionary of short array30 codes
-        cangjie5       : a dictionary of cangjie5 codes
-        cangjie5_short : a dictionary of short cangjie5 codes
-        pinyin         : a list of pinyin
-        zhuyin         : a list of zhuyin (default = [])
-
-        """
-
+    pykka_traversable = True
+    def __init__(self):
+        super(Data, self).__init__()
         self.hanzi = ""
         self.romanisation = ""
         self.set_of_chinese_chars = set()
-        self.simplified = simp
-        self.traditional = trad
-        self.translation = trans
-        self.pinyin = pinyin
-        if zhuyin is None:
-            self.zhuyin = []
-        else:
-            self.zhuyin = zhuyin
-        self.wubi86 = wubi86
-        self.wubi86_short = wubi86_short
-        self.array30 = array30
-        self.array30_short = array30_short
-        self.cangjie5 = cangjie5
-        self.cangjie5_short = cangjie5_short
+        self.simplified = None
+        self.traditional = None
+        self.translation = None
+        self.pinyin = None
+        self.zhuyin = None
+        self.wubi86 = None
+        self.wubi86_short = None
+        self.array30 = None
+        self.array30_short = None
+        self.cangjie5 = None
+        self.cangjie5_short = None
         self.pinyin_to_zhuyin = [('zhuang', 'ㄓㄨㄤ'),
                                  ('shuang', 'ㄕㄨㄤ'),
                                  ('chuang', 'ㄔㄨㄤ'),
@@ -576,3 +554,33 @@ class Data(object):
             config_file.write(self.romanisation + "\n\n")
             config_file.write("hanzi form:\n")
             config_file.write(self.hanzi + "\n\n")
+
+    def kill(self):
+        """ Stop actor. """
+        super(Data, self).stop()
+
+    def get_value(self, language, index):
+        """
+
+        Returns the value in translation, traditional or simplified chinese,
+        at the given index.
+        """
+        language = language.lower()
+        if language == "latin":
+            return self.translation[index]
+        if language == "chinese" and self.hanzi == "traditional":
+            return self.traditional[index]
+        if language == "chinese" and self.hanzi == "simplified":
+            return self.simplified[index]
+        else:
+            raise ValueError("language should either be latin or chinese")
+
+    def is_not_chinese(self, string):
+        """
+        Returns True is the given string does not contain any Chinese Character
+
+        """
+        for car in string:
+            if ord(car) in self.set_of_chinese_chars:
+                return False
+        return True

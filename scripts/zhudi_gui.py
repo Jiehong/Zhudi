@@ -19,7 +19,7 @@
 '''
 
 
-from zhudi import gui, prepare_data, get_argument_parser, WrongInputException
+from zhudi import gui, prepare_data, get_argument_parser, WrongInputException, data
 
 
 def main():
@@ -30,13 +30,16 @@ def main():
 
     parser = get_argument_parser()
     options = parser.parse_args()
+    data_actor = data.Data().start()
+    data_proxy = data_actor.proxy()
+    data_proxy.create_set_chinese_characters()
 
     try:
-        data_object = prepare_data(options)
+        prepare_data(options, data_proxy)
     except WrongInputException:
         parser.print_help()
 
-    mw = gui.MainWindow(data_object, language="Chinese")
+    mw = gui.MainWindow(data_proxy, language="Chinese")
     mw.build()
     mw.loop()
 

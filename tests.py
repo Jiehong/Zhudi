@@ -47,23 +47,36 @@ def setup():
     cangjie5_dic, cangjie5_short = cangjie5_obj.load("zhudi-data/cangjie5")
     wubi86_obj = zhudi.chinese_table.Wubi86Table()
     wubi86_dic, wubi86_short = wubi86_obj.load("zhudi-data/wubi86")
-    return zhudi.data.Data(simp, trad, trans,
-                           wubi86_dic, wubi86_short,
-                           array30_dic, array30_short,
-                           cangjie5_dic, cangjie5_short,
-                           pin, zhu)
 
-global DATA_OBJ
-DATA_OBJ = setup()
+    data_actor = zhudi.data.Data().start()
+    data_proxy = data_actor.proxy()
+    data_proxy.create_set_chinese_characters()
+
+    data_proxy.simplified = simp
+    data_proxy.traditional = trad
+    data_proxy.translation = trans
+    data_proxy.wubi86 =  wubi86_dic
+    data_proxy.wubi86_short = wubi86_short
+    data_proxy.array30 = array30_dic
+    data_proxy.array30_short = array30_short
+    data_proxy.cangjie5 = cangjie5_dic
+    data_proxy.cangjie5_short = cangjie5_short
+    data_proxy.pinyin = pin
+    data_proxy.zhuyin = zhu
+    return data_proxy
+
+global DATA_PROXY
+DATA_PROXY = setup()
 
 class TestZhudiProcessing(unittest.TestCase):
     """ Test functions in processing.py. """
 
     def setUp(self):
         """ Prerequisite function. """
+        global DATA_PROXY
         self.dic_tools = zhudi.processing.DictionaryTools()
         self.seg_tools = zhudi.processing.SegmentationTools()
-        self.seg_tools.load(DATA_OBJ)
+        self.seg_tools.load(DATA_PROXY)
 
     def test_pinyin_to_zhuyin(self):
         """ Test pinyin_to_zhuyin conversion function. """
@@ -83,7 +96,8 @@ class TestZhudiProcessing(unittest.TestCase):
             "ㄈㄟ˙",
             "ㄈㄟ ㄔㄤˊ",
         ]
-        zhuyin_test = self.dic_tools.pinyin_to_zhuyin(pinyin, DATA_OBJ)
+        global DATA_PROXY
+        zhuyin_test = self.dic_tools.pinyin_to_zhuyin(pinyin, DATA_PROXY)
         self.assertEqual(zhuyin_ref, zhuyin_test)
 
     def test_search(self):
@@ -150,46 +164,49 @@ class TestZhudiProcessing(unittest.TestCase):
         (It only works for Chinese!)
         """
 
-        class Fdo(object):
-            """ Dummy local class. """
-
-            def __init__(self):
-                self.traditional = ["我", "你", "我你", "再見"]
-                self.simplified = self.traditional
-
-        fake_data_obj = Fdo()
         given_good_word = "我"
         expected_good_result = 0
-        actual_good_result = self.seg_tools.search_unique(given_good_word, fake_data_obj)
+        actual_good_result = self.seg_tools.search_unique(given_good_word)
         self.assertEqual(actual_good_result, expected_good_result)
 
-        given_bad_word = "以為"
+        given_bad_word = "我你"
         expected_bad_result = None
-        actual_bad_result = self.seg_tools.search_unique(given_bad_word, fake_data_obj)
+        actual_bad_result = self.seg_tools.search_unique(given_bad_word)
         self.assertEqual(actual_bad_result, expected_bad_result)
+
+class TestZhudiData(unittest.TestCase):
+    """ Test functions in data.py. """
+
+    def setUp(self):
+        """ Prerequisite function. """
+        pass
 
     def test_is_not_chinese(self):
         """ Test is_not_chinese, which purpose is to test
         if the given string is Chinese or not.
         returns True (if not chinese) or False (if chinese)
         """
+        global DATA_PROXY
 
         given_string = "以為"
         expected_result = False
-        actual_result = self.seg_tools.is_not_chinese(given_string)
+        actual_result = DATA_PROXY.is_not_chinese(given_string).get()
         self.assertEqual(actual_result, expected_result)
 
         given_string = "hello"
         expected_result = True
-        actual_result = self.seg_tools.is_not_chinese(given_string)
+        actual_result = DATA_PROXY.is_not_chinese(given_string).get()
         self.assertEqual(actual_result, expected_result)
 
-# class TestZhudiChineseTable(unittest.TestCase):
-#     def test_proceed(self):
-#         pass
+class ZLast(unittest.TestCase):
+    """ Cleanup and stop. """
 
-#     def test_load(self):
-#         pass
+    def setUp(self):
+        global DATA_PROXY
+        DATA_PROXY.kill()
+
+    def test(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()

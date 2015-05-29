@@ -43,9 +43,10 @@ def get_data_path(path):
     """
     return os.path.join(_ROOT, 'zhudi-data', path)
 
-def prepare_data(options):
+def prepare_data(options, data_proxy):
     """
     Split the dictionary input, and compute the zhuyin equivalent as well.
+    Values are stored in the data actor (by proxy).
 
     """
     filename = options.filename
@@ -76,20 +77,15 @@ def prepare_data(options):
         translation_list = files[2]
         pinyin_list = files[3]
 
-        my_data = data.Data(simplified_list,
-                            traditional_list,
-                            translation_list,
-                            [],
-                            [],
-                            [],
-                            [],
-                            [],
-                            [],
-                            pinyin_list)
+        data_proxy.simplified = simplified_list
+        data_proxy.traditional = traditional_list
+        data_proxy.translation = translation_list
+        data_proxy.pinyin = pinyin_list
+
         print("\nPinyin to Zhuyin conversion in progress…")
         dic_tools_obj = processing.DictionaryTools()
-        zhuyin = dic_tools_obj.pinyin_to_zhuyin(pinyin_list, my_data)
-        my_data.zhuyin = zhuyin
+        zhuyin = dic_tools_obj.pinyin_to_zhuyin(pinyin_list, data_proxy)
+        data_proxy.zhuyin = zhuyin
 
         # Saves the Zhuyin list into a file
         with open("zhuyin", mode="w") as zhuyin_file:
@@ -148,16 +144,18 @@ def prepare_data(options):
     wubi_dic, wubi_short_dic = wubi86_obj.load(get_data_path('wubi86'))
 
     # Data object
-    data_object = data.Data(simplified,
-                            traditional,
-                            translation,
-                            wubi_dic, wubi_short_dic,
-                            array_dic, array_short_dic,
-                            cangjie_dic, cangjie_short_dic,
-                            pinyin,
-                            zhuyin)
-    data_object.load_config()
-    return data_object
+    data_proxy.simplified = simplified
+    data_proxy.traditional = traditional
+    data_proxy.translation = translation
+    data_proxy.wubi86 =  wubi_dic
+    data_proxy.wubi86_short = wubi_short_dic
+    data_proxy.array30 = array_dic
+    data_proxy.array30_short = array_short_dic
+    data_proxy.cangjie5 = cangjie_dic
+    data_proxy.cangjie5_short = cangjie_short_dic
+    data_proxy.pinyin = pinyin
+    data_proxy.zhuyin = zhuyin
+    data_proxy.load_config()
 
 def get_argument_parser():
     """
