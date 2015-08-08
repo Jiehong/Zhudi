@@ -14,6 +14,7 @@ In order to run Zhudi, you need the following packages:
 * python-gobject
 * pygobject-devel
 * gobject-introspection
+* pykka
 
 # Versions
 Version 0.9 is made to work with python2 and is now obsolete. You should use version 1.0 and later instead.
