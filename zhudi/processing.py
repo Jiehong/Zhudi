@@ -330,16 +330,16 @@ class DictionaryTools(object):
 
         syl = pin1yin1[:-1]
         tone = int(pin1yin1[-1])
-        first_tone = "āēīōūǖ"
-        second_tone = "áéíóúǘ"
-        third_tone = "ǎěǐǒǔǚ"
-        fourth_tone = "àèìòùǜ"
-        fifth_tone = "aeiouü"
+        first_tone =  "āēīōūǖĀĒĪŌŪǕ"
+        second_tone = "áéíóúǘÁÉÍÓÚǗ"
+        third_tone =  "ǎěǐǒǔǚǍĚǏǑǓǙ"
+        fourth_tone = "àèìòùǜÀÈÌÒÙǛ"
+        fifth_tone =  "aeiouüAEIOUÜ"
         tones = [first_tone, second_tone, third_tone, fourth_tone, fifth_tone]
 
         def find_vowels(string):
             """Returns a list of the vowels found, in order, as a list."""
-            vowels_list = "aeiouü"
+            vowels_list = "aeiouüAEIOUÜ"
             vowels_places = [string.find(x) for x in vowels_list]
             output = ["", "", "", "", ""]
             for i in range(len(vowels_places)):
@@ -360,11 +360,13 @@ class DictionaryTools(object):
             syl = syl.replace("u", tones[tone - 1][4])
             return syl
         # To check, in order: 'a','o','e','i','u','ü' (cf. Wikipedia)
-        to_test = "aoeiuü"
+        to_test = "aoeiuüAOEIUÜ"
         for case in to_test:
             if case in vowels:
                 syl = syl.replace(case, tones[tone - 1][fifth_tone.find(case)])
                 return syl
+        else:
+            return pin1yin1
 
     def search(self, given_list, text):
         """ Search for a string in a list.
