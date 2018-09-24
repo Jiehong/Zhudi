@@ -322,7 +322,7 @@ class DictionaryTools(object):
         Returns True if the input looks like a pinyin string. False otherwise.
 
         """
-        return re.match(r'^(?i)[a-z]+[0-5]', pin1yin1)
+        return re.match(r'^(?i)[a-züÜ]+[0-5]', pin1yin1)
 
     def unicode_pinyin(self, pin1yin1):
         """ Convert a string representing a pinyin syllable with tone.
@@ -332,6 +332,8 @@ class DictionaryTools(object):
         A string like "ni3".
         """
 
+        pin1yin1 = re.sub("u:", "ü", pin1yin1)
+        pin1yin1 = re.sub("U:", "Ü", pin1yin1)
         if not self.is_pinyin(pin1yin1):
             return pin1yin1
 
@@ -400,6 +402,8 @@ class DictionaryTools(object):
                     # only accepts lines containing every words
                     index.append(line)
                     total.append(len(given_list[line]))
+            if len(total) >= 500:
+                break
         dico = dict(zip(index, total))
         dico_sorted = sorted(dico.items(), key=lambda x: x[1])
         self.index = [value[0] for value in dico_sorted[:]]
