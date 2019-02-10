@@ -250,7 +250,7 @@ class DictionaryWidgetMain(object):
         bold = translation_buffer.create_tag(weight=Pango.Weight.BOLD)
         big = translation_buffer.create_tag(size=30 * Pango.SCALE)
         medium = translation_buffer.create_tag(size=15 * Pango.SCALE)
-        blue = translation_buffer.create_tag(foreground="blue")
+        blue = translation_buffer.create_tag(foreground="#268bd2")
 
         # "Chinese" in bold
         start_1 = translation_buffer.get_iter_at_line(0)
@@ -552,7 +552,7 @@ class SegmentationWidget(object):
         bold = translation_buffer.create_tag(weight=Pango.Weight.BOLD)
         big = translation_buffer.create_tag(size=30*Pango.SCALE)
         medium = translation_buffer.create_tag(size=15*Pango.SCALE)
-        blue = translation_buffer.create_tag(foreground="blue")
+        blue = translation_buffer.create_tag(foreground="#268bd2")
 
         # "Chinese" in bold
         start_1 = translation_buffer.get_iter_at_line(0)
@@ -706,10 +706,8 @@ class MainWindow(object):
         self.window.connect("key-release-event", self.on_key_release)
         self.data_object = data_object
         self.language = language
-        self.sub_gui = None
         self.dict_gui = None
         self.seg_gui = None
-        self.main_widget = None
         self.tab_box = None
         self.vbox = None
 
@@ -750,22 +748,17 @@ class MainWindow(object):
 
     def options_gui(self):
         """ Options tab. """
-        self.main_widget = OptionsWidget(self.data_object)
-        self.sub_gui = self.main_widget.build()
-        return self.sub_gui
+        return OptionsWidget(self.data_object).build()
 
     def dictionary_gui(self):
         """ Start the dictionary widget. """
-        self.main_widget = DictionaryWidgetMain(self.data_object)
-        self.main_widget.language = self.language
-        self.sub_gui = self.main_widget.build()
-        return self.sub_gui
+        ui = DictionaryWidgetMain(self.data_object)
+        ui.language = self.language
+        return ui.build()
 
     def segmentation_gui(self):
         """ Start the segmentation widget. """
-        self.main_widget = SegmentationWidget(self.data_object)
-        self.sub_gui = self.main_widget.build()
-        return self.sub_gui
+        return SegmentationWidget(self.data_object).build()
 
     @staticmethod
     def on_key_release(widget, event, data=None):
