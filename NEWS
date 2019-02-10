@@ -1,3 +1,8 @@
+** Version 1.7
+   - bugfix: command line search used unknown function
+   - GTK warning fixed: explicitly request for GTK3, to avoid selecting GTK2 on some systems
+   - bugfix: blue pronunciation constrast hard to read with dark theme
+
 ** Version 1.6
    #4: input language is now auto-detected
    - Code cleanup (pylint results vastly improved, and some refactoring)
