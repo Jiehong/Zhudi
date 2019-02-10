@@ -44,7 +44,7 @@ You have to download the *.u8 version of the dictionary for using with Zhudi. On
 
 When Zhudi is finished, it would have created 5 files: pinyin, zhuyin, simplified, traditional and translation.
 
-## Normal usage
+## Normal GUI usage
 When the previous 5 files are created, you can simply launch Zhudi:
 
     zhudi -p pinyin -z zhuyin -tr translation -td traditional -sd simplified
@@ -52,6 +52,19 @@ When the previous 5 files are created, you can simply launch Zhudi:
 However, you can just copy these files in your ~/.zhudi/ directory and launch Zhudi without arguments:
 
     zhudi
+
+You should see the GUI up and running:
+
+![GUI screenshot](gui_screenshot.png)
+
+## Command line usage
+When the `First launch` part has been run, you also have access to a limited command line search as follows:
+
+    $ zhu 我
+    我    ㄨㄛˇ    I
+               ⇾ me
+
+Unlike the GUI, this only provides the first and best match so far.
 
 # Testing
 As zhudi is using Python's setup tools, you can always "install" the developpment version as follow:

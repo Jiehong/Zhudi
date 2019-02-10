@@ -13,6 +13,8 @@
 
 # AUR packages
 /[Zz]hudi*.src.tar.gz
+zhudi.egg-info
+MANIFEST
 
 # Documentation artifacts
 /doc/_build

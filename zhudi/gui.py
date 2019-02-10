@@ -17,6 +17,8 @@
 
 '''
 
+from gi import require_version
+require_version('Gtk', '3.0')
 from gi.repository import Gtk, Pango, Gdk
 import zhudi
 
@@ -669,7 +671,7 @@ class OptionsWidget(object):
 
         about_text = Gtk.Frame(label_yalign=1, label_xalign=1)
         about_text.set_label("\n\n\n\n"
-                             "Zhudi, 2011-2015")
+                             "Zhudi, 2011-2019")
         vertical_box.pack_start(about_text, True, True, 5)
         return vertical_box
 

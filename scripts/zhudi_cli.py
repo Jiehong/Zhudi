@@ -44,7 +44,7 @@ def main():
             # TODO searchUnique seems to work only on chinese
             # implementation for pinyin/zhuyin and english/french/etc is needed
             if not expand:
-                result = st.searchUnique(word, data)
+                result = st.search_unique(word, data)
                 if result and result not in results:
                     results.add(result)
                     _print_result(result, data, dt, hanzi, romanisation)
