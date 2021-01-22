@@ -83,7 +83,7 @@ class PreProcessing(object):
             translation_delimiters = []
             translation = []
             try:
-                if len(i) > 9 and i[0] != "#":
+                if i[0] != "#":
                     for k in range(len(i)):
                         if i[k] == " ":  # look for spaces
                             space_ind.append(k)
