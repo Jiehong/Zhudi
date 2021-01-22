@@ -82,43 +82,50 @@ class PreProcessing(object):
             pinyin_delimiters = []
             translation_delimiters = []
             translation = []
+            try:
+                if len(i) > 9 and i[0] != "#":
+                    for k in range(len(i)):
+                        if i[k] == " ":  # look for spaces
+                            space_ind.append(k)
+                        if i[k] == "[":  # look for pinyin delimiters
+                            pinyin_delimiters.append(k)
+                        if i[k] == "]":
+                            pinyin_delimiters.append(k)
+                        if i[k] == "/":  # look for translation delimiters
+                            translation_delimiters.append(k)
+                    traditional = i[0:space_ind[0]]
+                    simplified = i[space_ind[0]+1:space_ind[1]]
+                    pinyin = i[pinyin_delimiters[0]+1:pinyin_delimiters[1]]
+                    for index in range(len(translation_delimiters) - 1):
+                        translation.append(i[translation_delimiters[index] + 1:translation_delimiters[index + 1]])
 
-            if i[0] != "#":
-                for k in range(len(i)):
-                    if i[k] == " ":  # look for spaces
-                        space_ind.append(k)
-                    if i[k] == "[":  # look for pinyin delimiters
-                        pinyin_delimiters.append(k)
-                    if i[k] == "]":
-                        pinyin_delimiters.append(k)
-                    if i[k] == "/":  # look for translation delimiters
-                        translation_delimiters.append(k)
-                traditional = i[0:space_ind[0]]
-                simplified = i[space_ind[0]+1:space_ind[1]]
-                pinyin = i[pinyin_delimiters[0]+1:pinyin_delimiters[1]]
-                for index in range(len(translation_delimiters) - 1):
-                    translation.append(i[translation_delimiters[index] + 1:translation_delimiters[index + 1]])
+                    clean_pinyin = unstick(pinyin)
+                    translation_clean = ""
+                    for i in range(len(translation)):
+                        if i != 0:
+                            translation_clean += "/"
+                        translation_clean += translation[i]
 
-                clean_pinyin = unstick(pinyin)
-                translation_clean = ""
-                for i in range(len(translation)):
-                    if i != 0:
-                        translation_clean += "/"
-                    translation_clean += translation[i]
+                    pinyin_list.append(clean_pinyin)
+                    traditional_list.append(traditional)
+                    simplified_list.append(simplified)
+                    translation_list.append(translation_clean)
 
-                pinyin_list.append(clean_pinyin)
-                traditional_list.append(traditional)
-                simplified_list.append(simplified)
-                translation_list.append(translation_clean)
-
-                with open("simplified", mode="a") as simplified_file:
-                    simplified_file.write(simplified+"\n")
-                with open("traditional", mode="a") as traditional_file:
-                    traditional_file.write(traditional+"\n")
-                with open("translation", mode="a") as translation_file:
-                    translation_file.write(translation_clean+"\n")
-                with open("pinyin", mode="a") as pinyin_file:
-                    pinyin_file.write(clean_pinyin+"\n")
+                    with open("simplified", mode="a") as simplified_file:
+                        simplified_file.write(simplified+"\n")
+                    with open("traditional", mode="a") as traditional_file:
+                        traditional_file.write(traditional+"\n")
+                    with open("translation", mode="a") as translation_file:
+                        translation_file.write(translation_clean+"\n")
+                    with open("pinyin", mode="a") as pinyin_file:
+                        pinyin_file.write(clean_pinyin+"\n")
+            except IndexError as error:
+                print("Warning: Could not parse the following line:")
+                print("\t'" + i + "'")
+            except Exception as error:
+                print("Error: An unknown error occurred while parsing the following line:")
+                print("\t'" + i + "'")
+                print(str(error))
 
         return (simplified_list, traditional_list, translation_list, pinyin_list)
     # End of split()
