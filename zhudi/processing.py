@@ -119,7 +119,7 @@ class PreProcessing(object):
                         translation_file.write(translation_clean+"\n")
                     with open("pinyin", mode="a") as pinyin_file:
                         pinyin_file.write(clean_pinyin+"\n")
-            except IndexError as error:
+            except IndexError:
                 print("Warning: Could not parse the following line:")
                 print("\t'" + i + "'")
             except Exception as error:
