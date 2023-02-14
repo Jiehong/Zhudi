@@ -596,8 +596,7 @@ class SegmentationWidget(object):
                     self.display_translation(index)
 
 class OptionsWidget(object):
-    """ Class defining the Options/About tab layout
-    """
+    """ Class defining the Options/About tab layout """
 
     def __init__(self, data_object):
         self.data_object = data_object
