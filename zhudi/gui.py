@@ -315,16 +315,7 @@ class DictionaryWidgetMain(object):
         if not self.lock:
             model, treeiter = selection.get_selected()
             if treeiter is not None:
-                row = model[treeiter][0]
-                counter = 0
-                if row is not None:
-                    while row[counter] != ".":
-                        counter += 1
-                    figure = int(row[0:counter])
-                    if figure > len(DICTIONARY_TOOLS_OBJECT.index):
-                        self.display_translation(0)
-                    else:
-                        self.display_translation(figure-1)
+                self.display_translation(model[treeiter].path[0])
 
 
 class SegmentationWidget(object):
@@ -593,9 +584,7 @@ class SegmentationWidget(object):
         translation_buffer.apply_tag(bold, start_4, end_4)
 
     def word_selected(self, selection):
-        """ Display the selected word in the translation area.
-
-        """
+        """ Display the selected word in the translation area. """
         model, treeiter = selection.get_selected()
         if treeiter is not None:
             word = model[treeiter][0]
@@ -703,10 +692,12 @@ class MainWindow(object):
         self.window.set_default_size(700, 500)
         self.window.set_title("Zhudi")
         self.window.set_position(Gtk.WindowPosition.CENTER)
+        self.window.connect("key-press-event", self.on_key_press)
         self.window.connect("key-release-event", self.on_key_release)
         self.data_object = data_object
         self.language = language
         self.dict_gui = None
+        self.dict_settings = None
         self.seg_gui = None
         self.tab_box = None
         self.vbox = None
@@ -728,7 +719,7 @@ class MainWindow(object):
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
 
         # Tabs
-        self.dict_gui = self.dictionary_gui()
+        self.dict_settings, self.dict_gui = self.dictionary_gui()
         self.seg_gui = self.segmentation_gui()
         self.options_gui = self.options_gui()
 
@@ -746,6 +737,7 @@ class MainWindow(object):
         self.window.connect("destroy", Gtk.main_quit)
         self.window.show_all()
 
+
     def options_gui(self):
         """ Options tab. """
         return OptionsWidget(self.data_object).build()
@@ -754,11 +746,18 @@ class MainWindow(object):
         """ Start the dictionary widget. """
         ui = DictionaryWidgetMain(self.data_object)
         ui.language = self.language
-        return ui.build()
+        return ui, ui.build()
 
     def segmentation_gui(self):
         """ Start the segmentation widget. """
         return SegmentationWidget(self.data_object).build()
+
+    def on_key_press(self, widget, event, data=None):
+        if self.tab_box.get_current_page() == 0 and not self.dict_settings.search_field.has_focus() and event.keyval not in {Gdk.KEY_Up, Gdk.KEY_Down}:
+            if event.keyval == Gdk.KEY_Left or event.keyval == Gdk.KEY_Right:
+                self.dict_settings.search_field.grab_focus_without_selecting()
+            else:
+                self.dict_settings.search_field.grab_focus()
 
     @staticmethod
     def on_key_release(widget, event, data=None):
