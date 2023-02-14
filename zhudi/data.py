@@ -47,6 +47,8 @@ class Data(object):
 
         self.hanzi = ""
         self.romanisation = ""
+        self.hanzi_default = "simplified"
+        self.romanisation_default = "pinyin"
         self.set_of_chinese_chars = set()
         self.simplified = simp
         self.traditional = trad
@@ -540,25 +542,29 @@ class Data(object):
         except IOError:
             # If no config file found
             print("No config file found. Use defaults")
-            saved_values['hanzi'] = 'traditional'
-            saved_values['romanisation'] = 'zhuyin'
-            return saved_values
+            self.hanzi = self.hanzi_default
+            self.romanisation = self.romanisation_default
+            return
         with open(os.environ["HOME"]+"/.zhudi/config", "r") as config_file:
             lines = config_file.readlines()
-            for n_line in range(len(lines)):
-                if (lines[n_line][0] != "#") or (lines[n_line][0] != ""):
-                    if lines[n_line][:-1].lower() == "romanisation:":
-                        saved_values['romanisation'] = lines[n_line+1][:-1].lower()
-                    if lines[n_line][:-1].lower() == "hanzi form:":
-                        saved_values["hanzi"] = lines[n_line+1][:-1].lower()
-        # Default values or gibberish in config file
-        if saved_values['hanzi'] == '' or saved_values['hanzi'] not in ['traditional', 'simplified']:
-            self.hanzi = 'traditional'
-        elif saved_values['hanzi'] != '':
+            for n_line in range(len(lines)-1):
+                line = lines[n_line].strip().lower()
+                nextline = lines[n_line+1].strip().lower()
+                if line != "" and line[0] != "#":
+                    if line == "romanisation:":
+                        saved_values['romanisation'] = nextline or self.romanisation_default
+                    if line == "hanzi form:":
+                        saved_values["hanzi"] = nextline or self.hanzi_default
+        # Gibberish in config file?
+        if saved_values['hanzi'] not in ['traditional', 'simplified']:
+            print(f"WARNING: Unexpected hanzi value {saved_values['hanzi']}; falling back to {self.hanzi_default}")
+            self.hanzi = self.hanzi_default
+        else:
             self.hanzi = saved_values['hanzi']
-        if saved_values['romanisation'] == '' or saved_values['romanisation'] not in ['zhuyin', 'pinyin']:
-            self.romanisation = 'zhuyin'
-        elif saved_values['romanisation'] != '':
+        if saved_values['romanisation'] not in ['zhuyin', 'pinyin']:
+            print(f"WARNING: Unexpected romanisation value {saved_values['romanisation']}; falling back to {self.romanisation_default}")
+            self.romanisation = self.romanisation_default
+        else:
             self.romanisation = saved_values['romanisation']
 
     def save_config(self):

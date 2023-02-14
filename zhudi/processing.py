@@ -322,7 +322,7 @@ class DictionaryTools(object):
         Returns True if the input looks like a pinyin string. False otherwise.
 
         """
-        return re.match(r'^(?i)[a-z]+[0-5]', pin1yin1)
+        return re.match(r'^(?i)[a-züÜ]+[0-5]', pin1yin1)
 
     def unicode_pinyin(self, pin1yin1):
         """ Convert a string representing a pinyin syllable with tone.
@@ -332,21 +332,23 @@ class DictionaryTools(object):
         A string like "ni3".
         """
 
+        pin1yin1 = re.sub("u:", "ü", pin1yin1)
+        pin1yin1 = re.sub("U:", "Ü", pin1yin1)
         if not self.is_pinyin(pin1yin1):
             return pin1yin1
 
         syl = pin1yin1[:-1]
         tone = int(pin1yin1[-1])
-        first_tone = "āēīōūǖ"
-        second_tone = "áéíóúǘ"
-        third_tone = "ǎěǐǒǔǚ"
-        fourth_tone = "àèìòùǜ"
-        fifth_tone = "aeiouü"
+        first_tone =  "āēīōūǖĀĒĪŌŪǕ"
+        second_tone = "áéíóúǘÁÉÍÓÚǗ"
+        third_tone =  "ǎěǐǒǔǚǍĚǏǑǓǙ"
+        fourth_tone = "àèìòùǜÀÈÌÒÙǛ"
+        fifth_tone =  "aeiouüAEIOUÜ"
         tones = [first_tone, second_tone, third_tone, fourth_tone, fifth_tone]
 
         def find_vowels(string):
             """Returns a list of the vowels found, in order, as a list."""
-            vowels_list = "aeiouü"
+            vowels_list = "aeiouüAEIOUÜ"
             vowels_places = [string.find(x) for x in vowels_list]
             output = ["", "", "", "", ""]
             for i in range(len(vowels_places)):
@@ -367,11 +369,13 @@ class DictionaryTools(object):
             syl = syl.replace("u", tones[tone - 1][4])
             return syl
         # To check, in order: 'a','o','e','i','u','ü' (cf. Wikipedia)
-        to_test = "aoeiuü"
+        to_test = "aoeiuüAOEIUÜ"
         for case in to_test:
             if case in vowels:
                 syl = syl.replace(case, tones[tone - 1][fifth_tone.find(case)])
                 return syl
+        else:
+            return pin1yin1
 
     def search(self, given_list, text):
         """ Search for a string in a list.
@@ -398,6 +402,8 @@ class DictionaryTools(object):
                     # only accepts lines containing every words
                     index.append(line)
                     total.append(len(given_list[line]))
+            if len(total) >= 500:
+                break
         dico = dict(zip(index, total))
         dico_sorted = sorted(dico.items(), key=lambda x: x[1])
         self.index = [value[0] for value in dico_sorted[:]]

@@ -67,7 +67,7 @@ When the `First launch` part has been run, you also have access to a limited com
 Unlike the GUI, this only provides the first and best match so far.
 
 # Testing
-As zhudi is using Python's setup tools, you can always "install" the developpment version as follow:
+As zhudi is using Python's setup tools, you can always "install" the development version as follow:
 
     python setup.py develop
 
