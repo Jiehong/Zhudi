@@ -20,6 +20,11 @@ Version 0.9 is made to work with python2 and is now obsolete. You should use ver
 
 # Installation
 
+## Pip
+Zhudi can be installed using python's package manager `pip` as follows:
+
+    pip install git+https://github.com/Jiehong/Zhudi
+
 ## Archlinux
 Zhudi is available in AUR.
 
