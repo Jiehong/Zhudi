@@ -34,7 +34,6 @@ class DictionaryWidgetMain(object):
         self.data_object = data_object
         self.language = ""
         self.results_list = []
-        self.lock = False
         self.search_field = None
         self.translation_box = None
 
@@ -86,7 +85,7 @@ class DictionaryWidgetMain(object):
         results_scroll = Gtk.ScrolledWindow()
         # No horizontal bar, automatic vertical bar
         results_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        results_scroll.add_with_viewport(results_tree)
+        results_scroll.add(results_tree)
 
         frame_results = Gtk.Frame()
         frame_results.add(results_scroll)
@@ -138,12 +137,10 @@ class DictionaryWidgetMain(object):
         """ Start search when users hit ENTER or the search button. """
         text = searchfield.get_text()
         if text == "":
-            self.lock = True
             DICTIONARY_TOOLS_OBJECT.index = []
             self.results_list.clear()
             self.display_translation(0)
         else:
-            self.lock = False
             self.language = self.determine_language(text)
             if self.language == "Latin":
                 given_list = self.data_object.translation
@@ -312,10 +309,9 @@ class DictionaryWidgetMain(object):
 
     def display_another_result(self, selection):
         """ Display the newly selected result. """
-        if not self.lock:
-            model, treeiter = selection.get_selected()
-            if treeiter is not None:
-                self.display_translation(model[treeiter].path[0])
+        model, treeiter = selection.get_selected()
+        if treeiter is not None:
+            self.display_translation(model[treeiter].path[0])
 
 
 class SegmentationWidget(object):
