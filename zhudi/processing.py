@@ -143,7 +143,7 @@ class PreProcessing(object):
 
         try:
             pinyin_file = open(pinyin_file_name, "r")
-            pinyin = pinyin_file.readlines()
+            pinyin = [p + '/' + p.replace(' ', '') + '/' + re.sub(r'[ \d]', '', p) for p in pinyin_file.readlines()]
             pinyin_file.close()
             zhuyin_file = open(zhuyin_file_name, "r")
             zhuyin = zhuyin_file.readlines()
@@ -377,6 +377,12 @@ class DictionaryTools(object):
         else:
             return pin1yin1
 
+    def reset_search(self):
+        self.index = []
+
+    def finish_search(self, data_object):
+        self.index = sorted(set(self.index), key=lambda x: (len(data_object.traditional[x]), data_object.traditional[x]))[:500]
+
     def search(self, given_list, text):
         """ Search for a string in a list.
 
@@ -390,20 +396,12 @@ class DictionaryTools(object):
         """
         words = (text.lower()).split()
         index = []
-        total = []
         # try in each line of the dic
         for line in range(len(given_list)):
             counter = 0
-            for word_token in range(len(words)):
-                # for each word of the request (case insensitive)
-                if (given_list[line].lower()).count(words[word_token]) != 0:
-                    counter += 1
-                if counter == len(words):
-                    # only accepts lines containing every words
-                    index.append(line)
-                    total.append(len(given_list[line]))
-            if len(total) >= 500:
-                break
-        dico = dict(zip(index, total))
-        dico_sorted = sorted(dico.items(), key=lambda x: x[1])
-        self.index = [value[0] for value in dico_sorted[:]]
+            to_search = given_list[line].lower()
+            # for each word of the request (case insensitive)
+            # only accepts lines containing every words
+            if all(word in to_search for word in words):
+                index.append(line)
+        self.index.extend(index)

@@ -34,7 +34,7 @@ class DictionaryWidgetMain(object):
         self.data_object = data_object
         self.language = ""
         self.results_list = []
-        self.lock = False
+        self.results_tree = None
         self.search_field = None
         self.translation_box = None
 
@@ -46,15 +46,13 @@ class DictionaryWidgetMain(object):
         # Search field
         search_field = Gtk.Entry()
         search_field.set_visible(True)
-        search_field.connect("activate",
-                             lambda x: self.search_asked(search_field))
+        search_field.connect("activate", self.search_asked)
         search_field.set_placeholder_text("Looking for something?")
         self.search_field = search_field
 
         # Go, search! button
         go_button = Gtk.Button("Search")
-        go_button.connect("clicked",
-                          lambda x: self.search_asked(search_field))
+        go_button.connect("clicked", self.search_asked)
 
         # Search + button box
         sb_box = Gtk.Grid()
@@ -80,13 +78,14 @@ class DictionaryWidgetMain(object):
         results_tree.set_enable_search(False)
         results_tree.tvcolumn.set_sort_column_id(-1)
         results_tree.set_reorderable(False)
+        self.results_tree = results_tree
         select = results_tree.get_selection()
         select.connect("changed", self.display_another_result)
 
         results_scroll = Gtk.ScrolledWindow()
         # No horizontal bar, automatic vertical bar
         results_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        results_scroll.add_with_viewport(results_tree)
+        results_scroll.add(results_tree)
 
         frame_results = Gtk.Frame()
         frame_results.add(results_scroll)
@@ -105,7 +104,7 @@ class DictionaryWidgetMain(object):
         self.translation_box.set_wrap_mode(Gtk.WrapMode.WORD)
 
         translation_scroll = Gtk.ScrolledWindow()
-        translation_scroll.add_with_viewport(self.translation_box)
+        translation_scroll.add(self.translation_box)
 
         frame_translation = Gtk.Frame()
         frame_translation.set_label_widget(translation_label)
@@ -134,26 +133,28 @@ class DictionaryWidgetMain(object):
         horizontal_box.set_row_homogeneous(True)
         return horizontal_box
 
-    def search_asked(self, searchfield):
+    def search_asked(self, search_field):
         """ Start search when users hit ENTER or the search button. """
-        text = searchfield.get_text()
+        search_field.grab_focus()
+        text = search_field.get_text()
+        DICTIONARY_TOOLS_OBJECT.reset_search()
         if text == "":
-            self.lock = True
-            DICTIONARY_TOOLS_OBJECT.index = []
             self.results_list.clear()
             self.display_translation(0)
         else:
-            self.lock = False
             self.language = self.determine_language(text)
             if self.language == "Latin":
-                given_list = self.data_object.translation
+                DICTIONARY_TOOLS_OBJECT.search(self.data_object.translation, text)
+                DICTIONARY_TOOLS_OBJECT.search(self.data_object.pinyin, text)
             elif self.data_object.hanzi == "Traditional":
-                given_list = self.data_object.traditional
+                DICTIONARY_TOOLS_OBJECT.search(self.data_object.traditional, text)
             else:
-                given_list = self.data_object.simplified
-            DICTIONARY_TOOLS_OBJECT.search(given_list, text)
+                DICTIONARY_TOOLS_OBJECT.search(self.data_object.simplified, text)
+            DICTIONARY_TOOLS_OBJECT.finish_search(self.data_object)
             self.update_results()
+            self.results_tree.grab_focus()
             self.display_translation(0)
+        self.results_tree.scroll_to_cell([0])
     # end of search_asked
 
     @staticmethod
@@ -205,7 +206,7 @@ class DictionaryWidgetMain(object):
             string = string + trans[i] + "\n"
 
         # Add [] arround the pronounciation parts
-        p_string = romanisation_dic[index].split()
+        p_string = romanisation_dic[index].split('/', 1)[0].split()
         pronounciation_string = []
         for point in range(len(p_string)):
             if self.data_object.romanisation == "pinyin":
@@ -249,7 +250,6 @@ class DictionaryWidgetMain(object):
                                     "Wubi86 (五筆86): \n" + wubi86_code)
         bold = translation_buffer.create_tag(weight=Pango.Weight.BOLD)
         big = translation_buffer.create_tag(size=30 * Pango.SCALE)
-        medium = translation_buffer.create_tag(size=15 * Pango.SCALE)
         blue = translation_buffer.create_tag(foreground="#268bd2")
 
         # "Chinese" in bold
@@ -275,7 +275,6 @@ class DictionaryWidgetMain(object):
         end_3 = translation_buffer.get_iter_at_line(5)
         end_3.forward_to_line_end()
         translation_buffer.apply_tag(blue, start_3, end_3)
-        translation_buffer.apply_tag(medium, start_3, end_3)
 
         # "Meaning" in bold
         start_3 = translation_buffer.get_iter_at_line(7)
@@ -312,10 +311,9 @@ class DictionaryWidgetMain(object):
 
     def display_another_result(self, selection):
         """ Display the newly selected result. """
-        if not self.lock:
-            model, treeiter = selection.get_selected()
-            if treeiter is not None:
-                self.display_translation(model[treeiter].path[0])
+        model, treeiter = selection.get_selected()
+        if treeiter is not None:
+            self.display_translation(model[treeiter].path[0])
 
 
 class SegmentationWidget(object):
@@ -387,7 +385,7 @@ class SegmentationWidget(object):
         results_scroll = Gtk.ScrolledWindow()
         # No horizontal bar, automatic vertical bar
         results_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        results_scroll.add_with_viewport(results_tree)
+        results_scroll.add(results_tree)
 
         self.frame_results = Gtk.Frame()
         self.frame_results.add(results_scroll)
@@ -415,7 +413,7 @@ class SegmentationWidget(object):
         self.results_field.set_wrap_mode(Gtk.WrapMode.WORD)
 
         self.results_scroll = Gtk.ScrolledWindow()
-        self.results_scroll.add_with_viewport(self.results_field)
+        self.results_scroll.add(self.results_field)
 
         self.results_frame = Gtk.Frame()
         self.results_frame.set_label_widget(self.results_label)
@@ -498,7 +496,7 @@ class SegmentationWidget(object):
             string = string + trans[local_index] + "\n"
 
         # Add [] arround the pronounciation parts
-        p_string = romanisation_dic[index].split()
+        p_string = romanisation_dic[index].split('/', 1)[0].split()
         pronounciation_string = []
         for point in range(len(p_string)):
             if self.data_object.romanisation == "pinyin":
@@ -542,7 +540,6 @@ class SegmentationWidget(object):
                                     "Wubi86 (五筆86): \n" + wubi86_code)
         bold = translation_buffer.create_tag(weight=Pango.Weight.BOLD)
         big = translation_buffer.create_tag(size=30*Pango.SCALE)
-        medium = translation_buffer.create_tag(size=15*Pango.SCALE)
         blue = translation_buffer.create_tag(foreground="#268bd2")
 
         # "Chinese" in bold
@@ -568,7 +565,6 @@ class SegmentationWidget(object):
         end_3 = translation_buffer.get_iter_at_line(5)
         end_3.forward_to_line_end()
         translation_buffer.apply_tag(blue, start_3, end_3)
-        translation_buffer.apply_tag(medium, start_3, end_3)
 
         # "Meaning" in bold
         start_3 = translation_buffer.get_iter_at_line(7)
@@ -692,6 +688,7 @@ class MainWindow(object):
         self.window.set_default_size(700, 500)
         self.window.set_title("Zhudi")
         self.window.set_position(Gtk.WindowPosition.CENTER)
+        self.window.modify_font(Pango.FontDescription('20'))
         self.window.connect("key-press-event", self.on_key_press)
         self.window.connect("key-release-event", self.on_key_release)
         self.data_object = data_object
@@ -753,11 +750,15 @@ class MainWindow(object):
         return SegmentationWidget(self.data_object).build()
 
     def on_key_press(self, widget, event, data=None):
-        if self.tab_box.get_current_page() == 0 and not self.dict_settings.search_field.has_focus() and event.keyval not in {Gdk.KEY_Up, Gdk.KEY_Down}:
-            if event.keyval == Gdk.KEY_Left or event.keyval == Gdk.KEY_Right:
-                self.dict_settings.search_field.grab_focus_without_selecting()
-            else:
-                self.dict_settings.search_field.grab_focus()
+        if self.tab_box.get_current_page() == 0:
+            is_nav_key = event.keyval in {Gdk.KEY_Up, Gdk.KEY_Down, Gdk.KEY_Page_Up, Gdk.KEY_Page_Down}
+            if not self.dict_settings.search_field.has_focus() and not is_nav_key:
+                if event.keyval == Gdk.KEY_Left or event.keyval == Gdk.KEY_Right:
+                    self.dict_settings.search_field.grab_focus_without_selecting()
+                else:
+                    self.dict_settings.search_field.grab_focus()
+            elif is_nav_key:
+                self.dict_settings.results_tree.grab_focus()
 
     @staticmethod
     def on_key_release(widget, event, data=None):
