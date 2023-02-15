@@ -250,7 +250,6 @@ class DictionaryWidgetMain(object):
                                     "Wubi86 (五筆86): \n" + wubi86_code)
         bold = translation_buffer.create_tag(weight=Pango.Weight.BOLD)
         big = translation_buffer.create_tag(size=30 * Pango.SCALE)
-        medium = translation_buffer.create_tag(size=15 * Pango.SCALE)
         blue = translation_buffer.create_tag(foreground="#268bd2")
 
         # "Chinese" in bold
@@ -276,7 +275,6 @@ class DictionaryWidgetMain(object):
         end_3 = translation_buffer.get_iter_at_line(5)
         end_3.forward_to_line_end()
         translation_buffer.apply_tag(blue, start_3, end_3)
-        translation_buffer.apply_tag(medium, start_3, end_3)
 
         # "Meaning" in bold
         start_3 = translation_buffer.get_iter_at_line(7)
@@ -542,7 +540,6 @@ class SegmentationWidget(object):
                                     "Wubi86 (五筆86): \n" + wubi86_code)
         bold = translation_buffer.create_tag(weight=Pango.Weight.BOLD)
         big = translation_buffer.create_tag(size=30*Pango.SCALE)
-        medium = translation_buffer.create_tag(size=15*Pango.SCALE)
         blue = translation_buffer.create_tag(foreground="#268bd2")
 
         # "Chinese" in bold
@@ -568,7 +565,6 @@ class SegmentationWidget(object):
         end_3 = translation_buffer.get_iter_at_line(5)
         end_3.forward_to_line_end()
         translation_buffer.apply_tag(blue, start_3, end_3)
-        translation_buffer.apply_tag(medium, start_3, end_3)
 
         # "Meaning" in bold
         start_3 = translation_buffer.get_iter_at_line(7)
@@ -692,6 +688,7 @@ class MainWindow(object):
         self.window.set_default_size(700, 500)
         self.window.set_title("Zhudi")
         self.window.set_position(Gtk.WindowPosition.CENTER)
+        self.window.modify_font(Pango.FontDescription('20'))
         self.window.connect("key-press-event", self.on_key_press)
         self.window.connect("key-release-event", self.on_key_release)
         self.data_object = data_object
