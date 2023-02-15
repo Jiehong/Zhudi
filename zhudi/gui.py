@@ -46,15 +46,13 @@ class DictionaryWidgetMain(object):
         # Search field
         search_field = Gtk.Entry()
         search_field.set_visible(True)
-        search_field.connect("activate",
-                             lambda x: self.search_asked(search_field))
+        search_field.connect("activate", self.search_asked)
         search_field.set_placeholder_text("Looking for something?")
         self.search_field = search_field
 
         # Go, search! button
         go_button = Gtk.Button("Search")
-        go_button.connect("clicked",
-                          lambda x: self.search_asked(search_field))
+        go_button.connect("clicked", self.search_asked)
 
         # Search + button box
         sb_box = Gtk.Grid()
@@ -106,7 +104,7 @@ class DictionaryWidgetMain(object):
         self.translation_box.set_wrap_mode(Gtk.WrapMode.WORD)
 
         translation_scroll = Gtk.ScrolledWindow()
-        translation_scroll.add_with_viewport(self.translation_box)
+        translation_scroll.add(self.translation_box)
 
         frame_translation = Gtk.Frame()
         frame_translation.set_label_widget(translation_label)
@@ -135,23 +133,24 @@ class DictionaryWidgetMain(object):
         horizontal_box.set_row_homogeneous(True)
         return horizontal_box
 
-    def search_asked(self, searchfield):
+    def search_asked(self, search_field):
         """ Start search when users hit ENTER or the search button. """
-        searchfield.grab_focus()
-        text = searchfield.get_text()
+        search_field.grab_focus()
+        text = search_field.get_text()
+        DICTIONARY_TOOLS_OBJECT.reset_search()
         if text == "":
-            DICTIONARY_TOOLS_OBJECT.index = []
             self.results_list.clear()
             self.display_translation(0)
         else:
             self.language = self.determine_language(text)
             if self.language == "Latin":
-                given_list = self.data_object.translation
+                DICTIONARY_TOOLS_OBJECT.search(self.data_object.translation, text)
+                DICTIONARY_TOOLS_OBJECT.search(self.data_object.pinyin, text)
             elif self.data_object.hanzi == "Traditional":
-                given_list = self.data_object.traditional
+                DICTIONARY_TOOLS_OBJECT.search(self.data_object.traditional, text)
             else:
-                given_list = self.data_object.simplified
-            DICTIONARY_TOOLS_OBJECT.search(given_list, text)
+                DICTIONARY_TOOLS_OBJECT.search(self.data_object.simplified, text)
+            DICTIONARY_TOOLS_OBJECT.finish_search(self.data_object)
             self.update_results()
             self.results_tree.grab_focus()
             self.display_translation(0)
@@ -207,7 +206,7 @@ class DictionaryWidgetMain(object):
             string = string + trans[i] + "\n"
 
         # Add [] arround the pronounciation parts
-        p_string = romanisation_dic[index].split()
+        p_string = romanisation_dic[index].split('/', 1)[0].split()
         pronounciation_string = []
         for point in range(len(p_string)):
             if self.data_object.romanisation == "pinyin":
@@ -386,7 +385,7 @@ class SegmentationWidget(object):
         results_scroll = Gtk.ScrolledWindow()
         # No horizontal bar, automatic vertical bar
         results_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        results_scroll.add_with_viewport(results_tree)
+        results_scroll.add(results_tree)
 
         self.frame_results = Gtk.Frame()
         self.frame_results.add(results_scroll)
@@ -414,7 +413,7 @@ class SegmentationWidget(object):
         self.results_field.set_wrap_mode(Gtk.WrapMode.WORD)
 
         self.results_scroll = Gtk.ScrolledWindow()
-        self.results_scroll.add_with_viewport(self.results_field)
+        self.results_scroll.add(self.results_field)
 
         self.results_frame = Gtk.Frame()
         self.results_frame.set_label_widget(self.results_label)
@@ -497,7 +496,7 @@ class SegmentationWidget(object):
             string = string + trans[local_index] + "\n"
 
         # Add [] arround the pronounciation parts
-        p_string = romanisation_dic[index].split()
+        p_string = romanisation_dic[index].split('/', 1)[0].split()
         pronounciation_string = []
         for point in range(len(p_string)):
             if self.data_object.romanisation == "pinyin":
