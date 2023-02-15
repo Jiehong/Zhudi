@@ -34,6 +34,7 @@ class DictionaryWidgetMain(object):
         self.data_object = data_object
         self.language = ""
         self.results_list = []
+        self.results_tree = None
         self.search_field = None
         self.translation_box = None
 
@@ -79,6 +80,7 @@ class DictionaryWidgetMain(object):
         results_tree.set_enable_search(False)
         results_tree.tvcolumn.set_sort_column_id(-1)
         results_tree.set_reorderable(False)
+        self.results_tree = results_tree
         select = results_tree.get_selection()
         select.connect("changed", self.display_another_result)
 
@@ -135,6 +137,7 @@ class DictionaryWidgetMain(object):
 
     def search_asked(self, searchfield):
         """ Start search when users hit ENTER or the search button. """
+        searchfield.grab_focus()
         text = searchfield.get_text()
         if text == "":
             DICTIONARY_TOOLS_OBJECT.index = []
@@ -151,6 +154,7 @@ class DictionaryWidgetMain(object):
             DICTIONARY_TOOLS_OBJECT.search(given_list, text)
             self.update_results()
             self.display_translation(0)
+        self.results_tree.scroll_to_cell([0])
     # end of search_asked
 
     @staticmethod
