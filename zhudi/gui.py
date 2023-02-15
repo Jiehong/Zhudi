@@ -153,6 +153,7 @@ class DictionaryWidgetMain(object):
                 given_list = self.data_object.simplified
             DICTIONARY_TOOLS_OBJECT.search(given_list, text)
             self.update_results()
+            self.results_tree.grab_focus()
             self.display_translation(0)
         self.results_tree.scroll_to_cell([0])
     # end of search_asked
@@ -750,11 +751,15 @@ class MainWindow(object):
         return SegmentationWidget(self.data_object).build()
 
     def on_key_press(self, widget, event, data=None):
-        if self.tab_box.get_current_page() == 0 and not self.dict_settings.search_field.has_focus() and event.keyval not in {Gdk.KEY_Up, Gdk.KEY_Down}:
-            if event.keyval == Gdk.KEY_Left or event.keyval == Gdk.KEY_Right:
-                self.dict_settings.search_field.grab_focus_without_selecting()
-            else:
-                self.dict_settings.search_field.grab_focus()
+        if self.tab_box.get_current_page() == 0:
+            is_nav_key = event.keyval in {Gdk.KEY_Up, Gdk.KEY_Down, Gdk.KEY_Page_Up, Gdk.KEY_Page_Down}
+            if not self.dict_settings.search_field.has_focus() and not is_nav_key:
+                if event.keyval == Gdk.KEY_Left or event.keyval == Gdk.KEY_Right:
+                    self.dict_settings.search_field.grab_focus_without_selecting()
+                else:
+                    self.dict_settings.search_field.grab_focus()
+            elif is_nav_key:
+                self.dict_settings.results_tree.grab_focus()
 
     @staticmethod
     def on_key_release(widget, event, data=None):
