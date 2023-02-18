@@ -39,7 +39,7 @@ class PreProcessing(object):
 
         def unstick(pinyin):
             """ Get rid of sticking pinyin like di4shang4 instead of di4 shang4
-            Input: astring containing a pinyin like "di4shang4"
+            Input: a string containing a pinyin like "di4shang4"
             Output: a string containing a pinyin like "di4 shang4"
             """
 
@@ -143,7 +143,7 @@ class PreProcessing(object):
 
         try:
             pinyin_file = open(pinyin_file_name, "r")
-            pinyin = [p + '/' + p.replace(' ', '') + '/' + re.sub(r'[ \d]', '', p) for p in pinyin_file.readlines()]
+            pinyin = [(lambda p: p + '/' + p.replace(' ', '') + '/' + re.sub(r'[ \d]', '', p))(p.replace('u:', 'v')) for p in pinyin_file.readlines()]
             pinyin_file.close()
             zhuyin_file = open(zhuyin_file_name, "r")
             zhuyin = zhuyin_file.readlines()
@@ -299,6 +299,7 @@ class DictionaryTools(object):
         to_convert += " "  # This space is useful for the regexp matching
         to_convert = to_convert.lower()
         zhuyin = re.sub("u:", "ü", to_convert)  # change u: into ü
+        zhuyin = re.sub("v", "ü", to_convert)  # change v into ü
         zhuyin = re.sub(" r ", " er ", zhuyin)  # change r into er
         for i in range(len(pinyin_zhuyin_dict)):
             if i < len(pinyin_zhuyin_dict) - 5:
@@ -333,22 +334,24 @@ class DictionaryTools(object):
         """
 
         pin1yin1 = re.sub("u:", "ü", pin1yin1)
+        pin1yin1 = re.sub("v", "ü", pin1yin1)
         pin1yin1 = re.sub("U:", "Ü", pin1yin1)
+        pin1yin1 = re.sub("V", "Ü", pin1yin1)
         if not self.is_pinyin(pin1yin1):
             return pin1yin1
 
         syl = pin1yin1[:-1]
         tone = int(pin1yin1[-1])
-        first_tone =  "āēīōūǖĀĒĪŌŪǕ"
-        second_tone = "áéíóúǘÁÉÍÓÚǗ"
-        third_tone =  "ǎěǐǒǔǚǍĚǏǑǓǙ"
-        fourth_tone = "àèìòùǜÀÈÌÒÙǛ"
-        fifth_tone =  "aeiouüAEIOUÜ"
+        first_tone =  "āĀēĒīĪōŌūŪǖǕ"
+        second_tone = "áÁéÉíÍóÓúÚǘǗ"
+        third_tone =  "ǎǍěĚǐǏǒǑǔǓǚǙ"
+        fourth_tone = "àÀèÈìÌòÒùÙǜǛ"
+        fifth_tone =  "aAeEiIoOuUüÜ"
         tones = [first_tone, second_tone, third_tone, fourth_tone, fifth_tone]
 
         def find_vowels(string):
             """Returns a list of the vowels found, in order, as a list."""
-            vowels_list = "aeiouüAEIOUÜ"
+            vowels_list = fifth_tone
             vowels_places = [string.find(x) for x in vowels_list]
             output = ["", "", "", "", ""]
             for i in range(len(vowels_places)):
@@ -366,10 +369,10 @@ class DictionaryTools(object):
 
         vowels = find_vowels(syl)
         if is_there_iu(vowels):
-            syl = syl.replace("u", tones[tone - 1][4])
+            syl = syl.replace("u", tones[tone - 1][-4])
             return syl
         # To check, in order: 'a','o','e','i','u','ü' (cf. Wikipedia)
-        to_test = "aoeiuüAOEIUÜ"
+        to_test = "aAoOeEiIuUüÜ"
         for case in to_test:
             if case in vowels:
                 syl = syl.replace(case, tones[tone - 1][fifth_tone.find(case)])

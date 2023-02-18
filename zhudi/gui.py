@@ -19,7 +19,7 @@
 
 from gi import require_version
 require_version('Gtk', '3.0')
-from gi.repository import Gtk, Pango, Gdk
+from gi.repository import Gtk, Pango, Gdk, GLib
 import zhudi
 
 
@@ -96,7 +96,7 @@ class DictionaryWidgetMain(object):
         translation_label.set_use_markup(True)
 
         # Translation view
-        self.translation_box = Gtk.TextView(buffer=None)
+        self.translation_box = Gtk.TextView()
         self.translation_box.set_editable(False)
         self.translation_box.set_cursor_visible(False)
 
@@ -191,19 +191,8 @@ class DictionaryWidgetMain(object):
             romanisation_dic = self.data_object.pinyin
 
         slash_list = []
-        trans_index = self.data_object.translation[index]
-        for l in range(len(trans_index)):
-            if trans_index[l] == "/":
-                slash_list.append(l)
-        temp = 0
-        trans = []
-        for local_index in range(len(slash_list)):
-            trans.append(str(local_index + 1) + ". " + trans_index[temp:slash_list[local_index]])
-            temp = slash_list[local_index] + 1
-        trans.append(str(len(slash_list) + 1) + ". " + trans_index[temp:len(trans_index)])
-        string = ""
-        for i in range(len(slash_list) + 1):
-            string = string + trans[i] + "\n"
+        translations = self.data_object.translation[index].split('/')
+        numbered_translations = ''.join(f'{i+1}. {t}\n' for i, t in enumerate(translations))
 
         # Add [] arround the pronounciation parts
         p_string = romanisation_dic[index].split('/', 1)[0].split()
@@ -240,54 +229,16 @@ class DictionaryWidgetMain(object):
                 wubi86_code += "["
                 wubi86_code += key_code
                 wubi86_code += "]"
+        translation_buffer.set_text('')
+        start_1 = translation_buffer.get_iter_at_line(0)
         # Display in the Translation box
-        translation_buffer.set_text("Chinese\n" + hanzi_dic[index] + "\n\n" +
-                                    "Pronunciation\n" + ''.join(pronounciation_string) + "\n\n" +
-                                    "Meaning\n" + string +
-                                    "Input methods codes:\n" +
+        translation_buffer.insert_markup(start_1, "<b>Chinese</b>\n<big>" + hanzi_dic[index] + "</big>\n\n" +
+                                    "<b>Pronunciation</b>\n<span foreground='#268bd2'>" + ''.join(pronounciation_string) + "</span>\n\n" +
+                                    "<b>Meaning</b>\n" + GLib.markup_escape_text(numbered_translations, -1) +
+                                    "<b>Input methods codes</b>\n" +
                                     "Array30 (行列30): \n" + array30_displayed + "\n\n" +
                                     "Cangjie5 (倉頡5): \n" + cangjie5_displayed + "\n\n" +
-                                    "Wubi86 (五筆86): \n" + wubi86_code)
-        bold = translation_buffer.create_tag(weight=Pango.Weight.BOLD)
-        big = translation_buffer.create_tag(size=30 * Pango.SCALE)
-        blue = translation_buffer.create_tag(foreground="#268bd2")
-
-        # "Chinese" in bold
-        start_1 = translation_buffer.get_iter_at_line(0)
-        end_1 = translation_buffer.get_iter_at_line(0)
-        end_1.forward_to_line_end()
-        translation_buffer.apply_tag(bold, start_1, end_1)
-
-        # Bigger Chinese
-        start_c = translation_buffer.get_iter_at_line(1)
-        end_c = translation_buffer.get_iter_at_line(1)
-        end_c.forward_to_line_end()
-        translation_buffer.apply_tag(big, start_c, end_c)
-
-        # "Pronunciation" in bold
-        start_2 = translation_buffer.get_iter_at_line(4)
-        end_2 = translation_buffer.get_iter_at_line(4)
-        end_2.forward_to_line_end()
-        translation_buffer.apply_tag(bold, start_2, end_2)
-
-        # "Pronunciation" in blue
-        start_3 = translation_buffer.get_iter_at_line(5)
-        end_3 = translation_buffer.get_iter_at_line(5)
-        end_3.forward_to_line_end()
-        translation_buffer.apply_tag(blue, start_3, end_3)
-
-        # "Meaning" in bold
-        start_3 = translation_buffer.get_iter_at_line(7)
-        end_3 = translation_buffer.get_iter_at_line(7)
-        end_3.forward_to_line_end()
-        translation_buffer.apply_tag(bold, start_3, end_3)
-        guess = string.count("\n")
-
-        # "Input methods codes" in bold
-        start_4 = translation_buffer.get_iter_at_line(guess+7)
-        end_4 = translation_buffer.get_iter_at_line(guess+7)
-        end_4.forward_to_line_end()
-        translation_buffer.apply_tag(bold, start_4, end_4)
+                                    "Wubi86 (五筆86): \n" + wubi86_code, -1)
 
     def update_results(self):
         """ Clear, and refill the result list. """
@@ -406,7 +357,7 @@ class SegmentationWidget(object):
         self.results_label = Gtk.Label()
         self.results_label.set_text("<big>Translation</big>")
         self.results_label.set_use_markup(True)
-        self.results_field = Gtk.TextView(buffer=None)
+        self.results_field = Gtk.TextView()
         self.results_field.set_editable(False)
         self.results_field.set_cursor_visible(False)
         # No horizontal bar, vertical bar if needed
