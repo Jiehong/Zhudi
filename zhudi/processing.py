@@ -39,7 +39,7 @@ class PreProcessing(object):
 
         def unstick(pinyin):
             """ Get rid of sticking pinyin like di4shang4 instead of di4 shang4
-            Input: astring containing a pinyin like "di4shang4"
+            Input: a string containing a pinyin like "di4shang4"
             Output: a string containing a pinyin like "di4 shang4"
             """
 

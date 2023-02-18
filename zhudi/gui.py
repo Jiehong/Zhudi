@@ -96,7 +96,7 @@ class DictionaryWidgetMain(object):
         translation_label.set_use_markup(True)
 
         # Translation view
-        self.translation_box = Gtk.TextView(buffer=None)
+        self.translation_box = Gtk.TextView()
         self.translation_box.set_editable(False)
         self.translation_box.set_cursor_visible(False)
 
@@ -357,7 +357,7 @@ class SegmentationWidget(object):
         self.results_label = Gtk.Label()
         self.results_label.set_text("<big>Translation</big>")
         self.results_label.set_use_markup(True)
-        self.results_field = Gtk.TextView(buffer=None)
+        self.results_field = Gtk.TextView()
         self.results_field.set_editable(False)
         self.results_field.set_cursor_visible(False)
         # No horizontal bar, vertical bar if needed
