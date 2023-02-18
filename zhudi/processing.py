@@ -325,7 +325,8 @@ class DictionaryTools(object):
         """
         return re.match(r'^(?i)[a-züÜ]+[0-5]', pin1yin1)
 
-    def unicode_pinyin(self, pin1yin1):
+    @staticmethod
+    def unicode_pinyin(pin1yin1):
         """ Convert a string representing a pinyin syllable with tone.
         Returns a string.
 
@@ -337,7 +338,7 @@ class DictionaryTools(object):
         pin1yin1 = re.sub("v", "ü", pin1yin1)
         pin1yin1 = re.sub("U:", "Ü", pin1yin1)
         pin1yin1 = re.sub("V", "Ü", pin1yin1)
-        if not self.is_pinyin(pin1yin1):
+        if not DictionaryTools.is_pinyin(pin1yin1):
             return pin1yin1
 
         syl = pin1yin1[:-1]
@@ -349,36 +350,26 @@ class DictionaryTools(object):
         fifth_tone =  "aAeEiIoOuUüÜ"
         tones = [first_tone, second_tone, third_tone, fourth_tone, fifth_tone]
 
-        def find_vowels(string):
-            """Returns a list of the vowels found, in order, as a list."""
-            vowels_list = fifth_tone
-            vowels_places = [string.find(x) for x in vowels_list]
-            output = ["", "", "", "", ""]
-            for i in range(len(vowels_places)):
-                if vowels_places[i] != -1:
-                    output[vowels_places[i]] = vowels_list[i]
-            return output
+        if 'iu' in syl:
+            return syl.replace("u", tones[tone - 1][-4])
 
-        def is_there_iu(vowels_list):
-            """Check if "iu" is in the pinyin string. Returns a boolean."""
-            for i in range(len(vowels_list)):
-                if vowels_list[i] != vowels_list[-1]:
-                    if vowels_list[i] == "i" and vowels_list[i + 1] == "u":
-                        return True
-                    return False
-
-        vowels = find_vowels(syl)
-        if is_there_iu(vowels):
-            syl = syl.replace("u", tones[tone - 1][-4])
-            return syl
         # To check, in order: 'a','o','e','i','u','ü' (cf. Wikipedia)
         to_test = "aAoOeEiIuUüÜ"
-        for case in to_test:
-            if case in vowels:
-                syl = syl.replace(case, tones[tone - 1][fifth_tone.find(case)])
-                return syl
+        for i, case in enumerate(to_test):
+            if case in syl:
+                return syl.replace(case, tones[tone - 1][fifth_tone.find(case)])
+
+        return pin1yin1
+
+    @staticmethod
+    def romanize(data_object, index):
+        if data_object.romanisation == "zhuyin":
+            zhuyins = data_object.zhuyin[index].split()
+            # Add [] arround the pronunciation parts
+            return ''.join(f'[{zy}]' for zy in zhuyins)
         else:
-            return pin1yin1
+            pinyins = data_object.pinyin[index].split('/', 1)[0].split()
+            return ' '.join(DictionaryTools.unicode_pinyin(py) for py in pinyins)
 
     def reset_search(self):
         self.index = []

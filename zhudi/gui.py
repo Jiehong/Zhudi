@@ -20,12 +20,13 @@
 from gi import require_version
 require_version('Gtk', '3.0')
 from gi.repository import Gtk, Pango, Gdk, GLib
-import zhudi
+from . import chinese_table
+from .processing import DictionaryTools, SegmentationTools
 
 
-CANGJIE5_OBJ = zhudi.chinese_table.Cangjie5Table()
-ARRAY30_OBJ = zhudi.chinese_table.Array30Table()
-WUBI86_OBJ = zhudi.chinese_table.Wubi86Table()
+CANGJIE5_OBJ = chinese_table.Cangjie5Table()
+ARRAY30_OBJ = chinese_table.Array30Table()
+WUBI86_OBJ = chinese_table.Wubi86Table()
 
 
 class DictionaryWidgetMain(object):
@@ -181,64 +182,30 @@ class DictionaryWidgetMain(object):
         else:
             index = DICTIONARY_TOOLS_OBJECT.index[which]
 
-        if self.data_object.hanzi == "traditional":
-            hanzi_dic = self.data_object.traditional
-        else:
-            hanzi_dic = self.data_object.simplified
-        if self.data_object.romanisation == "zhuyin":
-            romanisation_dic = self.data_object.zhuyin
-        else:
-            romanisation_dic = self.data_object.pinyin
+        characters = self.data_object.get_chinese(index)
 
-        slash_list = []
         translations = self.data_object.translation[index].split('/')
         numbered_translations = ''.join(f'{i+1}. {t}\n' for i, t in enumerate(translations))
 
-        # Add [] arround the pronounciation parts
-        p_string = romanisation_dic[index].split('/', 1)[0].split()
-        pronounciation_string = []
-        for point in range(len(p_string)):
-            if self.data_object.romanisation == "pinyin":
-                pronounciation_string.append(DICTIONARY_TOOLS_OBJECT.unicode_pinyin(p_string[point]))
-                pronounciation_string.append(" ")
-            else:
-                pronounciation_string.append("[")
-                pronounciation_string.append(p_string[point])
-                pronounciation_string.append("]")
-        # Display the cangjie of the entry
-        cangjie5_displayed = ""
-        for hanzi in hanzi_dic[index]:
-            if hanzi != "\n":
-                key_code, displayed_code = CANGJIE5_OBJ.proceed(hanzi, self.data_object.cangjie5)
-                cangjie5_displayed += "["
-                cangjie5_displayed += displayed_code
-                cangjie5_displayed += "]"
-        # Display the array30 of the entry
-        array30_displayed = ""
-        for hanzi in hanzi_dic[index]:
-            if hanzi != "\n":
-                key_code, displayed_code = ARRAY30_OBJ.proceed(hanzi, self.data_object.array30)
-                array30_displayed += "["
-                array30_displayed += displayed_code
-                array30_displayed += "]"
-        # Display the array30 of the entry (here code = displayed)
-        wubi86_code = ""
-        for hanzi in hanzi_dic[index]:
-            if hanzi != "\n":
-                key_code, displayed_code = WUBI86_OBJ.proceed(hanzi, self.data_object.wubi86)
-                wubi86_code += "["
-                wubi86_code += key_code
-                wubi86_code += "]"
-        translation_buffer.set_text('')
-        start_1 = translation_buffer.get_iter_at_line(0)
+        pronunciation_string = DictionaryTools.romanize(self.data_object, index)
+
+        # Display different writing methods for the entry
+        cangjie5_displayed = ''.join(f'[{CANGJIE5_OBJ.proceed(hanzi, self.data_object.cangjie5)[1]}]' for hanzi in characters)
+        array30_displayed = ''.join(f'[{ARRAY30_OBJ.proceed(hanzi, self.data_object.array30)[1]}]' for hanzi in characters)
+        wubi86_code = ''.join(f'[{WUBI86_OBJ.proceed(hanzi, self.data_object.wubi86)[0]}]' for hanzi in characters)
+
         # Display in the Translation box
-        translation_buffer.insert_markup(start_1, "<b>Chinese</b>\n<big>" + hanzi_dic[index] + "</big>\n\n" +
-                                    "<b>Pronunciation</b>\n<span foreground='#268bd2'>" + ''.join(pronounciation_string) + "</span>\n\n" +
+        translation_buffer.set_text('')
+        buffer_start = translation_buffer.get_iter_at_line(0)
+        translation_buffer.insert_markup(buffer_start,
+                                    "<b>Chinese</b>\n<big>" + characters + "</big>\n\n" +
+                                    "<b>Pronunciation</b>\n<span foreground='#268bd2'>" + pronunciation_string + "</span>\n\n" +
                                     "<b>Meaning</b>\n" + GLib.markup_escape_text(numbered_translations, -1) +
                                     "<b>Input methods codes</b>\n" +
                                     "Array30 (行列30): \n" + array30_displayed + "\n\n" +
                                     "Cangjie5 (倉頡5): \n" + cangjie5_displayed + "\n\n" +
-                                    "Wubi86 (五筆86): \n" + wubi86_code, -1)
+                                    "Wubi86 (五筆86): \n" + wubi86_code,
+                                    -1)
 
     def update_results(self):
         """ Clear, and refill the result list. """
@@ -451,7 +418,7 @@ class SegmentationWidget(object):
         pronounciation_string = []
         for point in range(len(p_string)):
             if self.data_object.romanisation == "pinyin":
-                pronounciation_string.append(DICTIONARY_TOOLS_OBJECT.unicode_pinyin(p_string[point]))
+                pronounciation_string.append(DictionaryTools.unicode_pinyin(p_string[point]))
                 pronounciation_string.append(" ")
             else:
                 pronounciation_string.append("[")
@@ -659,9 +626,9 @@ class MainWindow(object):
         """ Mandatory build function. """
         self.data_object.create_set_chinese_characters()
         global DICTIONARY_TOOLS_OBJECT
-        DICTIONARY_TOOLS_OBJECT = zhudi.processing.DictionaryTools()
+        DICTIONARY_TOOLS_OBJECT = DictionaryTools()
         global SEGMENTATION_TOOLS_OBJECT
-        SEGMENTATION_TOOLS_OBJECT = zhudi.processing.SegmentationTools()
+        SEGMENTATION_TOOLS_OBJECT = SegmentationTools()
         SEGMENTATION_TOOLS_OBJECT.load(self.data_object)
         # Welcome tab
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
