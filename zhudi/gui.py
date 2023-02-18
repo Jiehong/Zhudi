@@ -19,7 +19,7 @@
 
 from gi import require_version
 require_version('Gtk', '3.0')
-from gi.repository import Gtk, Pango, Gdk
+from gi.repository import Gtk, Pango, Gdk, GLib
 import zhudi
 
 
@@ -234,7 +234,7 @@ class DictionaryWidgetMain(object):
         # Display in the Translation box
         translation_buffer.insert_markup(start_1, "<b>Chinese</b>\n<big>" + hanzi_dic[index] + "</big>\n\n" +
                                     "<b>Pronunciation</b>\n<span foreground='#268bd2'>" + ''.join(pronounciation_string) + "</span>\n\n" +
-                                    "<b>Meaning</b>\n" + numbered_translations +
+                                    "<b>Meaning</b>\n" + GLib.markup_escape_text(numbered_translations, -1) +
                                     "<b>Input methods codes</b>\n" +
                                     "Array30 (行列30): \n" + array30_displayed + "\n\n" +
                                     "Cangjie5 (倉頡5): \n" + cangjie5_displayed + "\n\n" +
