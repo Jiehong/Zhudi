@@ -20,6 +20,9 @@
 from gi import require_version
 require_version('Gtk', '3.0')
 from gi.repository import Gtk, Pango, Gdk, GLib
+import re
+
+
 from . import chinese_table
 from .processing import DictionaryTools, SegmentationTools
 
@@ -184,8 +187,8 @@ class DictionaryWidgetMain(object):
 
         characters = self.data_object.get_chinese(index)
 
-        translations = self.data_object.translation[index].split('/')
-        numbered_translations = ''.join(f'{i+1}. {t}\n' for i, t in enumerate(translations))
+        translation = re.sub(r'\[(.*?)\]', lambda x: '[' + DictionaryTools.romanizePinyin(self.data_object, x.group(1)) + ']', self.data_object.translation[index])
+        numbered_translations = ''.join(f'{i+1}. {t}\n' for i, t in enumerate(translation.split('/')))
 
         pronunciation_string = DictionaryTools.romanize(self.data_object, index)
 

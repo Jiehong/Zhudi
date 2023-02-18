@@ -371,6 +371,13 @@ class DictionaryTools(object):
             pinyins = data_object.pinyin[index].split('/', 1)[0].split()
             return ' '.join(DictionaryTools.unicode_pinyin(py) for py in pinyins)
 
+    @staticmethod
+    def romanizePinyin(data_object, pinyin):
+        try:
+            return ' '.join(DictionaryTools.unicode_pinyin(py) for py in pinyin.split())
+        except:
+            return pinyin
+
     def reset_search(self):
         self.index = []
 
