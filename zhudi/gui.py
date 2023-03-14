@@ -619,7 +619,7 @@ class MainWindow(object):
 
     def __init__(self, data_object, language):
         self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
-        self.window.set_default_size(700, 1200)
+        self.window.set_default_size(700, 1000)
         self.window.set_title("Zhudi")
         self.window.set_position(Gtk.WindowPosition.CENTER)
         self.window.modify_font(Pango.FontDescription('20'))
@@ -685,7 +685,7 @@ class MainWindow(object):
 
     def on_key_press(self, widget, event, data=None):
         if self.tab_box.get_current_page() == 0:
-            search_key = (len(event.string) > 0 and ord(event.string[0]) >= 0x20) or event.keyval in {Gdk.KEY_Left, Gdk.KEY_Right}
+            search_key = (len(event.string) > 0 and ord(event.string[0]) >= 0x20) or event.keyval in {Gdk.KEY_Left, Gdk.KEY_Right, Gdk.KEY_BackSpace}
             if not self.dict_settings.search_field.has_focus() and search_key:
                 if event.keyval == Gdk.KEY_Left or event.keyval == Gdk.KEY_Right:
                     self.dict_settings.search_field.grab_focus_without_selecting()
