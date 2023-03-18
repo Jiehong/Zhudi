@@ -673,7 +673,6 @@ class MainWindow(object):
         self.seg_gui = None
         self.tab_box = None
         self.vbox = None
-        self.options_gui = None
 
     @staticmethod
     def loop():

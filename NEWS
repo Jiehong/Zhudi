@@ -1,4 +1,4 @@
-** Version 1.8
+## Version 1.8
    - bugfix: better error handling in the parser (thanks Daniel Vogt)
    - bugfix: no longer crash when too many results are found by limiting to 500 displayed results (thanks lindenr)
    - feature: defaults have changed: simplified characters and pinyin (thanks lindenr)
@@ -8,28 +8,28 @@
    - dev: local dev works with poetry
    - dev: source file now automatically formatted by black
 
-** Version 1.7
+## Version 1.7
    - bugfix: command line search used unknown function
    - GTK warning fixed: explicitly request for GTK3, to avoid selecting GTK2 on some systems
    - bugfix: blue pronunciation contrast hard to read with dark theme
 
-** Version 1.6
+## Version 1.6
    #4: input language is now auto-detected
    - Code cleanup (pylint results vastly improved, and some refactoring)
    #5: options are now in their own tab (since they are global).
 
-** Version 1.5
+## Version 1.5
    #1: initial dictionary splitting didn't work (new tests for that)
    #2: initial tab is now the dictionary tab (new tab: About)
 
-** Version 1.4
+## Version 1.4
    Mainly thanks to moorchegue:
    - New CLI interface (called zhu).
    - Code clean-up, and usage of setuptools.
    - Zhudi is now a proper python (3) package.
    - The repository should be tagged, and now is (starting with this version)
 
-** Version 1.3
+## Version 1.3
    - Fixed issue when clicking "Nothing found." in the results list.
    - Fixed issue when selecting a candidate while the list has been re-ordered.
    - Now, the pinyin pronunciation is written with nice looking unicode tones.
@@ -46,13 +46,13 @@
    - Code refactoring: memory consumption greatly reduced (and clarity of the
      code improved).
 
-** Version 1.2
+## Version 1.2
    - Fixed issue when changing search query
    - Fixed issue when quiting Zhudi
    - Fixed issue when searching for nothing after having selected a candidate
    - Some Unitests have been added which lead to little changes
 
-** Version 1.1
+## Version 1.1
    - Better cli arguments checking
    - Bug importing cfdict.u8 due to cfdict bad UTF-8 encoding (CFDICT related)
    - Improvement of Pinyin parser
@@ -67,7 +67,7 @@
    - The code is now fully coherent in term of indentation
    - Zhudi now automatically load files in ~/.zhudi/ if present
 
-** Version 1.0
+## Version 1.0
    - Ported to Python3
 	 - Ported to GTK+3
 	 - Brackets added around pronunciation in order to help distinguishing them
@@ -76,7 +76,7 @@
 	 - The results selection speed has been greatly improved
 	 - The option windows button has been renamed along with the search button
 
-** Version 0.9
+## Version 0.9
    - First public version
    - Options window added
    - The search engine allows barely requests
