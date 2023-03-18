@@ -1,7 +1,7 @@
 ** Version 1.7
    - bugfix: command line search used unknown function
    - GTK warning fixed: explicitly request for GTK3, to avoid selecting GTK2 on some systems
-   - bugfix: blue pronunciation constrast hard to read with dark theme
+   - bugfix: blue pronunciation contrast hard to read with dark theme
 
 ** Version 1.6
    #4: input language is now auto-detected
@@ -20,10 +20,10 @@
    - The repository should be tagged, and now is (starting with this version)
 
 ** Version 1.3
-   - Fixed issue when clicing "Nothing found." in the results list.
-   - Fixed issue when selecting a candidat while the list has been re-ordered.
+   - Fixed issue when clicking "Nothing found." in the results list.
+   - Fixed issue when selecting a candidate while the list has been re-ordered.
    - Now, the pinyin pronunciation is written with nice looking unicode tones.
-   - Zhudi now saves and read a configuration file that contains the prefered
+   - Zhudi now saves and read a configuration file that contains the preferred
      values set in the option windows! (great improvement)
    - Zhudi now displays some table-based input methods for each entry:
      - Array30 (行列30)
@@ -33,7 +33,7 @@
    - Better separation between core/gui/starting functions.
    - GUI refactoring: tabs.
    - Sentence segmentation tab!
-   - Code refactoring: memory conssumption greatly reduced (and clarity of the
+   - Code refactoring: memory consumption greatly reduced (and clarity of the
      code improved).
 
 ** Version 1.2

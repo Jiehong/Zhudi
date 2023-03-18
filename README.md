@@ -3,40 +3,47 @@ Zhudi is a graphical interface to CEDICT, CFDICT, HanDeDict, ChE-Dicc). Therefor
 
 Zhudi is designed to help users by providing them good choices. Consequently, a Bopomofo engine is included to provide pronunciation along with pinyin. Traditional and simplified characters are fully supported too.
 
-# What platforms are supported?
+## What platforms are supported?
 Since this project is written in Python 3, it should be able to run on any given platform. However, I only have tested it under GNU/Linux.
 
 Currently, Zhudi can easily be installed on Archlinux from AUR.
 
-# What are the dependencies of Zhudi?
+## What are the dependencies of Zhudi?
 In order to run Zhudi, you need the following packages:
 * python 3+
 * python-gobject
 * pygobject-devel
 * gobject-introspection
 
-# Versions
+## Versions
+
 Version 0.9 is made to work with python2 and is now obsolete. You should use version 1.0 and later instead.
 
-# Installation
+## Installation
 
-## Pip
+### Pip
+
 Zhudi can be installed using python's package manager `pip` as follows:
 
     pip install git+https://github.com/Jiehong/Zhudi
 
-## Archlinux
-Zhudi is available in AUR.
+### Dev
 
-## Others
-You may install it thanks to Python setup tools:
+Locally, you can use poetry.
 
-    python setup.py install
+First time:
 
-# Launching
+    poetry install
+
+Then:
+
+    poetry run python zhudi/zhudi_gui.py -p pinyin -z zhuyin -tr translation -td traditional -sd simplified
+
+## Launching
+
 Zhudi can be launched from the command line by providing it proper files.
 
-## First launch
+### First launch
 When you first launch Zhudi, you need to provide a dictionary file. You are free to use the one you like among:
 * [CEDICT](http://www.mdbg.net/chindict/chindict.php?page=cedict) for English-Chinsese ;
 * [CFDICT](http://www.chine-informations.com/chinois/open/CFDICT/) for French-Chinese ;
@@ -49,7 +56,7 @@ You have to download the *.u8 version of the dictionary for using with Zhudi. On
 
 When Zhudi is finished, it would have created 5 files: pinyin, zhuyin, simplified, traditional and translation.
 
-## Normal GUI usage
+### Normal GUI usage
 When the previous 5 files are created, you can simply launch Zhudi:
 
     zhudi -p pinyin -z zhuyin -tr translation -td traditional -sd simplified
@@ -62,7 +69,7 @@ You should see the GUI up and running:
 
 ![GUI screenshot](gui_screenshot.png)
 
-## Command line usage
+### Command line usage
 When the `First launch` part has been run, you also have access to a limited command line search as follows:
 
     $ zhu 我
@@ -71,20 +78,13 @@ When the `First launch` part has been run, you also have access to a limited com
 
 Unlike the GUI, this only provides the first and best match so far.
 
-# Testing
-As zhudi is using Python's setup tools, you can always "install" the development version as follow:
-
-    python setup.py develop
-
-From now on, zhudi of your system is actually a link to the developpment directory, so you can modify things, and test them on the fly, without re-installing.
-
 ## Unit tests
 dict_test.u8 is used to test the splitting of the dictionary, and then for the rest of the unittests.
 
 First, test that splitting the dictionary is working well:
 
-    python test_cli.py
+    poetry run python test_cli.py
 
 Then, test the rest of the units:
 
-    python tests.py
+    poetry run python -m unittest

@@ -18,3 +18,8 @@ MANIFEST
 
 # Documentation artifacts
 /doc/_build
+
+.coverage
+__pycache__
+
+.idea
