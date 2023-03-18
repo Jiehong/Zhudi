@@ -1,29 +1,4 @@
-#!/usr/bin/env python
 # coding: utf-8
-''' Zhudi provides a Chinese - language dictionnary based on the
-    C[E|F]DICT project Copyright - 2011 - Ma Jiehong
-
-    Zhudi is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Zhudi is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-    or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
-    License for more details.
-
-    You should have received a copy of the GNU General Public License
-    If not, see <http://www.gnu.org/licenses/>.
-
-'''
-
-#
-# This is the unitests part of Zhudi.
-#
-# You can run all the tests by simply launching "python test.py"
-#
-# TODO (assertEqual(a,b), assertTrue(a), assertRaises(error_name))
 import unittest
 
 # Add here the part you want to test if it is a new one
@@ -31,15 +6,15 @@ import zhudi
 
 def setup():
     """ Initialisation needed by functions of Dictionary class. """
-    with open("simplified", mode="r") as simp_file:
+    with open("tests/simplified", mode="r") as simp_file:
         simp = simp_file.readlines()
-    with open("traditional", mode="r") as trad_file:
+    with open("tests/traditional", mode="r") as trad_file:
         trad = trad_file.readlines()
-    with open("translation", mode="r") as trans_file:
+    with open("tests/translation", mode="r") as trans_file:
         trans = trans_file.readlines()
-    with open("pinyin", mode="r") as pin_file:
+    with open("tests/pinyin", mode="r") as pin_file:
         pin = pin_file.readlines()
-    with open("zhuyin", mode="r") as zhu_file:
+    with open("tests/zhuyin", mode="r") as zhu_file:
         zhu = zhu_file.readlines()
     array30_obj = zhudi.chinese_table.Array30Table()
     array30_dic, array30_short = array30_obj.load("zhudi-data/array30")
@@ -171,25 +146,14 @@ class TestZhudiProcessing(unittest.TestCase):
     def test_is_not_chinese(self):
         """ Test is_not_chinese, which purpose is to test
         if the given string is Chinese or not.
-        returns True (if not chinese) or False (if chinese)
+        returns True (if not Chinese) or False (if Chinese)
         """
 
         given_string = "以為"
-        expected_result = False
         actual_result = self.seg_tools.is_not_chinese(given_string)
-        self.assertEqual(actual_result, expected_result)
+        self.assertFalse(actual_result)
 
         given_string = "hello"
         expected_result = True
         actual_result = self.seg_tools.is_not_chinese(given_string)
         self.assertEqual(actual_result, expected_result)
-
-# class TestZhudiChineseTable(unittest.TestCase):
-#     def test_proceed(self):
-#         pass
-
-#     def test_load(self):
-#         pass
-
-if __name__ == '__main__':
-    unittest.main()

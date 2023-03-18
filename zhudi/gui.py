@@ -1,30 +1,11 @@
-# coding: utf-8
-''' Zhudi provides a Chinese - language dictionnary based on the
-    C[E|F]DICT project Copyright - 2011 - Ma Jiehong
-
-    Zhudi is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Zhudi is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-    or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
-    License for more details.
-
-    You should have received a copy of the GNU General Public License
-    If not, see <http://www.gnu.org/licenses/>.
-
-'''
-
 from gi import require_version
 require_version('Gtk', '3.0')
 from gi.repository import Gtk, Pango, Gdk, GLib
 import re
 
 
-from . import chinese_table
-from .processing import DictionaryTools, SegmentationTools
+from zhudi import chinese_table
+from zhudi.processing import DictionaryTools, SegmentationTools
 
 
 CANGJIE5_OBJ = chinese_table.Cangjie5Table()
@@ -120,7 +101,6 @@ class DictionaryWidgetMain(object):
         translation_scroll.add(self.translation_box)
         translation_scroll.set_vexpand(True)
 
-
         # Mapping of the main window
         left_vertical_box = Gtk.Grid()
         left_vertical_box.attach(frame_search, 0, 0, 1, 1)
@@ -152,7 +132,11 @@ class DictionaryWidgetMain(object):
     def search_asked(self, search_field):
         """ Start search when users hit ENTER or the search button. """
         search_field.grab_focus()
-        text = search_field.get_text()
+        print(str(search_field.get_state()))
+        if search_field.get_state() == Gtk.StateType.ACTIVE:
+            text = ''
+        else:
+            text = search_field.get_text()
         DICTIONARY_TOOLS_OBJECT.reset_search()
         if text == "":
             self.results_list.clear()
@@ -209,7 +193,8 @@ class DictionaryWidgetMain(object):
         wubi86_code = ''.join(f'[{WUBI86_OBJ.proceed(hanzi, self.data_object.wubi86)[0]}]' for hanzi in characters)
 
         # Display in the Translation box
-        # The very tiny space is there so that clicking on a character searches for the correct character. Not sure why but it seems to help
+        # The very tiny space is there so that clicking on a character searches for the correct character.
+        # Not sure why but it seems to help
         self.chinese_label.set_markup('<span size="1pt"> </span>'.join(f'<a href="{ch}"><span size="60pt" underline="none">{ch}</span></a>' for ch in characters))
         translation_buffer = self.translation_box.get_buffer()
         translation_buffer.set_text('')
@@ -525,6 +510,7 @@ class SegmentationWidget(object):
                 else:
                     self.display_translation(index)
 
+
 class OptionsWidget(object):
     """ Class defining the Options/About tab layout """
 
@@ -567,7 +553,7 @@ class OptionsWidget(object):
         horizontal_box = Gtk.Box()
         label = Gtk.Label("Character set:")
         horizontal_box.pack_start(label, True, True, 0)
-                # List of romanisation available
+        # List of romanisation available
         name_store = Gtk.ListStore(str)
         rom = ["Simplified", "Traditional"]
         for value in rom:
@@ -590,7 +576,7 @@ class OptionsWidget(object):
 
         about_text = Gtk.Frame(label_yalign=1, label_xalign=1)
         about_text.set_label("\n\n\n\n"
-                             "Zhudi, 2011-2019")
+                             "Zhudi, 2011-2023")
         vertical_box.pack_start(about_text, True, True, 5)
         return vertical_box
 
@@ -618,9 +604,8 @@ class MainWindow(object):
     """
 
     def __init__(self, data_object, language):
-        self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
+        self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL, title="Zhudi")
         self.window.set_default_size(700, 1000)
-        self.window.set_title("Zhudi")
         self.window.set_position(Gtk.WindowPosition.CENTER)
         self.window.modify_font(Pango.FontDescription('20'))
         self.window.connect("key-press-event", self.on_key_press)
@@ -667,7 +652,6 @@ class MainWindow(object):
         self.window.add(self.tab_box)
         self.window.connect("destroy", Gtk.main_quit)
         self.window.show_all()
-
 
     def options_gui(self):
         """ Options tab. """
