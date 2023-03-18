@@ -582,3 +582,9 @@ class Data(object):
             config_file.write(self.romanisation + "\n\n")
             config_file.write("hanzi form:\n")
             config_file.write(self.hanzi + "\n\n")
+
+    def get_chinese(self, index):
+        if self.hanzi == "traditional":
+            return self.traditional[index].strip()
+        return self.simplified[index].strip()
+
