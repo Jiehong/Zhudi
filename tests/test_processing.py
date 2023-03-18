@@ -4,8 +4,9 @@ import unittest
 # Add here the part you want to test if it is a new one
 import zhudi
 
+
 def setup():
-    """ Initialisation needed by functions of Dictionary class. """
+    """Initialisation needed by functions of Dictionary class."""
     with open("tests/simplified", mode="r") as simp_file:
         simp = simp_file.readlines()
     with open("tests/traditional", mode="r") as trad_file:
@@ -22,26 +23,36 @@ def setup():
     cangjie5_dic, cangjie5_short = cangjie5_obj.load("zhudi-data/cangjie5")
     wubi86_obj = zhudi.chinese_table.Wubi86Table()
     wubi86_dic, wubi86_short = wubi86_obj.load("zhudi-data/wubi86")
-    return zhudi.data.Data(simp, trad, trans,
-                           wubi86_dic, wubi86_short,
-                           array30_dic, array30_short,
-                           cangjie5_dic, cangjie5_short,
-                           pin, zhu)
+    return zhudi.data.Data(
+        simp,
+        trad,
+        trans,
+        wubi86_dic,
+        wubi86_short,
+        array30_dic,
+        array30_short,
+        cangjie5_dic,
+        cangjie5_short,
+        pin,
+        zhu,
+    )
+
 
 global DATA_OBJ
 DATA_OBJ = setup()
 
+
 class TestZhudiProcessing(unittest.TestCase):
-    """ Test functions in processing.py. """
+    """Test functions in processing.py."""
 
     def setUp(self):
-        """ Prerequisite function. """
+        """Prerequisite function."""
         self.dic_tools = zhudi.processing.DictionaryTools()
         self.seg_tools = zhudi.processing.SegmentationTools()
         self.seg_tools.load(DATA_OBJ)
 
     def test_pinyin_to_zhuyin(self):
-        """ Test pinyin_to_zhuyin conversion function. """
+        """Test pinyin_to_zhuyin conversion function."""
         pinyin = [
             "fei1",
             "fei2",
@@ -62,7 +73,7 @@ class TestZhudiProcessing(unittest.TestCase):
         self.assertEqual(zhuyin_ref, zhuyin_test)
 
     def test_search(self):
-        """ Test search function. This function returns the list of index
+        """Test search function. This function returns the list of index
         where the text is found in the list. This function is not case
         sensitive. This function also search for words inside a string.
 
@@ -115,18 +126,18 @@ class TestZhudiProcessing(unittest.TestCase):
 
         """
         given_sentence = "我以為你不想再見我了"
-        expected_result = ['我', '以為', '你', '不想', '再見', '我', '了']
+        expected_result = ["我", "以為", "你", "不想", "再見", "我", "了"]
         actual_result = self.seg_tools.sentence_segmentation(given_sentence)
         self.assertEqual(actual_result, expected_result)
 
     def test_search_unique(self):
-        """ Test search_unique function.
+        """Test search_unique function.
         This function returns and index (exact matches) or None if nothing found.
         (It only works for Chinese!)
         """
 
         class Fdo(object):
-            """ Dummy local class. """
+            """Dummy local class."""
 
             def __init__(self):
                 self.traditional = ["我", "你", "我你", "再見"]
@@ -135,7 +146,9 @@ class TestZhudiProcessing(unittest.TestCase):
         fake_data_obj = Fdo()
         given_good_word = "我"
         expected_good_result = 0
-        actual_good_result = self.seg_tools.search_unique(given_good_word, fake_data_obj)
+        actual_good_result = self.seg_tools.search_unique(
+            given_good_word, fake_data_obj
+        )
         self.assertEqual(actual_good_result, expected_good_result)
 
         given_bad_word = "以為"
@@ -144,7 +157,7 @@ class TestZhudiProcessing(unittest.TestCase):
         self.assertEqual(actual_bad_result, expected_bad_result)
 
     def test_is_not_chinese(self):
-        """ Test is_not_chinese, which purpose is to test
+        """Test is_not_chinese, which purpose is to test
         if the given string is Chinese or not.
         returns True (if not Chinese) or False (if Chinese)
         """

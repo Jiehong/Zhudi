@@ -7,8 +7,8 @@ from zhudi import prepare_data, get_argument_parser
 
 def get_arguments():
     parser = get_argument_parser()
-    parser.add_argument('--expand', action='store_true')
-    parser.add_argument('query', nargs='+')
+    parser.add_argument("--expand", action="store_true")
+    parser.add_argument("query", nargs="+")
     return parser.parse_args()
 
 
@@ -33,10 +33,10 @@ def main():
         getattr(data, hanzi),
     )
 
-    potential_sentence = st.sentence_segmentation(' '.join(query))
+    potential_sentence = st.sentence_segmentation(" ".join(query))
     if len(potential_sentence) > 1:
         query = potential_sentence
-        search_order = (getattr(data, hanzi), )
+        search_order = (getattr(data, hanzi),)
 
     for word in query:
         results = set()
@@ -59,16 +59,21 @@ def main():
 def _print_result(result, data, dt, hanzi, romanisation):
     chinese = getattr(data, hanzi)[result].strip()
     pronunciation = _unicode_pronunciation(result, romanisation, data, dt)
-    translation_variations = data.translation[result].strip().split('/')
-    translations = '\n _ _ ⇾ '.join(translation_variations)
-    print('{} _ {} _ {} '.format(chinese, pronunciation, translations))
+    translation_variations = data.translation[result].strip().split("/")
+    translations = "\n _ _ ⇾ ".join(translation_variations)
+    print("{} _ {} _ {} ".format(chinese, pronunciation, translations))
 
 
 def _unicode_pronunciation(text, romanisation, data, dt):
-    if romanisation == 'Pinyin':
-        return ' '.join([dt.unicode_pinyin(p.lower()) for p in
-                         getattr(data, romanisation)[text].strip().split()])
-    return ' '.join([p for p in getattr(data, romanisation)[text].strip().split()])
+    if romanisation == "Pinyin":
+        return " ".join(
+            [
+                dt.unicode_pinyin(p.lower())
+                for p in getattr(data, romanisation)[text].strip().split()
+            ]
+        )
+    return " ".join([p for p in getattr(data, romanisation)[text].strip().split()])
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

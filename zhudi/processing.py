@@ -1,5 +1,5 @@
 # coding: utf-8
-''' Zhudi provides a Chinese - language dictionnary based on the
+""" Zhudi provides a Chinese - language dictionnary based on the
     C[E|F]DICT project Copyright - 2011 - Ma Jiehong
 
     Zhudi is free software: you can redistribute it and/or modify it
@@ -15,13 +15,14 @@
     You should have received a copy of the GNU General Public License
     If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
 
 import re
 import shutil
 
+
 class PreProcessing(object):
-    """ This class is in charge of the pre-processing needed to lauch Zhudi.
+    """This class is in charge of the pre-processing needed to lauch Zhudi.
     It loads config files, split dictionaries, etc.
     """
 
@@ -30,7 +31,7 @@ class PreProcessing(object):
 
     @staticmethod
     def split(dictname):
-        """ Loads the *.u8 file and split it. Return a tuple of 4 lists:
+        """Loads the *.u8 file and split it. Return a tuple of 4 lists:
         (simplified_list,
         traditional_list,
         translation_list,
@@ -38,7 +39,7 @@ class PreProcessing(object):
         """
 
         def unstick(pinyin):
-            """ Get rid of sticking pinyin like di4shang4 instead of di4 shang4
+            """Get rid of sticking pinyin like di4shang4 instead of di4 shang4
             Input: a string containing a pinyin like "di4shang4"
             Output: a string containing a pinyin like "di4 shang4"
             """
@@ -46,10 +47,11 @@ class PreProcessing(object):
             clean_pinyin = ""
             for index in range(len(pinyin)):
                 clean_pinyin += pinyin[index]
-                if pinyin[index].isdigit() and (index < len(pinyin)-1):
+                if pinyin[index].isdigit() and (index < len(pinyin) - 1):
                     if pinyin[index + 1] != " ":
                         clean_pinyin += " "
             return clean_pinyin
+
         # end of unstick
 
         dictionary = dictname
@@ -73,9 +75,14 @@ class PreProcessing(object):
                 pass
             else:
                 shutil.move(filename, filename + "_saved")
-                print("Warning: " + filename + " has been moved to "
-                      + filename + "_saved.\n"
-                      + "Indeed, this file will be created by Zhudi.")
+                print(
+                    "Warning: "
+                    + filename
+                    + " has been moved to "
+                    + filename
+                    + "_saved.\n"
+                    + "Indeed, this file will be created by Zhudi."
+                )
 
         for i in liste:  # for each line
             space_ind = []
@@ -93,11 +100,16 @@ class PreProcessing(object):
                             pinyin_delimiters.append(k)
                         if i[k] == "/":  # look for translation delimiters
                             translation_delimiters.append(k)
-                    traditional = i[0:space_ind[0]]
-                    simplified = i[space_ind[0]+1:space_ind[1]]
-                    pinyin = i[pinyin_delimiters[0]+1:pinyin_delimiters[1]]
+                    traditional = i[0 : space_ind[0]]
+                    simplified = i[space_ind[0] + 1 : space_ind[1]]
+                    pinyin = i[pinyin_delimiters[0] + 1 : pinyin_delimiters[1]]
                     for index in range(len(translation_delimiters) - 1):
-                        translation.append(i[translation_delimiters[index] + 1:translation_delimiters[index + 1]])
+                        translation.append(
+                            i[
+                                translation_delimiters[index]
+                                + 1 : translation_delimiters[index + 1]
+                            ]
+                        )
 
                     clean_pinyin = unstick(pinyin)
                     translation_clean = ""
@@ -112,38 +124,52 @@ class PreProcessing(object):
                     translation_list.append(translation_clean)
 
                     with open("simplified", mode="a") as simplified_file:
-                        simplified_file.write(simplified+"\n")
+                        simplified_file.write(simplified + "\n")
                     with open("traditional", mode="a") as traditional_file:
-                        traditional_file.write(traditional+"\n")
+                        traditional_file.write(traditional + "\n")
                     with open("translation", mode="a") as translation_file:
-                        translation_file.write(translation_clean+"\n")
+                        translation_file.write(translation_clean + "\n")
                     with open("pinyin", mode="a") as pinyin_file:
-                        pinyin_file.write(clean_pinyin+"\n")
+                        pinyin_file.write(clean_pinyin + "\n")
             except IndexError:
                 print("Warning: Could not parse the following line:")
                 print("\t'" + i + "'")
             except Exception as error:
-                print("Error: An unknown error occurred while parsing the following line:")
+                print(
+                    "Error: An unknown error occurred while parsing the following line:"
+                )
                 print("\t'" + i + "'")
                 print(str(error))
 
         return (simplified_list, traditional_list, translation_list, pinyin_list)
+
     # End of split()
 
     @staticmethod
-    def read_files(pinyin_file_name,
-                   zhuyin_file_name,
-                   traditional_file_name,
-                   simplified_file_name,
-                   translation_file_name):
-        """ Reads some files needed to build the Dictionary class.
+    def read_files(
+        pinyin_file_name,
+        zhuyin_file_name,
+        traditional_file_name,
+        simplified_file_name,
+        translation_file_name,
+    ):
+        """Reads some files needed to build the Dictionary class.
         Returns 5 lists:
         (pinyin, zhuyin, traditional, simplified, translation)
         """
 
         try:
             pinyin_file = open(pinyin_file_name, "r")
-            pinyin = [(lambda p: p + '/' + p.replace(' ', '') + '/' + re.sub(r'[ \d]', '', p))(p.replace('u:', 'v')) for p in pinyin_file.readlines()]
+            pinyin = [
+                (
+                    lambda p: p
+                    + "/"
+                    + p.replace(" ", "")
+                    + "/"
+                    + re.sub(r"[ \d]", "", p)
+                )(p.replace("u:", "v"))
+                for p in pinyin_file.readlines()
+            ]
             pinyin_file.close()
             zhuyin_file = open(zhuyin_file_name, "r")
             zhuyin = zhuyin_file.readlines()
@@ -159,37 +185,58 @@ class PreProcessing(object):
             translation_file.close()
             return pinyin, zhuyin, traditional, simplified, translation
         except IOError:
-            print("### The dictionary files couldn't be read. Make sure you have"
-                  " split the dictonary file first. ###")
+            print(
+                "### The dictionary files couldn't be read. Make sure you have"
+                " split the dictonary file first. ###"
+            )
             quit()
         # End of read_files()
 
+
 class SegmentationTools(object):
-    """ This class is intended to contains any functions dealing with Chinese.
+    """This class is intended to contains any functions dealing with Chinese.
     In other words, any functions treating a sentence, a word, etc.
     """
 
     def __init__(self):
-        """ Sets are aimed at speed performance.
-        """
+        """Sets are aimed at speed performance."""
 
         self.trad_set = []
         self.simp_set = []
         self.set_of_chinese_chars = []
 
     def load(self, data_obj):
-        """ Load and prepare needed data.
-        """
+        """Load and prepare needed data."""
 
         for style in [data_obj.traditional, data_obj.simplified]:
-            temp = [[], [], [], [], [], [], [], [], [], [],
-                    [], [], [], [], [], [], [], [], [], []]  # 20
+            temp = [
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+            ]  # 20
             out = []
             for item in style:
                 # get rid of the \n
                 item = item[:-1]
                 if len(item) <= 20:
-                    temp[len(item)-1].append(item)
+                    temp[len(item) - 1].append(item)
             for nested_list in temp:
                 # transform in set for performance issue
                 out.append(set(nested_list))
@@ -199,6 +246,7 @@ class SegmentationTools(object):
                     self.simp_set = out
         data_obj.create_set_chinese_characters()
         self.set_of_chinese_chars = data_obj.set_of_chinese_chars
+
     # end of load()
 
     def is_not_chinese(self, string):
@@ -212,13 +260,13 @@ class SegmentationTools(object):
         return True
 
     def search_unique(self, word, data_obj):
-        """ Search for a word in the dictionary.
+        """Search for a word in the dictionary.
         Returns only 1 result (the index) or None if nothing found.
 
         """
+
         def find_it(word, given_list):
-            """ Returns the index of the found word.
-            """
+            """Returns the index of the found word."""
 
             cnt = 0
             for case in given_list:
@@ -241,7 +289,7 @@ class SegmentationTools(object):
             return r2
 
     def sentence_segmentation(self, string):
-        """ Parse the string input for Chinese words based on words in our
+        """Parse the string input for Chinese words based on words in our
         dictionary. Retuns a list of words.
         """
 
@@ -261,10 +309,11 @@ class SegmentationTools(object):
                 current_string = string[0:i]
                 if self.is_not_chinese(current_string):
                     return current_string
-                if current_string in traditional[i-1]:
+                if current_string in traditional[i - 1]:
                     return current_string
-                elif current_string in simplified[i-1]:
+                elif current_string in simplified[i - 1]:
                     return current_string
+
         # end of longest_word
 
         output = []
@@ -274,16 +323,17 @@ class SegmentationTools(object):
                 long_word = string[0]
                 string = string[1:]  # the character is alone
             else:
-                string = string[len(long_word):]
+                string = string[len(long_word) :]
             if long_word != " ":
                 output.append(long_word)
         return output
+
+
 # end of ChineseProcessing
 
 
 class DictionaryTools(object):
-    """ Contains all functions needed for the dictionary part.
-    """
+    """Contains all functions needed for the dictionary part."""
 
     def __init__(self):
         self.index = []
@@ -303,13 +353,17 @@ class DictionaryTools(object):
         zhuyin = re.sub(" r ", " er ", zhuyin)  # change r into er
         for i in range(len(pinyin_zhuyin_dict)):
             if i < len(pinyin_zhuyin_dict) - 5:
-                zhuyin = re.sub(" " + pinyin_zhuyin_dict[i][0],
-                                " " + pinyin_zhuyin_dict[i][1],
-                                zhuyin)  # do not change the tones
+                zhuyin = re.sub(
+                    " " + pinyin_zhuyin_dict[i][0],
+                    " " + pinyin_zhuyin_dict[i][1],
+                    zhuyin,
+                )  # do not change the tones
             elif i >= len(pinyin_zhuyin_dict) - 5:
-                zhuyin = re.sub(pinyin_zhuyin_dict[i][0] + " ",
-                                pinyin_zhuyin_dict[i][1] + " ",
-                                zhuyin)  # tones
+                zhuyin = re.sub(
+                    pinyin_zhuyin_dict[i][0] + " ",
+                    pinyin_zhuyin_dict[i][1] + " ",
+                    zhuyin,
+                )  # tones
         # delete the last space used for matching convenience
         zhuyin = zhuyin[:-1]
         # Break the long string as a list
@@ -323,11 +377,11 @@ class DictionaryTools(object):
         Returns True if the input looks like a pinyin string. False otherwise.
 
         """
-        return re.match(r'^(?i)[a-züÜ]+[0-5]', pin1yin1)
+        return re.match(r"^(?i)[a-züÜ]+[0-5]", pin1yin1)
 
     @staticmethod
     def unicode_pinyin(pin1yin1):
-        """ Convert a string representing a pinyin syllable with tone.
+        """Convert a string representing a pinyin syllable with tone.
         Returns a string.
 
         Argument:
@@ -343,14 +397,14 @@ class DictionaryTools(object):
 
         syl = pin1yin1[:-1]
         tone = int(pin1yin1[-1])
-        first_tone =  "āĀēĒīĪōŌūŪǖǕ"
+        first_tone = "āĀēĒīĪōŌūŪǖǕ"
         second_tone = "áÁéÉíÍóÓúÚǘǗ"
-        third_tone =  "ǎǍěĚǐǏǒǑǔǓǚǙ"
+        third_tone = "ǎǍěĚǐǏǒǑǔǓǚǙ"
         fourth_tone = "àÀèÈìÌòÒùÙǜǛ"
-        fifth_tone =  "aAeEiIoOuUüÜ"
+        fifth_tone = "aAeEiIoOuUüÜ"
         tones = [first_tone, second_tone, third_tone, fourth_tone, fifth_tone]
 
-        if 'iu' in syl:
+        if "iu" in syl:
             return syl.replace("u", tones[tone - 1][-4])
 
         # To check, in order: 'a','o','e','i','u','ü' (cf. Wikipedia)
@@ -366,15 +420,15 @@ class DictionaryTools(object):
         if data_object.romanisation == "zhuyin":
             zhuyins = data_object.zhuyin[index].split()
             # Add [] arround the pronunciation parts
-            return ''.join(f'[{zy}]' for zy in zhuyins)
+            return "".join(f"[{zy}]" for zy in zhuyins)
         else:
-            pinyins = data_object.pinyin[index].split('/', 1)[0].split()
-            return ' '.join(DictionaryTools.unicode_pinyin(py) for py in pinyins)
+            pinyins = data_object.pinyin[index].split("/", 1)[0].split()
+            return " ".join(DictionaryTools.unicode_pinyin(py) for py in pinyins)
 
     @staticmethod
     def romanizePinyin(data_object, pinyin):
         try:
-            return ' '.join(DictionaryTools.unicode_pinyin(py) for py in pinyin.split())
+            return " ".join(DictionaryTools.unicode_pinyin(py) for py in pinyin.split())
         except:
             return pinyin
 
@@ -382,10 +436,13 @@ class DictionaryTools(object):
         self.index = []
 
     def finish_search(self, data_object):
-        self.index = sorted(set(self.index), key=lambda x: (len(data_object.traditional[x]), data_object.traditional[x]))[:500]
+        self.index = sorted(
+            set(self.index),
+            key=lambda x: (len(data_object.traditional[x]), data_object.traditional[x]),
+        )[:500]
 
     def search(self, given_list, text):
-        """ Search for a string in a list.
+        """Search for a string in a list.
 
         Arguments:
         given_list: a list of words
