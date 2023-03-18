@@ -22,7 +22,7 @@ import shutil
 
 
 class PreProcessing(object):
-    """This class is in charge of the pre-processing needed to lauch Zhudi.
+    """This class is in charge of the pre-processing needed to launch Zhudi.
     It loads config files, split dictionaries, etc.
     """
 
@@ -66,7 +66,7 @@ class PreProcessing(object):
         pinyin_list = []
         translation_list = []
 
-        # Check if producted files already exist
+        # Check if produced files already exist
         # Delete them if needed
         for filename in ["simplified", "traditional", "translation", "pinyin"]:
             try:
@@ -141,7 +141,7 @@ class PreProcessing(object):
                 print("\t'" + i + "'")
                 print(str(error))
 
-        return (simplified_list, traditional_list, translation_list, pinyin_list)
+        return simplified_list, traditional_list, translation_list, pinyin_list
 
     # End of split()
 
@@ -187,14 +187,14 @@ class PreProcessing(object):
         except IOError:
             print(
                 "### The dictionary files couldn't be read. Make sure you have"
-                " split the dictonary file first. ###"
+                " split the dictionary file first. ###"
             )
             quit()
         # End of read_files()
 
 
 class SegmentationTools(object):
-    """This class is intended to contains any functions dealing with Chinese.
+    """This class is intended to contain any functions dealing with Chinese.
     In other words, any functions treating a sentence, a word, etc.
     """
 
@@ -344,12 +344,12 @@ class DictionaryTools(object):
         """Converts the given pinyin list into zhuyin. Returns a list."""
         pinyin_zhuyin_dict = data_obj.pinyin_to_zhuyin
 
-        # for speed issue, transforme the list of pinyin in one long string
+        # for speed issue, transform the list of pinyin in one long string
         to_convert = " " + " # ".join(pinyin)
         to_convert += " "  # This space is useful for the regexp matching
         to_convert = to_convert.lower()
         zhuyin = re.sub("u:", "ü", to_convert)  # change u: into ü
-        zhuyin = re.sub("v", "ü", to_convert)  # change v into ü
+        zhuyin = re.sub("v", "ü", zhuyin)  # change v into ü
         zhuyin = re.sub(" r ", " er ", zhuyin)  # change r into er
         for i in range(len(pinyin_zhuyin_dict)):
             if i < len(pinyin_zhuyin_dict) - 5:
@@ -448,7 +448,7 @@ class DictionaryTools(object):
         given_list: a list of words
         text: a string
 
-        Searchs for "string" in "given_list". Returns a list of indices in the
+        Searches for "string" in "given_list". saves a list of indices in the
         index attribute of the DictionaryTools class.
 
         """
@@ -456,9 +456,8 @@ class DictionaryTools(object):
         index = []
         # try in each line of the dic
         for line in range(len(given_list)):
-            counter = 0
             to_search = given_list[line].lower()
-            # for each word of the request (case insensitive)
+            # for each word of the request (case-insensitive)
             # only accepts lines containing every words
             if all(word in to_search for word in words):
                 index.append(line)
