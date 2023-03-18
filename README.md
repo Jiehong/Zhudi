@@ -88,3 +88,9 @@ First, test that splitting the dictionary is working well:
 Then, test the rest of the units:
 
     poetry run python -m unittest
+
+## Formatting
+
+Source files are formatted with `black`:
+
+    poetry run python -m black zhudi && poetry run python -m black tests

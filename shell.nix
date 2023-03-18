@@ -5,18 +5,11 @@ let
     gtk4
     pango
     glib
-    libmediaart
-    gnome-online-accounts
     gobject-introspection
     gdk-pixbuf
     python3
-    grilo
-    grilo-plugins
     libnotify
-    libsoup
     libadwaita
-    gsettings-desktop-schemas
-    tracker
     (python3.withPackages ( ps: with ps; [ pycairo dbus-python pygobject3 ]))
   ];
 
