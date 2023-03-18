@@ -19,9 +19,8 @@ def main():
     except WrongInputException:
         parser.print_help()
 
-    mw = gui.MainWindow(data_object, language="Chinese")
-    mw.build()
-    mw.loop()
+    app = gui.ZhudiApplication(data_object=data_object, language="Chinese")
+    app.run()
 
 
 if __name__ == "__main__":

@@ -1,7 +1,8 @@
 from gi import require_version
 
-require_version("Gtk", "3.0")
-from gi.repository import Gtk, Pango, Gdk, GLib
+require_version("Gtk", "4.0")
+require_version("Adw", "1")
+from gi.repository import Gtk, Adw, Pango, Gdk, GLib
 import re
 
 
@@ -26,11 +27,7 @@ class DictionaryWidgetMain(object):
         self.chinese_label = None
         self.translation_box = None
 
-    def build(self):
-        """Mandatory build() function."""
-        # Search label
-        search_label = Gtk.Label()
-
+    def build(self) -> Gtk.Grid:
         # Search field
         search_field = Gtk.Entry()
         search_field.set_visible(True)
@@ -39,7 +36,7 @@ class DictionaryWidgetMain(object):
         self.search_field = search_field
 
         # Go, search! button
-        go_button = Gtk.Button("Search")
+        go_button = Gtk.Button(label="Search")
         go_button.connect("clicked", self.search_asked)
 
         # Search + button box
@@ -47,15 +44,15 @@ class DictionaryWidgetMain(object):
         sb_box.attach(search_field, 0, 0, 5, 1)
         sb_box.attach_next_to(go_button, search_field, Gtk.PositionType.RIGHT, 1, 1)
         sb_box.set_column_homogeneous(True)
+        sb_box.set_column_spacing(10)
 
         # Search label zone
         frame_search = Gtk.Frame()
-        frame_search.set_label_widget(search_label)
-        frame_search.add(sb_box)
+        frame_search.set_child(sb_box)
 
         # Results part in a list
         self.results_list = Gtk.ListStore(str)
-        results_tree = Gtk.TreeView(self.results_list)
+        results_tree = Gtk.TreeView(model=self.results_list)
         renderer = Gtk.CellRendererText()
         results_tree.tvcolumn = Gtk.TreeViewColumn("Results", renderer, text=0)
         results_tree.append_column(results_tree.tvcolumn)
@@ -71,10 +68,10 @@ class DictionaryWidgetMain(object):
         results_scroll = Gtk.ScrolledWindow()
         # No horizontal bar, automatic vertical bar
         results_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        results_scroll.add(results_tree)
+        results_scroll.set_child(results_tree)
 
         frame_results = Gtk.Frame()
-        frame_results.add(results_scroll)
+        frame_results.set_child(results_scroll)
         frame_results.set_vexpand(True)
 
         # Translation Label
@@ -85,10 +82,9 @@ class DictionaryWidgetMain(object):
         # Chinese label
         self.chinese_label = Gtk.Label()
         self.chinese_label.set_selectable(True)
-        self.chinese_label.set_line_wrap(True)
         self.chinese_label.set_focus_on_click(False)
-        self.chinese_label.set_track_visited_links(False)
-        self.chinese_label.connect("activate-link", self.character_clicked)
+        # self.chinese_label.set_track_visited_links(False)
+        self.chinese_label.connect("activate-link", self.on_character_clicked)
 
         # Translation view
         self.translation_box = Gtk.TextView()
@@ -98,7 +94,7 @@ class DictionaryWidgetMain(object):
 
         # No horizontal bar, vertical bar if needed
         translation_scroll = Gtk.ScrolledWindow()
-        translation_scroll.add(self.translation_box)
+        translation_scroll.set_child(self.translation_box)
         translation_scroll.set_vexpand(True)
 
         # Mapping of the main window
@@ -107,6 +103,7 @@ class DictionaryWidgetMain(object):
         left_vertical_box.attach_next_to(
             frame_results, frame_search, Gtk.PositionType.BOTTOM, 1, 1
         )
+        left_vertical_box.set_row_spacing(10)
 
         right_vertical_box = Gtk.Grid()
         right_vertical_box.attach(self.chinese_label, 0, 0, 1, 1)
@@ -117,7 +114,7 @@ class DictionaryWidgetMain(object):
 
         frame_translation = Gtk.Frame()
         frame_translation.set_label_widget(translation_label)
-        frame_translation.add(right_vertical_box)
+        frame_translation.set_child(right_vertical_box)
 
         horizontal_box = Gtk.Grid()
         horizontal_box.attach(left_vertical_box, 0, 0, 1, 1)
@@ -125,19 +122,17 @@ class DictionaryWidgetMain(object):
             frame_translation, left_vertical_box, Gtk.PositionType.RIGHT, 1, 1
         )
         horizontal_box.set_column_homogeneous(True)
+        horizontal_box.set_column_spacing(10)
         return horizontal_box
 
-    def character_clicked(self, chinese_label, href):
+    def on_character_clicked(self, chinese_label, href) -> None:
         self.search_field.set_text(href)
         self.search_asked(self.search_field)
 
-    def search_asked(self, search_field):
+    def search_asked(self, search_field: Gtk.Entry) -> None:
         """Start search when users hit ENTER or the search button."""
         search_field.grab_focus()
-        if search_field.get_state() == Gtk.StateType.ACTIVE:
-            text = ""
-        else:
-            text = search_field.get_text()
+        text = search_field.get_text()
         DICTIONARY_TOOLS_OBJECT.reset_search()
         if text == "":
             self.results_list.clear()
@@ -222,10 +217,9 @@ class DictionaryWidgetMain(object):
         )
         translation_buffer = self.translation_box.get_buffer()
         translation_buffer.set_text("")
-        buffer_start = translation_buffer.get_iter_at_line(0)
         translation_buffer.insert_markup(
-            buffer_start,
-            "<b>Pronunciation</b>\n<span foreground='#268bd2'>"
+            iter=translation_buffer.get_end_iter(),
+            markup="<b>Pronunciation</b>\n<span foreground='#268bd2'>"
             + pronunciation_string
             + "</span>\n\n"
             + "<b>Meaning</b>\n"
@@ -239,7 +233,7 @@ class DictionaryWidgetMain(object):
             + "\n\n"
             + "Wubi86 (五筆86): \n"
             + wubi86_code,
-            -1,
+            len=-1,
         )
 
     def update_results(self):
@@ -301,15 +295,15 @@ class SegmentationWidget(object):
         self.horizontal_separator = Gtk.Separator()
 
         # Go! button
-        self.go_button = Gtk.Button("Go!")
+        self.go_button = Gtk.Button(label="Go!")
         self.go_button.connect(
             "clicked", lambda x: self.go_segment(self.text_field.get_buffer())
         )
         # Frame title + Go! button
         self.title_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3)
-        self.title_box.pack_start(self.frame_label, False, False, 0)
-        self.title_box.pack_start(self.horizontal_separator, True, False, 0)
-        self.title_box.pack_start(self.go_button, True, True, 0)
+        self.title_box.append(self.frame_label)
+        self.title_box.append(self.horizontal_separator)
+        self.title_box.append(self.go_button)
 
         # Text field (to process)
         self.text_field = Gtk.TextView()
@@ -319,11 +313,11 @@ class SegmentationWidget(object):
         self.scrolledwindow = Gtk.ScrolledWindow()
         self.scrolledwindow.set_hexpand(True)
         self.scrolledwindow.set_vexpand(True)
-        self.scrolledwindow.add(self.text_field)
+        self.scrolledwindow.set_child(self.text_field)
 
         # Results part in a list
         self.results_list = Gtk.ListStore(str)
-        results_tree = Gtk.TreeView(self.results_list)
+        results_tree = Gtk.TreeView(model=self.results_list)
         renderer = Gtk.CellRendererText()
         results_tree.tvcolumn = Gtk.TreeViewColumn("Results", renderer, text=0)
         results_tree.append_column(results_tree.tvcolumn)
@@ -338,14 +332,14 @@ class SegmentationWidget(object):
         results_scroll = Gtk.ScrolledWindow()
         # No horizontal bar, automatic vertical bar
         results_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        results_scroll.add(results_tree)
+        results_scroll.set_child(results_tree)
 
         self.frame_results = Gtk.Frame()
-        self.frame_results.add(results_scroll)
+        self.frame_results.set_child(results_scroll)
 
         # Mapping of window
         self.left_vertical_box = Gtk.Grid()
-        self.left_vertical_box.add(self.title_box)
+        # self.left_vertical_box.append(self.title_box)
         self.left_vertical_box.attach_next_to(
             self.scrolledwindow, self.title_box, Gtk.PositionType.BOTTOM, 1, 2
         )
@@ -366,20 +360,20 @@ class SegmentationWidget(object):
         self.results_field.set_wrap_mode(Gtk.WrapMode.WORD)
 
         self.results_scroll = Gtk.ScrolledWindow()
-        self.results_scroll.add(self.results_field)
+        self.results_scroll.set_child(self.results_field)
 
         self.results_frame = Gtk.Frame()
         self.results_frame.set_label_widget(self.results_label)
-        self.results_frame.add(self.results_scroll)
+        self.results_frame.set_child(self.results_scroll)
 
         self.right_vertical_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=2
         )
-        self.right_vertical_box.pack_start(self.results_frame, True, True, 0)
+        self.right_vertical_box.append(self.results_frame)
 
         self.horizontal_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
-        self.horizontal_box.pack_start(self.left_vertical_box, False, True, 0)
-        self.horizontal_box.pack_start(self.right_vertical_box, False, True, 0)
+        self.horizontal_box.append(self.left_vertical_box)
+        self.horizontal_box.append(self.right_vertical_box)
         self.horizontal_box.set_homogeneous(True)
         return self.horizontal_box
 
@@ -575,97 +569,80 @@ class OptionsWidget(object):
     def __init__(self, data_object):
         self.data_object = data_object
 
-    def build(self):
+    def build(self) -> Gtk.Box:
         vertical_box = Gtk.Box()
         vertical_box.set_orientation(Gtk.Orientation.VERTICAL)
         vertical_box.set_homogeneous(False)
+        vertical_box.set_spacing(10)
 
-        title = Gtk.Label("")
-        vertical_box.pack_start(title, False, True, 20)
+        title = Gtk.Label(label="")
+        vertical_box.append(title)
 
         horizontal_box = Gtk.Box()
-        label = Gtk.Label("Romanisation:")
-        horizontal_box.pack_start(label, True, True, 0)
-        # List of romanisation available
-        name_store = Gtk.ListStore(str)
-        rom = ["Pinyin", "Zhuyin"]
-        for value in rom:
-            name_store.append([value])
-        combo = Gtk.ComboBox.new_with_model(name_store)
-        renderer_text = Gtk.CellRendererText()
-        combo.pack_start(renderer_text, True)
-        combo.add_attribute(renderer_text, "text", 0)
+        label = Gtk.Label(label="Romanisation:")
+        horizontal_box.append(label)
+        romanization_dropdown = Gtk.DropDown.new_from_strings(["Pinyin", "Zhuyin"])
         # Set active the saved value
         if self.data_object.romanisation == "zhuyin":
-            combo.set_active(1)
+            romanization_dropdown.set_selected(1)
         else:
-            combo.set_active(0)
-        combo.connect("changed", self.on_rom_combo)
-        horizontal_box.pack_start(combo, True, True, 0)
+            romanization_dropdown.set_selected(0)
+        romanization_dropdown.connect("notify::selected", self.on_romanization_selected)
+        horizontal_box.append(romanization_dropdown)
         # Empty space
-        space = Gtk.Label("")
-        horizontal_box.pack_start(space, True, True, 20)
+        space = Gtk.Label(label="")
+        horizontal_box.append(space)
         horizontal_box.set_homogeneous(True)
-        vertical_box.pack_start(horizontal_box, False, True, 5)
+        vertical_box.append(horizontal_box)
 
         horizontal_box = Gtk.Box()
-        label = Gtk.Label("Character set:")
-        horizontal_box.pack_start(label, True, True, 0)
-        # List of romanisation available
-        name_store = Gtk.ListStore(str)
-        rom = ["Simplified", "Traditional"]
-        for value in rom:
-            name_store.append([value])
-        combo = Gtk.ComboBox.new_with_model(name_store)
-        renderer_text = Gtk.CellRendererText()
-        combo.pack_start(renderer_text, True)
-        combo.add_attribute(renderer_text, "text", 0)
+        label = Gtk.Label(label="Character set:")
+        horizontal_box.append(label)
+        characters_dropdown = Gtk.DropDown.new_from_strings(
+            ["Simplified", "Traditional"]
+        )
         if self.data_object.hanzi == "traditional":
-            combo.set_active(1)
+            characters_dropdown.set_selected(1)
         else:
-            combo.set_active(0)
-        combo.connect("changed", self.on_char_combo)
-        horizontal_box.pack_start(combo, True, True, 0)
-
-        space = Gtk.Label("")
-        horizontal_box.pack_start(space, True, True, 20)
+            characters_dropdown.set_selected(0)
+        characters_dropdown.connect("notify::selected", self.on_characters_selected)
+        horizontal_box.append(characters_dropdown)
         horizontal_box.set_homogeneous(True)
-        vertical_box.pack_start(horizontal_box, False, True, 5)
+        space = Gtk.Label(label="")
+        horizontal_box.append(space)
+        vertical_box.append(horizontal_box)
 
-        about_text = Gtk.Frame(label_yalign=1, label_xalign=1)
-        about_text.set_label("\n\n\n\n" "Zhudi, 2011-2023")
-        vertical_box.pack_start(about_text, True, True, 5)
+        about_text = Gtk.Frame()
+        about_text.set_label("Zhudi, 2011-2023")
+        about_text.set_label_align(1.0)
+        about_text.set_valign(Gtk.Align.END)
+        vertical_box.append(about_text)
+        about_text.set_vexpand(True)
         return vertical_box
 
-    def on_rom_combo(self, combo):
-        """Action when the romanisation is changed."""
-        tree_iter = combo.get_active_iter()
-        if tree_iter is not None:
-            model = combo.get_model()
-            value = model[tree_iter][0]
-            self.data_object.romanisation = value.lower()
+    def on_romanization_selected(self, dropdown: Gtk.DropDown, _ignore) -> None:
+        selected = dropdown.get_selected_item().get_string()
+        if selected is not None:
+            self.data_object.romanisation = selected.lower()
             self.data_object.save_config()
 
-    def on_char_combo(self, combo):
-        """Action when the set is changed."""
-        tree_iter = combo.get_active_iter()
-        if tree_iter is not None:
-            model = combo.get_model()
-            value = model[tree_iter][0]
-            self.data_object.hanzi = value.lower()
+    def on_characters_selected(self, dropdown: Gtk.DropDown, _ignore) -> None:
+        selected = dropdown.get_selected_item().get_string()
+        if selected is not None:
+            self.data_object.hanzi = selected.lower()
             self.data_object.save_config()
 
 
-class MainWindow(object):
+class MainWindow(Adw.ApplicationWindow):
     """Class that defines the welcome screen, and gives access to other layers."""
 
-    def __init__(self, data_object, language):
-        self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL, title="Zhudi")
-        self.window.set_default_size(700, 1000)
-        self.window.set_position(Gtk.WindowPosition.CENTER)
-        self.window.modify_font(Pango.FontDescription("20"))
-        self.window.connect("key-press-event", self.on_key_press)
-        self.window.connect("key-release-event", self.on_key_release)
+    def __init__(self, data_object, language, *args, **kwargs):
+        super(MainWindow, self).__init__(*args, **kwargs)
+        self.set_title("Zhudi")
+        self.set_default_size(700, 1000)
+        evk = Gtk.EventControllerKey.new()
+        evk.connect("key-pressed", self.on_key_press)
+        self.add_controller(evk)
         self.data_object = data_object
         self.language = language
         self.dict_gui = None
@@ -673,11 +650,6 @@ class MainWindow(object):
         self.seg_gui = None
         self.tab_box = None
         self.vbox = None
-
-    @staticmethod
-    def loop():
-        """Starting things!"""
-        Gtk.main()
 
     def build(self):
         """Mandatory build function."""
@@ -687,8 +659,6 @@ class MainWindow(object):
         global SEGMENTATION_TOOLS_OBJECT
         SEGMENTATION_TOOLS_OBJECT = SegmentationTools()
         SEGMENTATION_TOOLS_OBJECT.load(self.data_object)
-        # Welcome tab
-        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
 
         # Tabs
         self.dict_settings, self.dict_gui = self.dictionary_gui()
@@ -705,9 +675,14 @@ class MainWindow(object):
         self.tab_box.append_page(self.options_gui, None)
         self.tab_box.set_tab_label_text(self.options_gui, "Options")
 
-        self.window.add(self.tab_box)
-        self.window.connect("destroy", Gtk.main_quit)
-        self.window.show_all()
+        header = Gtk.HeaderBar()
+        box = Gtk.Box()
+        box.props.orientation = Gtk.Orientation.VERTICAL
+
+        box.append(header)
+        box.append(self.tab_box)
+
+        self.set_content(box)
 
     def options_gui(self):
         """Options tab."""
@@ -723,7 +698,16 @@ class MainWindow(object):
         """Start the segmentation widget."""
         return SegmentationWidget(self.data_object).build()
 
-    def on_key_press(self, widget, event, data=None):
+    def on_key_press(self, event, keyval, keycode, state):
+        # Stop with Ctrl-w
+        if keyval == Gdk.KEY_w and state & Gdk.ModifierType.CONTROL_MASK:
+            self.close()
+
+        # Do nothing if random key
+        if isinstance(event, Gtk.EventControllerKey):
+            return
+
+        # Navigate in the result list with arrows and select the items
         if self.tab_box.get_current_page() == 0:
             search_key = (
                 len(event.string) > 0 and ord(event.string[0]) >= 0x20
@@ -741,11 +725,19 @@ class MainWindow(object):
             }:
                 self.dict_settings.results_tree.grab_focus()
 
-    @staticmethod
-    def on_key_release(widget, event, data=None):
-        """
-        Crtl-w to quit the application.
 
-        """
-        if event.keyval == Gdk.KEY_w and event.state & Gdk.ModifierType.CONTROL_MASK:
-            Gtk.main_quit()
+class ZhudiApplication(Adw.Application):
+    def __init__(self, data_object, language):
+        super().__init__(application_id="com.github.jiehong.zhudi")
+        # self.connect('activate', self.on_activate)
+        self.data_object = data_object
+        self.language = language
+
+    def do_activate(self):
+        win = self.props.active_window
+        if not win:
+            win = MainWindow(
+                data_object=self.data_object, language=self.language, application=self
+            )
+            win.build()
+        win.present()
