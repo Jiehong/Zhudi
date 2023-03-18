@@ -93,11 +93,13 @@ class TestZhudiProcessing(unittest.TestCase):
         given_list = ["Hello", "Bye", "Hello Fred", "Python"]
         text = "Hello"
         self.dic_tools.search(given_list, text)
-        self.assertEqual(self.dic_tools.index, [0, 2])
+        self.assertEqual([0, 2], self.dic_tools.index)
+
+        self.dic_tools.reset_search()
 
         text = "bye"
         self.dic_tools.search(given_list, text)
-        self.assertEqual(self.dic_tools.index, [1])
+        self.assertEqual([1], self.dic_tools.index)
 
     def test_unicode_pinyin(self):
         """
@@ -113,13 +115,13 @@ class TestZhudiProcessing(unittest.TestCase):
         resulting_list = []
         for k in given_list:
             resulting_list.append(self.dic_tools.unicode_pinyin(k))
-        self.assertEqual(resulting_list, expected_list)
+        self.assertEqual(expected_list, resulting_list)
 
     def test_sentence_segmentation(self):
         """
         Test sentence_segmentation function (in ChineseProcessing class).
         This function returns a list of words given a sentence.
-        Its results depends on the dictionary.
+        Its results depend on the dictionary.
 
         Ex: 我以為你不想再見我了
         --> ['我', '以為', '你', '不想', '再見', '我', '了']
