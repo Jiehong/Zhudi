@@ -1,3 +1,13 @@
+** Version 1.8
+   - bugfix: better error handling in the parser (thanks Daniel Vogt)
+   - bugfix: no longer crash when too many results are found by limiting to 500 displayed results (thanks lindenr)
+   - feature: defaults have changed: simplified characters and pinyin (thanks lindenr)
+   - feature: default font size bumped to 20 (thanks lindenr)
+   - bugfix: improve pinyin recognition such as lv for lü (thanks lindenr)
+   - feature: clicking on a character now searches for it (thanks lindenr)
+   - dev: local dev works with poetry
+   - dev: source file now automatically formatted by black
+
 ** Version 1.7
    - bugfix: command line search used unknown function
    - GTK warning fixed: explicitly request for GTK3, to avoid selecting GTK2 on some systems
