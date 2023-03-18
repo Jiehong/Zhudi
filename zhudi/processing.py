@@ -377,7 +377,7 @@ class DictionaryTools(object):
         Returns True if the input looks like a pinyin string. False otherwise.
 
         """
-        return re.match(r"^(?i)[a-züÜ]+[0-5]", pin1yin1)
+        return re.match(r"(?i)^[a-züÜ]+[0-5]", pin1yin1)
 
     @staticmethod
     def unicode_pinyin(pin1yin1):
