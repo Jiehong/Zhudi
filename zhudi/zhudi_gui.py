@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import gui
+from zhudi.ui.application import ZhudiApplication
 from __init__ import prepare_data, get_argument_parser, WrongInputException
 
 
@@ -19,7 +19,7 @@ def main():
     except WrongInputException:
         parser.print_help()
 
-    app = gui.ZhudiApplication(data_object=data_object, language="Chinese")
+    app = ZhudiApplication(data_object=data_object, language="Chinese")
     app.run()
 
 
