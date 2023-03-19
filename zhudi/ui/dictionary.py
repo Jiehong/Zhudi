@@ -43,13 +43,9 @@ class DictionaryWidget(object):
         go_button.connect("clicked", self.search_asked)
 
         # Search + button box
-        sb_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        sb_box.append(search_field)
-        sb_box.append(go_button)
-
-        # Search label zone
-        frame_search = Gtk.Frame()
-        frame_search.set_child(sb_box)
+        search_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        search_box.append(search_field)
+        search_box.append(go_button)
 
         # Results part in a list
         self.results_list = Gtk.ListStore(str)
@@ -101,7 +97,7 @@ class DictionaryWidget(object):
 
         # Mapping of the main window
         left_vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        left_vertical_box.append(frame_search)
+        left_vertical_box.append(search_box)
         left_vertical_box.append(frame_results)
         left_vertical_box.set_margin_top(10)
         left_vertical_box.set_margin_start(10)
@@ -178,9 +174,7 @@ class DictionaryWidget(object):
 
         translation = re.sub(
             r"\[(.*?)\]",
-            lambda x: "["
-            + DictionaryTools.romanizePinyin(self.data_object, x.group(1))
-            + "]",
+            lambda x: "[" + DictionaryTools.romanize_pinyin(x.group(1)) + "]",
             self.data_object.translation[index],
         )
         numbered_translations = "".join(

@@ -1,4 +1,6 @@
-from gi.repository import Gtk, Pango
+import re
+
+from gi.repository import Gtk, GLib
 
 from zhudi.data import Data
 from zhudi.processing import DictionaryTools, SegmentationTools
@@ -31,13 +33,12 @@ class SegmentationWidget(object):
         self.wubi86: ChineseTable = Wubi86Table()
 
     def build(self):
-        """Mandatory GUI build method."""
         # Frame label
         self.frame_label = Gtk.Label()
         self.frame_label.set_text("<big>Chinese text to process:</big>")
         self.frame_label.set_use_markup(True)
 
-        # Horzontal separator
+        # Horizontal separator
         self.horizontal_separator = Gtk.Separator()
 
         # Go! button
@@ -84,16 +85,11 @@ class SegmentationWidget(object):
         self.frame_results.set_child(results_scroll)
 
         # Mapping of window
-        self.left_vertical_box = Gtk.Grid()
-        # self.left_vertical_box.append(self.title_box)
-        self.left_vertical_box.attach_next_to(
-            self.scrolledwindow, self.title_box, Gtk.PositionType.BOTTOM, 1, 2
-        )
-        self.left_vertical_box.attach_next_to(
-            self.frame_results, self.scrolledwindow, Gtk.PositionType.BOTTOM, 1, 8
-        )
-        self.left_vertical_box.set_column_homogeneous(True)
-        self.left_vertical_box.set_row_homogeneous(True)
+        self.left_vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.left_vertical_box.append(self.title_box)
+        self.left_vertical_box.append(self.scrolledwindow)
+        self.left_vertical_box.append(self.frame_results)
+        self.left_vertical_box.set_homogeneous(False)
 
         # Results frame
         self.results_label = Gtk.Label()
@@ -102,6 +98,7 @@ class SegmentationWidget(object):
         self.results_field = Gtk.TextView()
         self.results_field.set_editable(False)
         self.results_field.set_cursor_visible(False)
+        self.results_field.set_vexpand(True)
         # No horizontal bar, vertical bar if needed
         self.results_field.set_wrap_mode(Gtk.WrapMode.WORD)
 
@@ -165,87 +162,44 @@ class SegmentationWidget(object):
             translation_buffer.set_text(index)
             return
 
-        if self.data_object.hanzi == "traditional":
-            hanzi_dic = self.data_object.traditional
-        else:
-            hanzi_dic = self.data_object.simplified
+        characters = self.data_object.get_chinese(index)
 
-        if self.data_object.romanisation == "zhuyin":
-            romanisation_dic = self.data_object.zhuyin
-        else:
-            romanisation_dic = self.data_object.pinyin
-
-        slash_list = []
-        trans_index = self.data_object.translation[index]
-        for line in range(len(trans_index)):
-            if trans_index[line] == "/":
-                slash_list.append(line)
-        temp = 0
-        trans = []
-        for key in range(len(slash_list)):
-            trans.append(str(key + 1) + ". " + trans_index[temp : slash_list[key]])
-            temp = slash_list[key] + 1
-        trans.append(
-            str(len(slash_list) + 1) + ". " + trans_index[temp : len(trans_index)]
+        translation = re.sub(
+            r"\[(.*?)\]",
+            lambda x: "[" + DictionaryTools.romanize_pinyin(x.group(1)) + "]",
+            self.data_object.translation[index],
         )
-        string = ""
-        for local_index in range(len(slash_list) + 1):
-            string = string + trans[local_index] + "\n"
+        numbered_translations = "".join(
+            f"{i+1}. {t}\n" for i, t in enumerate(translation.split("/"))
+        )
 
-        # Add [] around the pronunciation parts
-        p_string = romanisation_dic[index].split("/", 1)[0].split()
-        pronunciation_string = []
-        for point in range(len(p_string)):
-            if self.data_object.romanisation == "pinyin":
-                pronunciation_string.append(
-                    DictionaryTools.unicode_pinyin(p_string[point])
-                )
-                pronunciation_string.append(" ")
-            else:
-                pronunciation_string.append("[")
-                pronunciation_string.append(p_string[point])
-                pronunciation_string.append("]")
-        # Display the cangjie of the entry
-        cangjie5_displayed = ""
-        for hanzi in hanzi_dic[index]:
-            if hanzi != "\n":
-                key_code, displayed_code = self.cangjie5.proceed(
-                    hanzi, self.data_object.cangjie5
-                )
-                cangjie5_displayed += "["
-                cangjie5_displayed += displayed_code
-                cangjie5_displayed += "]"
-        # Display the array30 of the entry
-        array30_displayed = ""
-        for hanzi in hanzi_dic[index]:
-            if hanzi != "\n":
-                key_code, displayed_code = self.array30.proceed(
-                    hanzi, self.data_object.array30
-                )
-                array30_displayed += "["
-                array30_displayed += displayed_code
-                array30_displayed += "]"
-        # Display the array30 of the entry (here code = displayed)
-        wubi86_code = ""
-        for hanzi in hanzi_dic[index]:
-            if hanzi != "\n":
-                key_code, displayed_code = self.wubi86.proceed(
-                    hanzi, self.data_object.wubi86
-                )
-                wubi86_code += "["
-                wubi86_code += key_code
-                wubi86_code += "]"
+        pronunciation_string = DictionaryTools.romanize(self.data_object, index)
+
+        # Display different writing methods for the entry
+        cangjie5_displayed = "".join(
+            f"[{self.cangjie5.proceed(hanzi, self.data_object.cangjie5)[1]}]"
+            for hanzi in characters
+        )
+        array30_displayed = "".join(
+            f"[{self.array30.proceed(hanzi, self.data_object.array30)[1]}]"
+            for hanzi in characters
+        )
+        wubi86_code = "".join(
+            f"[{self.wubi86.proceed(hanzi, self.data_object.wubi86)[0]}]"
+            for hanzi in characters
+        )
+
         # Display in the Translation box
-        translation_buffer.set_text(
-            "Chinese\n"
-            + hanzi_dic[index]
-            + "\n\n"
-            + "Pronunciation\n"
-            + "".join(pronunciation_string)
-            + "\n\n"
-            "Meaning\n"
-            + string
-            + "Input methods codes:\n"
+        # translation_buffer = self.translation_box.get_buffer()
+        translation_buffer.set_text("")
+        translation_buffer.insert_markup(
+            iter=translation_buffer.get_end_iter(),
+            markup="<b>Pronunciation</b>\n<span foreground='#268bd2'>"
+            + pronunciation_string
+            + "</span>\n\n"
+            + "<b>Meaning</b>\n"
+            + GLib.markup_escape_text(numbered_translations, -1)
+            + "<b>Input methods codes</b>\n"
             + "Array30 (行列30): \n"
             + array30_displayed
             + "\n\n"
@@ -253,48 +207,9 @@ class SegmentationWidget(object):
             + cangjie5_displayed
             + "\n\n"
             + "Wubi86 (五筆86): \n"
-            + wubi86_code
+            + wubi86_code,
+            len=-1,
         )
-        bold = translation_buffer.create_tag(weight=Pango.Weight.BOLD)
-        big = translation_buffer.create_tag(size=30 * Pango.SCALE)
-        blue = translation_buffer.create_tag(foreground="#268bd2")
-
-        # "Chinese" in bold
-        start_1 = translation_buffer.get_iter_at_line(0)
-        end_1 = translation_buffer.get_iter_at_line(0)
-        end_1.forward_to_line_end()
-        translation_buffer.apply_tag(bold, start_1, end_1)
-
-        # Bigger Chinese
-        start_c = translation_buffer.get_iter_at_line(1)
-        end_c = translation_buffer.get_iter_at_line(1)
-        end_c.forward_to_line_end()
-        translation_buffer.apply_tag(big, start_c, end_c)
-
-        # "Pronunciation" in bold
-        start_2 = translation_buffer.get_iter_at_line(4)
-        end_2 = translation_buffer.get_iter_at_line(4)
-        end_2.forward_to_line_end()
-        translation_buffer.apply_tag(bold, start_2, end_2)
-
-        # "Pronunciation" in blue
-        start_3 = translation_buffer.get_iter_at_line(5)
-        end_3 = translation_buffer.get_iter_at_line(5)
-        end_3.forward_to_line_end()
-        translation_buffer.apply_tag(blue, start_3, end_3)
-
-        # "Meaning" in bold
-        start_3 = translation_buffer.get_iter_at_line(7)
-        end_3 = translation_buffer.get_iter_at_line(7)
-        end_3.forward_to_line_end()
-        translation_buffer.apply_tag(bold, start_3, end_3)
-        guess = string.count("\n")
-
-        # "Input methods codes" in bold
-        start_4 = translation_buffer.get_iter_at_line(guess + 7)
-        end_4 = translation_buffer.get_iter_at_line(guess + 7)
-        end_4.forward_to_line_end()
-        translation_buffer.apply_tag(bold, start_4, end_4)
 
     def word_selected(self, selection):
         """Display the selected word in the translation area."""
