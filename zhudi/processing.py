@@ -426,7 +426,7 @@ class DictionaryTools(object):
             return " ".join(DictionaryTools.unicode_pinyin(py) for py in pinyins)
 
     @staticmethod
-    def romanizePinyin(data_object, pinyin):
+    def romanize_pinyin(pinyin):
         try:
             return " ".join(DictionaryTools.unicode_pinyin(py) for py in pinyin.split())
         except:
