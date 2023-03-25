@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import collections
+from typing import List
 
 
 class ChineseTable(object):
@@ -10,7 +11,7 @@ class ChineseTable(object):
         self.keys_faces = ""
         self.keys_displayed_faces = []
 
-    def proceed(self, character, dictionary):
+    def proceed(self, character: str, dictionary) -> List[str]:
         """Returns the key code of the character as a code and as displayed_faces."""
         output = []
         if character not in dictionary:
@@ -108,4 +109,4 @@ class Wubi86Table(ChineseTable):
         super(Wubi86Table, self).__init__()
         # Set the keys and keys_faces
         self.keys_faces = "abcdefghijklmnopqrstuvwxyz"
-        self.keys_displayed_faces = "abcdefghijklmnopqrstuvwxyz"
+        self.keys_displayed_faces = "abcdefghijklmnopqrstuvwxyz".upper()
