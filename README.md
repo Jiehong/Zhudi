@@ -1,23 +1,27 @@
 # What is Zhudi?
 Zhudi is a graphical interface to CEDICT, CFDICT, HanDeDict, ChE-Dicc). Therefore, it allows you to have a Chinese to English, French, German and Spanish dictionary.
 
-Zhudi is designed to help users by providing them good choices. Consequently, a Bopomofo engine is included to provide pronunciation along with pinyin. Traditional and simplified characters are fully supported too.
+## Features
+
+- Traditional & Simplified Chinese characters;
+- Zhuyin & Pinyin pronunciation;
+- Display of non pronunciation-based input methods: [cangjie5/倉頡5](https://en.wikipedia.org/wiki/Cangjie_input_method), [array30/行列30](https://zh.wikipedia.org/wiki/%E8%A1%8C%E5%88%97%E8%BC%B8%E5%85%A5%E6%B3%95), [wubi86/五筆86](https://en.wikipedia.org/wiki/Wubi_method);
+- Runs entirely locally on your own device.
 
 ## What platforms are supported?
-Since this project is written in Python 3, it should be able to run on any given platform. However, I only have tested it under GNU/Linux.
 
-Currently, Zhudi can easily be installed on Archlinux from AUR.
+Since this project is written in Python 3 & GTK4, it should be able to run on any given platform. However, I only have tested it under GNU/Linux.
+
 
 ## What are the dependencies of Zhudi?
+
 In order to run Zhudi, you need the following packages:
 * python 3+
 * python-gobject
 * pygobject-devel
 * gobject-introspection
 
-## Versions
-
-Version 0.9 is made to work with python2 and is now obsolete. You should use version 1.0 and later instead.
+You also need to have GTK 4 installed.
 
 ## Installation
 

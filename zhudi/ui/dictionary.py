@@ -193,7 +193,7 @@ class DictionaryWidget(object):
             for hanzi in characters
         )
         wubi86_code = "".join(
-            f"[{self.wubi86.proceed(hanzi, self.data_object.wubi86)[0]}]"
+            f"[{self.wubi86.proceed(hanzi, self.data_object.wubi86)[1]}]"
             for hanzi in characters
         )
 
