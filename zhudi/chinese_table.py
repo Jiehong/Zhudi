@@ -1,6 +1,6 @@
 # coding: utf-8
+import sqlite3
 
-import collections
 from typing import List
 
 
@@ -10,45 +10,30 @@ class ChineseTable(object):
     def __init__(self):
         self.keys_faces = ""
         self.keys_displayed_faces = []
+        self.dictionary = ""
 
-    def proceed(self, character: str, dictionary) -> List[str]:
+    def proceed(self, character: str) -> List[str]:
         """Returns the key code of the character as a code and as displayed_faces."""
+        c = sqlite3.connect("zhudi-data/input_methods.db")
+        cursor = c.cursor()
+        query = f"""
+        select code
+        from {self.dictionary}
+        where characters='{character}'
+        order by code desc
+        limit 1
+        """
+        codes = cursor.execute(query).fetchall()
+
         output = []
-        if character not in dictionary:
-            code = character
-            displayed_code = character
-        else:
-            code = dictionary[character]
+        for code in codes:
             displayed_code = ""
-            for letter in code:
+            for letter in code[0]:
                 letter_pos = self.keys_faces.rfind(letter)
                 displayed_code += self.keys_displayed_faces[letter_pos]
-        output.append(code)
-        output.append(displayed_code)
+            output.append(code[0])
+            output.append(displayed_code)
         return output
-
-    @staticmethod
-    def load(file_name):
-        """Read codes from a file, and return a dictionary of codes
-        and a dictionary of short codes
-
-        """
-        output = collections.defaultdict()
-        output_short = collections.defaultdict()
-        with open(file_name, "r") as a_file:
-            lines = a_file.readlines()
-            for line in lines:
-                space_pos = line.rfind(" ")
-                keys = line[0:space_pos]
-                char = line[space_pos + 1 : -1]
-                if char in output and len(keys) >= len(output[char]):
-                    output_short[char] = output[char]
-                    output[char] = keys
-                elif char in output and len(keys) < len(output[char]):
-                    output_short[char] = keys
-                elif char not in output:
-                    output[char] = keys
-        return output, output_short
 
 
 class Cangjie5Table(ChineseTable):
@@ -57,8 +42,9 @@ class Cangjie5Table(ChineseTable):
     def __init__(self):
         super(Cangjie5Table, self).__init__()
         # Set the keys and keys_faces
-        self.keys_faces = "abcdefghijklmnopqrstuvwxyz"
-        self.keys_displayed_faces = "日月金木水火土竹戈十大中一弓人心手口尸廿" "山女田難卜重"
+        self.keys_faces = "abcdefghijklmnopqrstuvwxyz".upper()
+        self.keys_displayed_faces = "日月金木水火土竹戈十大中一弓人心手口尸廿山女田難卜重"
+        self.dictionary = "cangjie5"
 
 
 class Array30Table(ChineseTable):
@@ -100,6 +86,7 @@ class Array30Table(ChineseTable):
             "9↓",
             "0↓",
         ]
+        self.dictionary = "array30"
 
 
 class Wubi86Table(ChineseTable):
@@ -108,5 +95,6 @@ class Wubi86Table(ChineseTable):
     def __init__(self):
         super(Wubi86Table, self).__init__()
         # Set the keys and keys_faces
-        self.keys_faces = "abcdefghijklmnopqrstuvwxyz"
+        self.keys_faces = "abcdefghijklmnopqrstuvwxyz".upper()
         self.keys_displayed_faces = "abcdefghijklmnopqrstuvwxyz".upper()
+        self.dictionary = "wubi86"

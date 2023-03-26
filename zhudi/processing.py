@@ -1,24 +1,10 @@
 # coding: utf-8
-""" Zhudi provides a Chinese - language dictionnary based on the
-    C[E|F]DICT project Copyright - 2011 - Ma Jiehong
-
-    Zhudi is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Zhudi is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-    or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
-    License for more details.
-
-    You should have received a copy of the GNU General Public License
-    If not, see <http://www.gnu.org/licenses/>.
-
-"""
 
 import re
 import shutil
+
+from zhudi.data import Data
+from zhudi.preferences import Preferences
 
 
 class PreProcessing(object):
@@ -58,9 +44,6 @@ class PreProcessing(object):
         # Open the dictionary in text mode, read only
         with open(dictionary, mode="r") as dic:
             liste = dic.readlines()  # Use the text file as lines
-        space_ind = []
-        pinyin_delimiters = []
-        translation_delimiters = []
         simplified_list = []
         traditional_list = []
         pinyin_list = []
@@ -416,8 +399,8 @@ class DictionaryTools(object):
         return pin1yin1
 
     @staticmethod
-    def romanize(data_object, index):
-        if data_object.romanisation == "zhuyin":
+    def romanize(data_object: Data, index: int, preferences: Preferences):
+        if preferences.get_romanization() == "zhuyin":
             zhuyins = data_object.zhuyin[index].split()
             # Add [] arround the pronunciation parts
             return "".join(f"[{zy}]" for zy in zhuyins)

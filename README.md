@@ -5,8 +5,9 @@ Zhudi is a graphical interface to CEDICT, CFDICT, HanDeDict, ChE-Dicc). Therefor
 
 - Traditional & Simplified Chinese characters;
 - Zhuyin & Pinyin pronunciation;
-- Display of non pronunciation-based input methods: [cangjie5/倉頡5](https://en.wikipedia.org/wiki/Cangjie_input_method), [array30/行列30](https://zh.wikipedia.org/wiki/%E8%A1%8C%E5%88%97%E8%BC%B8%E5%85%A5%E6%B3%95), [wubi86/五筆86](https://en.wikipedia.org/wiki/Wubi_method);
-- Runs entirely locally on your own device.
+- Display of shape-based input methods: [cangjie5/倉頡5](https://en.wikipedia.org/wiki/Cangjie_input_method), [array30/行列30](https://zh.wikipedia.org/wiki/%E8%A1%8C%E5%88%97%E8%BC%B8%E5%85%A5%E6%B3%95), [wubi86/五筆86](https://en.wikipedia.org/wiki/Wubi_method);
+- Runs entirely locally on your own device;
+- Follows the [XDG spec](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
 
 ## What platforms are supported?
 

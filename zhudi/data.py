@@ -1,23 +1,6 @@
 # coding: utf-8
-""" Zhudi provides a Chinese - language dictionnary based on the
-    C[E|F]DICT project Copyright - 2011 - Ma Jiehong
 
-    Zhudi is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Zhudi is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-    or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
-    License for more details.
-
-    You should have received a copy of the GNU General Public License
-    If not, see <http://www.gnu.org/licenses/>.
-
-"""
-
-import os
+from zhudi.preferences import Preferences
 
 
 class Data(object):
@@ -28,36 +11,18 @@ class Data(object):
         simp,
         trad,
         trans,
-        wubi86,
-        wubi86_short,
-        array30,
-        array30_short,
-        cangjie5,
-        cangjie5_short,
         pinyin,
         zhuyin=None,
     ):
         """
-        hanzi          : set of characters to use ("" by default)
-        romanisation   : romanisation to use ("" by default)
         simp           : a list of simplified forms
         trad           : a list of traditional forms
         trans          : a list of translations
-        wubi86         : a dictionary of wubi86 codes
-        wubi86_short   : a dictionary of short wubi86 codes
-        array30        : a dictionary of array30 codes
-        array30_short  : a dictionary of short array30 codes
-        cangjie5       : a dictionary of cangjie5 codes
-        cangjie5_short : a dictionary of short cangjie5 codes
         pinyin         : a list of pinyin
         zhuyin         : a list of zhuyin (default = [])
 
         """
 
-        self.hanzi = ""
-        self.romanisation = ""
-        self.hanzi_default = "simplified"
-        self.romanisation_default = "pinyin"
         self.set_of_chinese_chars = set()
         self.simplified = simp
         self.traditional = trad
@@ -67,12 +32,6 @@ class Data(object):
             self.zhuyin = []
         else:
             self.zhuyin = zhuyin
-        self.wubi86 = wubi86
-        self.wubi86_short = wubi86_short
-        self.array30 = array30
-        self.array30_short = array30_short
-        self.cangjie5 = cangjie5
-        self.cangjie5_short = cangjie5_short
         self.pinyin_to_zhuyin = [
             ("zhuang", "ㄓㄨㄤ"),
             ("shuang", "ㄕㄨㄤ"),
@@ -236,6 +195,7 @@ class Data(object):
             ("bing", "ㄅㄧㄥ"),
             ("bien", "ㄅㄧㄢ"),
             ("biao", "ㄅㄧㄠ"),
+            ("biang", "ㄅㄧㄤ"),  # single character known
             ("bian", "ㄅㄧㄢ"),
             ("beng", "ㄅㄥ"),
             ("bang", "ㄅㄤ"),
@@ -542,68 +502,7 @@ class Data(object):
 
         self.set_of_chinese_chars = set(chinese_characters)
 
-    def load_config(self):
-        """Reads the config file, if it exists, and set the right values for
-        hanzi and romanisation
-
-        """
-        saved_values = {}
-        try:
-            open(os.environ["HOME"] + "/.zhudi/config", "r")
-        except IOError:
-            # If no config file found
-            print("No config file found. Use defaults")
-            self.hanzi = self.hanzi_default
-            self.romanisation = self.romanisation_default
-            return
-        with open(os.environ["HOME"] + "/.zhudi/config", "r") as config_file:
-            lines = config_file.readlines()
-            for n_line in range(len(lines) - 1):
-                line = lines[n_line].strip().lower()
-                nextline = lines[n_line + 1].strip().lower()
-                if line != "" and line[0] != "#":
-                    if line == "romanisation:":
-                        saved_values["romanisation"] = (
-                            nextline or self.romanisation_default
-                        )
-                    if line == "hanzi form:":
-                        saved_values["hanzi"] = nextline or self.hanzi_default
-        # Gibberish in config file?
-        if saved_values["hanzi"] not in ["traditional", "simplified"]:
-            print(
-                f"WARNING: Unexpected hanzi value {saved_values['hanzi']}; falling back to {self.hanzi_default}"
-            )
-            self.hanzi = self.hanzi_default
-        else:
-            self.hanzi = saved_values["hanzi"]
-        if saved_values["romanisation"] not in ["zhuyin", "pinyin"]:
-            print(
-                f"WARNING: Unexpected romanisation value {saved_values['romanisation']}; falling back to {self.romanisation_default}"
-            )
-            self.romanisation = self.romanisation_default
-        else:
-            self.romanisation = saved_values["romanisation"]
-
-    def save_config(self):
-        """
-        This function saves values to the config file. The config file is
-        overwritten if it already exists.
-        """
-        with open(os.environ["HOME"] + "/.zhudi/config", "w") as config_file:
-            config_file.write(
-                "# This file is the configuration file"
-                + " used by Zhudi in order to remember\n"
-            )
-            config_file.write("# user's configuration choices.\n")
-            config_file.write(
-                "# This file has been created automatically" + "by Zhudi.\n\n"
-            )
-            config_file.write("romanisation:\n")
-            config_file.write(self.romanisation + "\n\n")
-            config_file.write("hanzi form:\n")
-            config_file.write(self.hanzi + "\n\n")
-
-    def get_chinese(self, index):
-        if self.hanzi == "traditional":
+    def get_chinese(self, index: int, preferences: Preferences):
+        if preferences.get_character_set() == "traditional":
             return self.traditional[index].strip()
         return self.simplified[index].strip()

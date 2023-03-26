@@ -3,6 +3,7 @@ import re
 from gi.repository import Gtk, GLib
 
 from zhudi.data import Data
+from zhudi.preferences import Preferences
 from zhudi.processing import DictionaryTools, SegmentationTools
 from zhudi.chinese_table import ChineseTable, Cangjie5Table, Array30Table, Wubi86Table
 
@@ -10,7 +11,12 @@ from zhudi.chinese_table import ChineseTable, Cangjie5Table, Array30Table, Wubi8
 class SegmentationWidget(object):
     """Class that defines the segmentation GUI layer."""
 
-    def __init__(self, data_object: Data, segmentation_tools: SegmentationTools):
+    def __init__(
+        self,
+        data_object: Data,
+        segmentation_tools: SegmentationTools,
+        preferences: Preferences,
+    ):
         self.frame_label = None
         self.horizontal_separator = None
         self.go_button = None
@@ -28,6 +34,7 @@ class SegmentationWidget(object):
         self.horizontal_box = None
         self.data_object: Data = data_object
         self.segmentation_tools: SegmentationTools = segmentation_tools
+        self.preferences: Preferences = preferences
         self.cangjie5: ChineseTable = Cangjie5Table()
         self.array30: ChineseTable = Array30Table()
         self.wubi86: ChineseTable = Wubi86Table()
@@ -162,7 +169,7 @@ class SegmentationWidget(object):
             translation_buffer.set_text(index)
             return
 
-        characters = self.data_object.get_chinese(index)
+        characters = self.data_object.get_chinese(index, self.preferences)
 
         translation = re.sub(
             r"\[(.*?)\]",
@@ -173,20 +180,19 @@ class SegmentationWidget(object):
             f"{i+1}. {t}\n" for i, t in enumerate(translation.split("/"))
         )
 
-        pronunciation_string = DictionaryTools.romanize(self.data_object, index)
+        pronunciation_string = DictionaryTools.romanize(
+            self.data_object, index, self.preferences
+        )
 
         # Display different writing methods for the entry
         cangjie5_displayed = "".join(
-            f"[{self.cangjie5.proceed(hanzi, self.data_object.cangjie5)[1]}]"
-            for hanzi in characters
+            f"[{self.cangjie5.proceed(hanzi)[1]}]" for hanzi in characters
         )
         array30_displayed = "".join(
-            f"[{self.array30.proceed(hanzi, self.data_object.array30)[1]}]"
-            for hanzi in characters
+            f"[{self.array30.proceed(hanzi)[1]}]" for hanzi in characters
         )
         wubi86_code = "".join(
-            f"[{self.wubi86.proceed(hanzi, self.data_object.wubi86)[0]}]"
-            for hanzi in characters
+            f"[{self.wubi86.proceed(hanzi)[0]}]" for hanzi in characters
         )
 
         # Display in the Translation box

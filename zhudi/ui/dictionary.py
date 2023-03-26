@@ -2,6 +2,7 @@ import re
 from gi.repository import Gtk, GLib
 
 from zhudi.data import Data
+from zhudi.preferences import Preferences
 from zhudi.processing import DictionaryTools, SegmentationTools
 from zhudi.chinese_table import ChineseTable, Cangjie5Table, Array30Table, Wubi86Table
 
@@ -12,11 +13,13 @@ class DictionaryWidget(object):
     def __init__(
         self,
         data_object: Data,
+        preferences: Preferences,
         dictionary_tools: DictionaryTools,
         segmentation_tools: SegmentationTools,
     ):
         self.data_object: Data = data_object
-        self.language = ""
+        self.preferences: Preferences = preferences
+        self.language: str = ""
         self.results_list = []
         self.results_tree = None
         self.search_field = None
@@ -136,7 +139,7 @@ class DictionaryWidget(object):
             if self.language == "Latin":
                 self.dictionary_tools.search(self.data_object.translation, text)
                 self.dictionary_tools.search(self.data_object.pinyin, text)
-            elif self.data_object.hanzi == "Traditional":
+            elif self.preferences.get_character_set() == "traditional":
                 self.dictionary_tools.search(self.data_object.traditional, text)
             else:
                 self.dictionary_tools.search(self.data_object.simplified, text)
@@ -170,7 +173,7 @@ class DictionaryWidget(object):
         else:
             index = self.dictionary_tools.index[which]
 
-        characters = self.data_object.get_chinese(index)
+        characters = self.data_object.get_chinese(index, self.preferences)
 
         translation = re.sub(
             r"\[(.*?)\]",
@@ -181,20 +184,19 @@ class DictionaryWidget(object):
             f"{i+1}. {t}\n" for i, t in enumerate(translation.split("/"))
         )
 
-        pronunciation_string = DictionaryTools.romanize(self.data_object, index)
+        pronunciation_string = DictionaryTools.romanize(
+            self.data_object, index, self.preferences
+        )
 
         # Display different writing methods for the entry
         cangjie5_displayed = "".join(
-            f"[{self.cangjie5.proceed(hanzi, self.data_object.cangjie5)[1]}]"
-            for hanzi in characters
+            f"[{self.cangjie5.proceed(hanzi)[1]}]" for hanzi in characters
         )
         array30_displayed = "".join(
-            f"[{self.array30.proceed(hanzi, self.data_object.array30)[1]}]"
-            for hanzi in characters
+            f"[{self.array30.proceed(hanzi)[1]}]" for hanzi in characters
         )
         wubi86_code = "".join(
-            f"[{self.wubi86.proceed(hanzi, self.data_object.wubi86)[1]}]"
-            for hanzi in characters
+            f"[{self.wubi86.proceed(hanzi)[1]}]" for hanzi in characters
         )
 
         # Display in the Translation box
@@ -235,7 +237,7 @@ class DictionaryWidget(object):
         for k in self.dictionary_tools.index:
             if self.language == "latin":
                 string = self.data_object.translation[k]
-            elif self.data_object.hanzi == "traditional":
+            elif self.preferences.get_character_set() == "traditional":
                 string = self.data_object.traditional[k]
             else:
                 string = self.data_object.simplified[k]

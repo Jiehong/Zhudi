@@ -18,7 +18,6 @@ def main():
     expand = args.expand
 
     data = prepare_data(args)
-    data.load_config()
 
     dt = processing.DictionaryTools()
     st = processing.SegmentationTools()

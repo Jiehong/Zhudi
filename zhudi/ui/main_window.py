@@ -1,6 +1,7 @@
 from gi.repository import Gtk, Adw, Gdk
 
-
+from zhudi.data import Data
+from zhudi.preferences import Preferences
 from zhudi.processing import DictionaryTools, SegmentationTools
 from zhudi.ui.options import OptionsWidget
 from zhudi.ui.dictionary import DictionaryWidget
@@ -10,15 +11,23 @@ from zhudi.ui.segmentation import SegmentationWidget
 class MainWindow(Adw.ApplicationWindow):
     """Class that defines the welcome screen, and gives access to other layers."""
 
-    def __init__(self, data_object, language, *args, **kwargs):
+    def __init__(
+        self,
+        data_object: Data,
+        language: str,
+        preferences: Preferences,
+        *args,
+        **kwargs
+    ):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.set_title("Zhudi")
         self.set_default_size(700, 1000)
         evk = Gtk.EventControllerKey.new()
         evk.connect("key-pressed", self.on_key_press)
         self.add_controller(evk)
-        self.data_object = data_object
-        self.language = language
+        self.data_object: Data = data_object
+        self.language: str = language
+        self.preferences: Preferences = preferences
         self.dict_gui = None
         self.dict_settings = None
         self.seg_gui = None
@@ -54,13 +63,15 @@ class MainWindow(Adw.ApplicationWindow):
 
     def options_gui(self):
         """Options tab."""
-        return OptionsWidget(self.data_object).build()
+        return OptionsWidget(self.preferences).build()
 
     def dictionary_gui(self):
         """Start the dictionary widget."""
         segmentation_tools = SegmentationTools()
         segmentation_tools.load(self.data_object)
-        ui = DictionaryWidget(self.data_object, DictionaryTools(), segmentation_tools)
+        ui = DictionaryWidget(
+            self.data_object, self.preferences, DictionaryTools(), segmentation_tools
+        )
         ui.language = self.language
         return ui, ui.build()
 
@@ -68,7 +79,9 @@ class MainWindow(Adw.ApplicationWindow):
         """Start the segmentation widget."""
         segmentation_tools = SegmentationTools()
         segmentation_tools.load(self.data_object)
-        return SegmentationWidget(self.data_object, segmentation_tools).build()
+        return SegmentationWidget(
+            self.data_object, segmentation_tools, self.preferences
+        ).build()
 
     def on_key_press(self, event, keyval, keycode, state):
         # Stop with Ctrl-w
