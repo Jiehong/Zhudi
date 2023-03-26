@@ -134,31 +134,14 @@ def prepare_data(options):
     elif (filename is None) and all(x is None for x in files) and not passed:
         raise WrongInputException
 
-    # Load the cangjie infos
-    cangjie5_obj = chinese_table.Cangjie5Table()
-    cangjie_dic, cangjie_short_dic = cangjie5_obj.load(get_data_path("cangjie5"))
-    # Load array30 infos
-    array30_obj = chinese_table.Array30Table()
-    array_dic, array_short_dic = array30_obj.load(get_data_path("array30"))
-    # Load wubi86 infos
-    wubi86_obj = chinese_table.Wubi86Table()
-    wubi_dic, wubi_short_dic = wubi86_obj.load(get_data_path("wubi86"))
-
     # Data object
     data_object = data.Data(
         simplified,
         traditional,
         translation,
-        wubi_dic,
-        wubi_short_dic,
-        array_dic,
-        array_short_dic,
-        cangjie_dic,
-        cangjie_short_dic,
         pinyin,
         zhuyin,
     )
-    data_object.load_config()
     return data_object
 
 

@@ -17,22 +17,10 @@ def setup():
         pin = pin_file.readlines()
     with open("tests/zhuyin", mode="r") as zhu_file:
         zhu = zhu_file.readlines()
-    array30_obj = zhudi.chinese_table.Array30Table()
-    array30_dic, array30_short = array30_obj.load("zhudi-data/array30")
-    cangjie5_obj = zhudi.chinese_table.Cangjie5Table()
-    cangjie5_dic, cangjie5_short = cangjie5_obj.load("zhudi-data/cangjie5")
-    wubi86_obj = zhudi.chinese_table.Wubi86Table()
-    wubi86_dic, wubi86_short = wubi86_obj.load("zhudi-data/wubi86")
     return zhudi.data.Data(
         simp,
         trad,
         trans,
-        wubi86_dic,
-        wubi86_short,
-        array30_dic,
-        array30_short,
-        cangjie5_dic,
-        cangjie5_short,
         pin,
         zhu,
     )

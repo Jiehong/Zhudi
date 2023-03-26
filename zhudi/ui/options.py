@@ -1,13 +1,14 @@
 from gi.repository import Gtk
 
 from zhudi.data import Data
+from zhudi.preferences import Preferences
 
 
 class OptionsWidget(object):
     """Class defining the Options/About tab layout"""
 
-    def __init__(self, data_object: Data):
-        self.data_object: Data = data_object
+    def __init__(self, preferences: Preferences):
+        self.preferences: Preferences = preferences
 
     def build(self) -> Gtk.Box:
         vertical_box = Gtk.Box()
@@ -23,7 +24,7 @@ class OptionsWidget(object):
         horizontal_box.append(label)
         romanization_dropdown = Gtk.DropDown.new_from_strings(["Pinyin", "Zhuyin"])
         # Set active the saved value
-        if self.data_object.romanisation == "zhuyin":
+        if self.preferences.get_romanization() == "zhuyin":
             romanization_dropdown.set_selected(1)
         else:
             romanization_dropdown.set_selected(0)
@@ -41,7 +42,7 @@ class OptionsWidget(object):
         characters_dropdown = Gtk.DropDown.new_from_strings(
             ["Simplified", "Traditional"]
         )
-        if self.data_object.hanzi == "traditional":
+        if self.preferences.get_character_set() == "traditional":
             characters_dropdown.set_selected(1)
         else:
             characters_dropdown.set_selected(0)
@@ -63,11 +64,9 @@ class OptionsWidget(object):
     def on_romanization_selected(self, dropdown: Gtk.DropDown, _ignore) -> None:
         selected = dropdown.get_selected_item().get_string()
         if selected is not None:
-            self.data_object.romanisation = selected.lower()
-            self.data_object.save_config()
+            self.preferences.set_romanization(selected)
 
     def on_characters_selected(self, dropdown: Gtk.DropDown, _ignore) -> None:
         selected = dropdown.get_selected_item().get_string()
         if selected is not None:
-            self.data_object.hanzi = selected.lower()
-            self.data_object.save_config()
+            self.preferences.set_character_set(selected)
