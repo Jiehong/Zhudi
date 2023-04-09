@@ -1,4 +1,4 @@
-with import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/cd34d6ed7ba7d5c4e44b04a53dc97edb52f2766c.tar.gz") {};
+with import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/0040164e473509b4aee6aedb3b923e400d6df10b.tar.gz") {};
 let
   basePackages = [
     poetry
@@ -10,7 +10,7 @@ let
     python3
     libnotify
     libadwaita
-    (python3.withPackages ( ps: with ps; [ pycairo dbus-python pygobject3 ]))
+    (python310.withPackages ( ps: with ps; [ pycairo dbus-python pygobject3 ]))
   ];
 
   inputs = basePackages;
@@ -18,7 +18,8 @@ let
   # define shell startup command
   hooks = ''
     echo 'first time: poetry install'
-    echo 'then: poetry run python zhudi/zhudi_gui.py -p tests/pinyin -z tests/zhuyin -tr tests/translation -td tests/traditional -sd tests/simplified'
+    echo 'then: poetry run python zhudi/zhudi_gui.py'
+    echo 'OR python -m zhudi'
   '';
 
 in mkShell {

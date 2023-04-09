@@ -69,24 +69,26 @@ class SegmentationWidget(object):
         self.scrolledwindow.set_vexpand(True)
         self.scrolledwindow.set_child(self.text_field)
 
-        # Results part in a list
+        # Results in a list
         self.results_list = Gtk.ListStore(str)
-        results_tree = Gtk.TreeView(model=self.results_list)
-        renderer = Gtk.CellRendererText()
-        results_tree.tvcolumn = Gtk.TreeViewColumn("Results", renderer, text=0)
-        results_tree.append_column(results_tree.tvcolumn)
-        self.results_list.cell = Gtk.CellRendererText()
-        results_tree.tvcolumn.pack_start(self.results_list.cell, True)
-        results_tree.set_enable_search(False)
-        results_tree.tvcolumn.set_sort_column_id(-1)
-        results_tree.set_reorderable(False)
-        select = results_tree.get_selection()
-        select.connect("changed", self.word_selected)
+
+        results = Gtk.ColumnView(model=Gtk.SingleSelection())
+        # results.set_enable_search(False)
+        # results.set_reorderable(False)
+        # select = results.get_selection()
+        # select.connect("changed", self.word_selected)
+        #
+        # first_column = Gtk.ColumnViewColumn()
+        # first_column.set_title("Results")
+        # renderer = Gtk.CellRendererText()
+        # first_column.pack_start(renderer, True)
+        # first_column.add_attribute(renderer, "text", 0)
+        # results.append_column(first_column)
 
         results_scroll = Gtk.ScrolledWindow()
         # No horizontal bar, automatic vertical bar
         results_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        results_scroll.set_child(results_tree)
+        results_scroll.set_child(results)
 
         self.frame_results = Gtk.Frame()
         self.frame_results.set_child(results_scroll)
