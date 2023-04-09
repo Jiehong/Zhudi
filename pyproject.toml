@@ -5,8 +5,8 @@ description = "Zhudi is a graphical interface to xDICT kind of free dictionaries
 authors = ["Jiehong Ma <email@majiehong.com>", "Linden Ralph"]
 
 [tool.poetry.dependencies]
-python = ">=3.8, <4"
-PyGObject = "==3.42.2"
+python = ">=3.10, <4"
+# PyGObject = "==3.42.2"
 
 [tool.poetry.dev-dependencies]
 black = "==23.1.0"

@@ -1,10 +1,21 @@
 import re
-from gi.repository import Gtk, GLib
+from typing import List
 
-from zhudi.data import Data
+from gi.repository import Gtk, GLib, Gio, GObject
+
+from zhudi.dictionaries import Dictionaries
 from zhudi.preferences import Preferences
 from zhudi.processing import DictionaryTools, SegmentationTools
 from zhudi.chinese_table import ChineseTable, Cangjie5Table, Array30Table, Wubi86Table
+from zhudi.row import Row
+
+
+class Value(GObject.GObject):
+    value: str
+
+    def __init__(self, value: str):
+        GObject.GObject.__init__(self)
+        self.value = value
 
 
 class DictionaryWidget(object):
@@ -12,24 +23,44 @@ class DictionaryWidget(object):
 
     def __init__(
         self,
-        data_object: Data,
+        dictionaries: Dictionaries,
         preferences: Preferences,
-        dictionary_tools: DictionaryTools,
         segmentation_tools: SegmentationTools,
     ):
-        self.data_object: Data = data_object
+        self.dictionaries: Dictionaries = dictionaries
         self.preferences: Preferences = preferences
         self.language: str = ""
-        self.results_list = []
+        self.results_list: Gio.ListStore = None
         self.results_tree = None
         self.search_field = None
         self.chinese_label = None
         self.translation_box = None
-        self.dictionary_tools: DictionaryTools = dictionary_tools
         self.segmentation_tools: SegmentationTools = segmentation_tools
         self.cangjie5: ChineseTable = Cangjie5Table()
         self.array30: ChineseTable = Array30Table()
         self.wubi86: ChineseTable = Wubi86Table()
+        self.full_results: List[Row] = []
+
+    @staticmethod
+    def setup_result_view(widget: Gtk.ListView, list_item: Gtk.ListItem) -> None:
+        """
+        Callback for the setup signal
+        In charge of creating the inner structure of the ListItem widget.
+        """
+        label = Gtk.Label()
+        label.set_halign(Gtk.Align.START)
+        list_item.set_child(label)
+
+    @staticmethod
+    def bind_result_view(widget: Gtk.ListView, list_item: Gtk.ListItem) -> None:
+        """
+        Callback for the bind signal
+        In charge of finalizing the widget's content and signals just before
+        it is presented (at creation or reuse)
+        """
+        label = list_item.get_child()
+        o = list_item.get_item()
+        label.set_label(o.value)
 
     def build(self) -> Gtk.Grid:
         # Search field
@@ -51,24 +82,31 @@ class DictionaryWidget(object):
         search_box.append(go_button)
 
         # Results part in a list
-        self.results_list = Gtk.ListStore(str)
-        results_tree = Gtk.TreeView(model=self.results_list)
-        renderer = Gtk.CellRendererText()
-        results_tree.tvcolumn = Gtk.TreeViewColumn("Results", renderer, text=0)
-        results_tree.append_column(results_tree.tvcolumn)
-        self.results_list.cell = Gtk.CellRendererText()
-        results_tree.tvcolumn.pack_start(self.results_list.cell, True)
-        results_tree.set_enable_search(False)
-        results_tree.tvcolumn.set_sort_column_id(-1)
-        results_tree.set_reorderable(False)
-        self.results_tree = results_tree
-        select = results_tree.get_selection()
-        select.connect("changed", self.display_another_result)
+        results = Gtk.ColumnView()
+        results.set_show_column_separators(False)
+        results.set_show_row_separators(False)
+        results.set_reorderable(False)
+
+        self.results_list = Gio.ListStore.new(Value)
+        selection = Gtk.SingleSelection.new(self.results_list)
+        selection.connect("selection-changed", self.display_another_result)
+        results.set_model(selection)
+
+        results_column = Gtk.ColumnViewColumn.new("Results")
+        results_column.set_resizable(False)
+        results_column.set_expand(True)
+
+        factory = Gtk.SignalListItemFactory()
+        factory.connect("setup", DictionaryWidget.setup_result_view)
+        factory.connect("bind", DictionaryWidget.bind_result_view)
+        results_column.set_factory(factory)
+
+        results.append_column(results_column)
 
         results_scroll = Gtk.ScrolledWindow()
         # No horizontal bar, automatic vertical bar
         results_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        results_scroll.set_child(results_tree)
+        results_scroll.set_child(results)
 
         frame_results = Gtk.Frame()
         frame_results.set_child(results_scroll)
@@ -130,24 +168,14 @@ class DictionaryWidget(object):
         """Start search when users hit ENTER or the search button."""
         search_field.grab_focus()
         text = search_field.get_text()
-        self.dictionary_tools.reset_search()
         if text == "":
-            self.results_list.clear()
+            self.results_list.remove_all()
             self.display_translation(0)
         else:
+            results = self.dictionaries.search(text)
             self.language = self.determine_language(text)
-            if self.language == "Latin":
-                self.dictionary_tools.search(self.data_object.translation, text)
-                self.dictionary_tools.search(self.data_object.pinyin, text)
-            elif self.preferences.get_character_set() == "traditional":
-                self.dictionary_tools.search(self.data_object.traditional, text)
-            else:
-                self.dictionary_tools.search(self.data_object.simplified, text)
-            self.dictionary_tools.finish_search(self.data_object)
-            self.update_results()
-            self.results_tree.grab_focus()
+            self.update_results(results)
             self.display_translation(0)
-        self.results_tree.scroll_to_cell([0])
 
     # end of search_asked
 
@@ -162,49 +190,61 @@ class DictionaryWidget(object):
         else:
             return "Chinese"
 
-    def display_translation(self, which):
+    @staticmethod
+    def _format_codes(sets: ChineseTable, characters: str) -> str:
+        codes = []
+        for hanzi in characters:
+            potential_codes = sets.proceed(hanzi)
+            if not potential_codes:
+                code = f"[{hanzi}]"
+            else:
+                code = f"[{potential_codes[1]}]"
+            codes.append(code)
+        return "".join(codes)
+
+    def display_translation(self, index):
         """Handles the display of the translation for the selected element."""
 
-        if len(self.dictionary_tools.index) == 0:
+        if len(self.full_results) == 0:
             self.translation_box.get_buffer().set_text("")
             if len(self.results_list) == 0:
-                self.results_list.append(["Nothing found."])
+                self.results_list.append(Value("Nothing found."))
             return
+
+        result: Row = self.full_results[index]
+
+        if self.preferences.get_character_set() == "traditional":
+            characters = result.traditional
         else:
-            index = self.dictionary_tools.index[which]
+            characters = result.simplified
 
-        characters = self.data_object.get_chinese(index, self.preferences)
-
-        translation = re.sub(
-            r"\[(.*?)\]",
-            lambda x: "[" + DictionaryTools.romanize_pinyin(x.group(1)) + "]",
-            self.data_object.translation[index],
-        )
+        # Add pronunciation in definitions too when they appear within []
+        # for definition in result.definitions:
+        #     definition = re.sub(
+        #         r"\[(.*?)\]",
+        #         lambda x: "[" + DictionaryTools.romanize_pinyin(x.group(1)) + "]",
+        #         definition,
+        #     )
         numbered_translations = "".join(
-            f"{i+1}. {t}\n" for i, t in enumerate(translation.split("/"))
+            f"{i+1}. {t}\n" for i, t in enumerate(result.definitions)
         )
 
-        pronunciation_string = DictionaryTools.romanize(
-            self.data_object, index, self.preferences
-        )
+        if self.preferences.get_romanization() == "zhuyin":
+            pronunciation_string = result.zhuyin
+        else:
+            pronunciation_string = result.pinyin
 
         # Display different writing methods for the entry
-        cangjie5_displayed = "".join(
-            f"[{self.cangjie5.proceed(hanzi)[1]}]" for hanzi in characters
-        )
-        array30_displayed = "".join(
-            f"[{self.array30.proceed(hanzi)[1]}]" for hanzi in characters
-        )
-        wubi86_code = "".join(
-            f"[{self.wubi86.proceed(hanzi)[1]}]" for hanzi in characters
-        )
+        cangjie5_codes = DictionaryWidget._format_codes(self.cangjie5, characters)
+        array30_codes = DictionaryWidget._format_codes(self.array30, characters)
+        wubi86_codes = DictionaryWidget._format_codes(self.wubi86, characters)
 
         # Display in the Translation box
         # The very tiny space is there so that clicking on a character searches for the correct character.
         # Not sure why but it seems to help
         self.chinese_label.set_markup(
             '<span size="1pt"> </span>'.join(
-                f'<a href="{ch}"><span size="60pt" underline="none">{ch}</span></a>'
+                f'<a href="{ch}"><span size="48pt" underline="none">{ch}</span></a>'
                 for ch in characters
             )
         )
@@ -212,45 +252,45 @@ class DictionaryWidget(object):
         translation_buffer.set_text("")
         translation_buffer.insert_markup(
             iter=translation_buffer.get_end_iter(),
-            markup="<b>Pronunciation</b>\n<span foreground='#268bd2'>"
+            markup="<b>Pronunciation</b>\n<span size=\"14pt\"foreground='#268bd2'>"
             + pronunciation_string
             + "</span>\n\n"
             + "<b>Meaning</b>\n"
             + GLib.markup_escape_text(numbered_translations, -1)
-            + "<b>Input methods codes</b>\n"
+            + "\n<b>Input methods codes</b>\n"
             + "Array30 (行列30): \n"
-            + array30_displayed
+            + array30_codes
             + "\n\n"
             + "Cangjie5 (倉頡5): \n"
-            + cangjie5_displayed
+            + cangjie5_codes
             + "\n\n"
             + "Wubi86 (五筆86): \n"
-            + wubi86_code,
+            + wubi86_codes,
             len=-1,
         )
 
-    def update_results(self):
+    def update_results(self, results: List[Row]) -> None:
         """Clear, and refill the result list."""
-        self.results_list.clear()
+        self.full_results = results
+        self.results_list.remove_all()
         displayed_index = 1
         threashold = 40  # threshold for line wrap
-        for k in self.dictionary_tools.index:
+        for row in self.full_results:
             if self.language == "latin":
-                string = self.data_object.translation[k]
+                string = row.definitions[0]
             elif self.preferences.get_character_set() == "traditional":
-                string = self.data_object.traditional[k]
+                string = row.traditional
             else:
-                string = self.data_object.simplified[k]
+                string = row.simplified
             if len(string) > threashold:
                 string = str(displayed_index) + ". " + string[0:threashold] + "…"
             else:
                 string = str(displayed_index) + ". " + string
-            string = string[:-1]  # no \n
-            self.results_list.append([string])
+            self.results_list.append(Value(string))
             displayed_index += 1
 
-    def display_another_result(self, selection):
+    def display_another_result(self, selection: Gtk.SingleSelection, b: int, c: int):
         """Display the newly selected result."""
-        model, treeiter = selection.get_selected()
-        if treeiter is not None:
-            self.display_translation(model[treeiter].path[0])
+        index = selection.get_selected()
+        if index is not None:
+            self.display_translation(index)

@@ -1,6 +1,7 @@
 import os
 import sqlite3
 from sqlite3 import Connection
+from typing import List
 
 
 class Preferences:
@@ -82,6 +83,33 @@ class Preferences:
         query = f"""
                 insert into preferences (key, value)
                 values ('character_set', '{value.lower()}')
+                on conflict (key)
+                do update set value = '{value.lower()}';
+                """
+        cursor.execute(query)
+        self.connection.commit()
+
+    def get_language(self) -> str:
+        cursor = self.connection.cursor()
+        query = """
+        select value
+        from preferences
+        where key='language'
+        limit 1;
+        """
+        values = cursor.execute(query).fetchone()
+
+        if values is None or values == []:
+            default_value = "english"
+            self.set_language(default_value)
+            return default_value
+        return values[0]
+
+    def set_language(self, value: str) -> None:
+        cursor = self.connection.cursor()
+        query = f"""
+                insert into preferences (key, value)
+                values ('language', '{value.lower()}')
                 on conflict (key)
                 do update set value = '{value.lower()}';
                 """

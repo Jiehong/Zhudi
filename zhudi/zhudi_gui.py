@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# coding: utf-8
+from zhudi.dictionaries import Dictionaries
 from zhudi.preferences import Preferences
 from zhudi.ui.application import ZhudiApplication
-from __init__ import prepare_data, get_argument_parser, WrongInputException
+from zhudi.__init__ import get_argument_parser
 
 
 def main():
@@ -14,15 +14,11 @@ def main():
     parser = get_argument_parser()
     options = parser.parse_args()
 
-    try:
-        data_object = prepare_data(options)
-    except WrongInputException:
-        parser.print_help()
-
     preferences = Preferences()
+    dictionaries = Dictionaries()
 
     app = ZhudiApplication(
-        data_object=data_object, language="Chinese", preferences=preferences
+        dictionaries=dictionaries, language="Chinese", preferences=preferences
     )
     app.run()
 
