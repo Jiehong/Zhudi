@@ -219,12 +219,17 @@ class DictionaryWidget(object):
             characters = result.simplified
 
         # Add pronunciation in definitions too when they appear within []
-        # for definition in result.definitions:
-        #     definition = re.sub(
-        #         r"\[(.*?)\]",
-        #         lambda x: "[" + DictionaryTools.romanize_pinyin(x.group(1)) + "]",
-        #         definition,
-        #     )
+        filled_definitions = []
+        for definition in result.definitions:
+            # TODO: make it work for zhuyin as well by fixing DictionaryTools.romanize
+            d = re.sub(
+                r"\[(.*?)\]",
+                lambda x: "[" + DictionaryTools.romanize_pinyin(x.group(1)) + "]",
+                definition,
+            )
+            filled_definitions.append(d)
+        result.definitions = filled_definitions
+
         numbered_translations = "".join(
             f"{i+1}. {t}\n" for i, t in enumerate(result.definitions)
         )
@@ -232,7 +237,7 @@ class DictionaryWidget(object):
         if self.preferences.get_romanization() == "zhuyin":
             pronunciation_string = result.zhuyin
         else:
-            pronunciation_string = result.pinyin
+            pronunciation_string = DictionaryTools.romanize_pinyin(result.pinyin)
 
         # Display different writing methods for the entry
         cangjie5_codes = DictionaryWidget._format_codes(self.cangjie5, characters)
