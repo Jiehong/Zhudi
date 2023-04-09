@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "zhudi"
-version = "1.8"
+version = "2.0"
 description = "Zhudi is a graphical interface to xDICT kind of free dictionaries."
 authors = ["Jiehong Ma <email@majiehong.com>", "Linden Ralph"]
 
