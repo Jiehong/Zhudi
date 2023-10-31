@@ -40,10 +40,11 @@ Zhudi can be installed using python's package manager `pip` as follows:
 
 ### Launching
 
-Run it by invoking it directly:
+Run it by running the `zhudi` python module in the directory you installed it from:
 
 ```shell
-zhudi
+cd /path/to/zhudi
+python -m zhudi
 ```
 
 You should see the GUI up and running:
